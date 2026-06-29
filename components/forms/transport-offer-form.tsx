@@ -89,8 +89,8 @@ export function TransportOfferForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
+      if (pb.authStore.record) {
+        data.user = pb.authStore.record.id
       }
 
       if (form.available_from) data.available_from = new Date(form.available_from).toISOString()
@@ -102,7 +102,7 @@ export function TransportOfferForm() {
       data.accepts_cargo = form.accepts_cargo
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
+      if (pb.authStore.record) {
         await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).create(data)
       } else {
         const res = await fetch("/api/forms", {

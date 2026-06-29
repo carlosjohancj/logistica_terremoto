@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordInput } from "@/components/ui/password-input"
 import {
   Select,
   SelectContent,
@@ -22,54 +24,41 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getPB, type Role } from "@/lib/pocketbase"
+import { registerUser } from "@/lib/auth"
+import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/auth"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
   const tc = useTranslations("common")
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    passwordConfirm: "",
-    phone: "",
-    role: "",
-  })
-  const [loading, setLoading] = useState(false)
-
-  function update(field: string, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    if (form.password !== form.passwordConfirm) {
-      toast.error(t("errorPasswordMatch"))
-      return
-    }
-
-    setLoading(true)
-    try {
-      const pb = getPB()
-      await pb.collection("users").create({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        passwordConfirm: form.passwordConfirm,
-        phone: form.phone,
-        role: form.role || "damnificado",
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(
+      createRegisterSchema({
+        errorRequired: t("errorRequired"),
+        errorEmail: t("errorEmail"),
+        errorPasswordLength: t("errorPasswordLength"),
+        errorPasswordMatch: t("errorPasswordMatch"),
       })
-      await pb.collection("users").authWithPassword(form.email, form.password)
+    ),
+    defaultValues: { role: "damnificado" },
+  })
+
+  async function onSubmit(values: RegisterFormValues) {
+    try {
+      await registerUser(values)
       toast.success(tc("success"))
-      router.push("/")
+      router.push(`/${locale}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error")
       toast.error(msg)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -81,77 +70,66 @@ export default function RegisterPage() {
           <CardDescription>{t("registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t("name")}</Label>
-              <Input
-                id="name"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                required
-              />
+              <Input id="name" {...register("name")} />
+              {errors.name && (
+                <p className="text-sm text-destructive">{errors.name.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                required
-              />
+              <Input id="email" type="email" {...register("email")} />
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{t("phone")}</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={form.phone}
-                onChange={(e) => update("phone", e.target.value)}
-              />
+              <Input id="phone" type="tel" {...register("phone")} />
             </div>
             <div className="space-y-2">
               <Label>{t("role")}</Label>
-              <Select value={form.role} onValueChange={(v) => update("role", v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("role")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="damnificado">{t("roleDamnificado")}</SelectItem>
-                  <SelectItem value="transportista">{t("roleTransportista")}</SelectItem>
-                  <SelectItem value="anfitrion">{t("roleAnfitrion")}</SelectItem>
-                  <SelectItem value="donante">{t("roleDonante")}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="role"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("role")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="damnificado">{t("roleDamnificado")}</SelectItem>
+                      <SelectItem value="transportista">{t("roleTransportista")}</SelectItem>
+                      <SelectItem value="anfitrion">{t("roleAnfitrion")}</SelectItem>
+                      <SelectItem value="donante">{t("roleDonante")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={form.password}
-                onChange={(e) => update("password", e.target.value)}
-                required
-                minLength={6}
-              />
+              <PasswordInput id="password" {...register("password")} />
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="passwordConfirm">{t("passwordConfirm")}</Label>
-              <Input
-                id="passwordConfirm"
-                type="password"
-                value={form.passwordConfirm}
-                onChange={(e) => update("passwordConfirm", e.target.value)}
-                required
-              />
+              <PasswordInput id="passwordConfirm" {...register("passwordConfirm")} />
+              {errors.passwordConfirm && (
+                <p className="text-sm text-destructive">{errors.passwordConfirm.message}</p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? tc("loading") : t("submit")}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>
           <p className="text-sm text-muted-foreground text-center mt-4">
             {t("hasAccount")}{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
+            <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
               {t("loginHere")}
             </Link>
           </p>

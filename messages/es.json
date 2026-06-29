@@ -66,6 +66,7 @@
   },
   "travelRequest": {
     "title": "Solicitar Viaje",
+    "description": "Completa el formulario para publicar tu solicitud de viaje. Un transportista te contactará si tiene disponibilidad en tu ruta.",
     "hasDestination": "¿Tienes a dónde ir?",
     "yes": "Sí",
     "no": "No",

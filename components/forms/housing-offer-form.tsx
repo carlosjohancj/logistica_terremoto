@@ -79,8 +79,8 @@ export function HousingOfferForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
+      if (pb.authStore.record) {
+        data.user = pb.authStore.record.id
       }
 
       if (form.address) data.address = form.address
@@ -92,7 +92,7 @@ export function HousingOfferForm() {
       data.has_bathroom = form.has_bathroom
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
+      if (pb.authStore.record) {
         await pb.collection(COLLECTIONS.HOUSING_OFFERS).create(data)
       } else {
         const res = await fetch("/api/forms", {

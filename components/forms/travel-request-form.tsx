@@ -16,7 +16,6 @@ import {
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import estados from "@/data/venezuela.json"
-import type RecordModel from "pocketbase"
 
 type FormData = {
   has_destination: boolean | null
@@ -69,7 +68,7 @@ export function TravelRequestForm() {
     e.preventDefault()
     const pb = getPB()
 
-    if (!form.housing_destruction || !form.registrant_type) {
+    if (!form.registrant_type || !form.origin_state || !form.housing_destruction) {
       toast.error(tc("error"), { description: tc("errorRequired") })
       return
     }
@@ -86,8 +85,8 @@ export function TravelRequestForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
+      if (pb.authStore.record) {
+        data.user = pb.authStore.record.id
       }
 
       if (form.has_destination) {
@@ -103,7 +102,7 @@ export function TravelRequestForm() {
       if (form.registrant_relation) data.registrant_relation = form.registrant_relation
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
+      if (pb.authStore.record) {
         await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data)
       } else {
         const res = await fetch("/api/forms", {
@@ -150,7 +149,7 @@ export function TravelRequestForm() {
       {/* Registrant type */}
       <div className="space-y-3">
         <Label>{t("registrantType")}</Label>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant={form.registrant_type === "damnificado" ? "default" : "outline"}
@@ -225,7 +224,7 @@ export function TravelRequestForm() {
             <Select
               value={form.origin_city}
               onValueChange={(v) => update("origin_city", v)}
-              disabled={!selectedOrigin}
+              disabled={!selectedOrigin || !form.origin_municipality}
             >
               <SelectTrigger><SelectValue placeholder={t("originCity")} /></SelectTrigger>
               <SelectContent>
@@ -243,7 +242,7 @@ export function TravelRequestForm() {
       {/* Has destination */}
       <div className="space-y-3">
         <Label>{t("hasDestination")}</Label>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant={form.has_destination === true ? "default" : "outline"}
@@ -306,7 +305,7 @@ export function TravelRequestForm() {
               <Select
                 value={form.destination_city}
                 onValueChange={(v) => update("destination_city", v)}
-                disabled={!selectedDest}
+                disabled={!selectedDest || !form.destination_municipality}
               >
                 <SelectTrigger><SelectValue placeholder={t("destinationCity")} /></SelectTrigger>
                 <SelectContent>

@@ -20,10 +20,7 @@ function SolicitarViajeContent() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">{t("title")}</CardTitle>
-          <CardDescription>
-            Completa el formulario para publicar tu solicitud de viaje. Un
-            transportista te contactará si tiene disponibilidad en tu ruta.
-          </CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <TravelRequestForm />
