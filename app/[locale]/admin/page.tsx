@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
+import { SkeletonDetail } from "@/components/ui/skeleton"
+import { Shield } from "lucide-react"
 
 type Post = {
   id: string
@@ -70,7 +72,7 @@ export default function AdminPage() {
     }
   }
 
-  if (!authChecked) return <div className="container mx-auto px-4 py-12 text-center">{tc("loading")}</div>
+  if (!authChecked) return <SkeletonDetail />
   if (!isAdmin) return null
 
   const statusColors: Record<string, string> = {

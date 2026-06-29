@@ -33,6 +33,7 @@ import {
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
+import { SkeletonGrid } from "@/components/ui/skeleton"
 import estados from "@/data/venezuela.json"
 
 type Company = {
@@ -316,7 +317,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {loading && <p className="text-center text-muted-foreground">{tc("loading")}</p>}
+      {loading && <SkeletonGrid cols={1} count={5} />}
       {!loading && jobs.length === 0 && (
         <p className="text-center text-muted-foreground">{tj("noResults")}</p>
       )}

@@ -23,6 +23,7 @@ import {
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Search, Package, MapPin, Truck, ArrowDownUp } from "lucide-react"
+import { SkeletonGrid } from "@/components/ui/skeleton"
 import estados from "@/data/venezuela.json"
 
 type Supply = {
@@ -165,7 +166,7 @@ export default function DonacionesFisicasPage() {
         </Select>
       </div>
 
-      {loading && <p className="text-center text-muted-foreground">{tc("loading")}</p>}
+      {loading && <SkeletonGrid cols={3} count={6} />}
       {!loading && filtered.length === 0 && (
         <p className="text-center text-muted-foreground">{t("noResults")}</p>
       )}

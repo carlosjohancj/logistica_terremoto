@@ -29,6 +29,7 @@ import {
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Search, Download, Eye, Tag } from "lucide-react"
+import { SkeletonGrid } from "@/components/ui/skeleton"
 
 type Graphic = {
   id: string
@@ -140,7 +141,7 @@ export default function RecursosPage() {
         </Select>
       </div>
 
-      {loading && <p className="text-center text-muted-foreground">{tc("loading")}</p>}
+      {loading && <SkeletonGrid cols={4} count={8} />}
       {!loading && filtered.length === 0 && (
         <p className="text-center text-muted-foreground">{t("noResults")}</p>
       )}

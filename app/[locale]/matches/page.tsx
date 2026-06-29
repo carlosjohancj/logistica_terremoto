@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
+import { SkeletonGrid } from "@/components/ui/skeleton"
+import { ArrowRight } from "lucide-react"
 
 type Match = {
   id: string
@@ -61,7 +63,7 @@ export default function MatchesPage() {
     cancelled: "destructive",
   }
 
-  if (loading) return <div className="container mx-auto px-4 py-12 text-center">{tc("loading")}</div>
+  if (loading) return <SkeletonGrid cols={1} count={5} />
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

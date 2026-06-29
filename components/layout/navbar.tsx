@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
 import { cn } from "@/lib/utils"
 import { getPB } from "@/lib/pocketbase"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Package, Image } from "lucide-react"
 
 export function Navbar() {
   const t = useTranslations("nav")

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, notFound } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
+import { SkeletonDetail } from "@/components/ui/skeleton"
 import {
   Building2,
   MapPin,
@@ -63,9 +64,8 @@ export default function JobDetailPage() {
     fetchJob()
   }, [id])
 
-  if (loading) return <p className="text-center py-12 text-muted-foreground">{tc("loading")}</p>
-  if (!job)
-    return <p className="text-center py-12 text-muted-foreground">{t("noResults")}</p>
+  if (loading) return <SkeletonDetail />
+  if (!job) notFound()
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -81,7 +81,10 @@ export default function JobDetailPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl mb-1">{job.title}</CardTitle>
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5 text-primary" />
+                <CardTitle className="text-2xl mb-1">{job.title}</CardTitle>
+              </div>
               <p className="text-muted-foreground flex items-center gap-1">
                 <Building2 className="h-4 w-4" />
                 {job.expand?.company?.name || "Empresa"}

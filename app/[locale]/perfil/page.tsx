@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS, type Role } from "@/lib/pocketbase"
 import { toast } from "sonner"
+import { SkeletonProfile } from "@/components/ui/skeleton"
+import { User, Package, Truck, Home, LogOut } from "lucide-react"
 
 const roleLabels: Record<Role, string> = {
   damnificado: "Damnificado",
@@ -72,7 +74,7 @@ export default function PerfilPage() {
     router.push("/")
   }
 
-  if (loading) return <div className="container mx-auto px-4 py-12 text-center">{tc("loading")}</div>
+  if (loading) return <SkeletonProfile />
   if (!user) return null
 
   return (

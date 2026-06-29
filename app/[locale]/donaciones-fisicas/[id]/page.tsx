@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, notFound } from "next/navigation"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
+import { SkeletonDetail } from "@/components/ui/skeleton"
 import {
   Package, MapPin, Truck, Phone, User,
   ChevronLeft, ShoppingCart,
@@ -61,8 +62,8 @@ export default function SupplyDetailPage() {
     fetchItem()
   }, [id])
 
-  if (loading) return <p className="text-center py-12 text-muted-foreground">{tc("loading")}</p>
-  if (!item) return <p className="text-center py-12 text-muted-foreground">{t("noResults")}</p>
+  if (loading) return <SkeletonDetail />
+  if (!item) notFound()
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -74,7 +75,10 @@ export default function SupplyDetailPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl mb-1">{item.title}</CardTitle>
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                <CardTitle className="text-2xl mb-1">{item.title}</CardTitle>
+              </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Package className="h-4 w-4" />
                 {t(item.category)}

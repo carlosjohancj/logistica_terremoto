@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { MapIcon, ListIcon } from "lucide-react"
+import { SkeletonGrid } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
 import estados from "@/data/venezuela.json"
@@ -238,7 +239,7 @@ export default function ExplorarPage() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4">
-            {loading && <p className="text-muted-foreground">{tc("loading")}</p>}
+            {loading && <SkeletonGrid cols={3} count={6} />}
             {!loading && filtered.length === 0 && (
               <p className="text-muted-foreground">{t("noResults")}</p>
             )}
