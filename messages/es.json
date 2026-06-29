@@ -35,7 +35,9 @@
   },
   "auth": {
     "login": "Iniciar Sesión",
+    "loginDesc": "Ingresa con tu correo y contraseña",
     "register": "Registrarse",
+    "registerDesc": "Crea tu cuenta para publicar y conectar",
     "email": "Correo electrónico",
     "password": "Contraseña",
     "passwordConfirm": "Confirmar contraseña",
@@ -53,7 +55,9 @@
     "loginHere": "Inicia sesión aquí",
     "errorRequired": "Este campo es requerido",
     "errorEmail": "Correo inválido",
-    "errorPasswordLength": "Mínimo 6 caracteres"
+    "errorPasswordLength": "Mínimo 6 caracteres",
+    "errorLogin": "Correo o contraseña incorrectos",
+    "errorPasswordMatch": "Las contraseñas no coinciden"
   },
   "travelRequest": {
     "title": "Solicitar Viaje",

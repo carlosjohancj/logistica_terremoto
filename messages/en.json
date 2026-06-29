@@ -35,7 +35,9 @@
   },
   "auth": {
     "login": "Login",
+    "loginDesc": "Enter your email and password",
     "register": "Register",
+    "registerDesc": "Create your account to post and connect",
     "email": "Email",
     "password": "Password",
     "passwordConfirm": "Confirm password",
@@ -53,7 +55,9 @@
     "loginHere": "Login here",
     "errorRequired": "This field is required",
     "errorEmail": "Invalid email",
-    "errorPasswordLength": "Minimum 6 characters"
+    "errorPasswordLength": "Minimum 6 characters",
+    "errorLogin": "Invalid email or password",
+    "errorPasswordMatch": "Passwords do not match"
   },
   "travelRequest": {
     "title": "Request Trip",

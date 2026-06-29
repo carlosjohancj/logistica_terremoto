@@ -1,16 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { cn } from "@/lib/utils";
+import { getPB } from "@/lib/pocketbase";
 
 export function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const pb = getPB();
+    setIsLoggedIn(!!pb.authStore.model);
+    const unsubscribe = pb.authStore.onChange(() => {
+      setIsLoggedIn(!!pb.authStore.model);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const links = [
     { href: `/${locale}`, label: t("inicio") },
@@ -47,12 +60,25 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <Link href={`/${locale}/auth/login`}>
-            <Button variant="outline" size="sm">{t("iniciarSesion")}</Button>
-          </Link>
-          <Link href={`/${locale}/auth/register`}>
-            <Button size="sm">{t("registrarse")}</Button>
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link href={`/${locale}/matches`}>
+                <Button variant="ghost" size="sm">Conexiones</Button>
+              </Link>
+              <Link href={`/${locale}/perfil`}>
+                <Button variant="outline" size="sm">{t("perfil")}</Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href={`/${locale}/auth/login`}>
+                <Button variant="outline" size="sm">{t("iniciarSesion")}</Button>
+              </Link>
+              <Link href={`/${locale}/auth/register`}>
+                <Button size="sm">{t("registrarse")}</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
