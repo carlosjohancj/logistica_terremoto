@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getPB } from "@/lib/pocketbase"
+import { getSupabase } from "@/lib/supabase"
 
 export default function LoginPage() {
   const t = useTranslations("auth")
@@ -30,8 +30,9 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const pb = getPB()
-      await pb.collection("users").authWithPassword(email, password)
+      const supabase = getSupabase()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
       toast.success(tc("success"))
       router.push("/")
     } catch {

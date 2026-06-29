@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Search, Building2, MapPin, Briefcase } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
@@ -29,8 +29,7 @@ import { useEstados } from "@/lib/estados"
 type Job = {
   id: string
   title: string
-  company?: string
-  expand?: { company?: { name: string } }
+  company?: { name: string } | null
   description: string
   requirements: string
   location_state: string
@@ -57,13 +56,9 @@ export default function EmpleosPage() {
     async function fetchJobs() {
       setLoading(true)
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.JOBS).getList(1, 100, {
-          filter: 'status = "open"',
-          sort: "-created",
-          expand: "company",
-        })
-        setJobs(res.items as unknown as Job[])
+        const supabase = getSupabase()
+        const { data } = await supabase.from(TABLES.JOBS).select("*, company:companies(name)").eq("status", "open").order("created_at", { ascending: false }).range(0, 99)
+        setJobs((data ?? []) as unknown as Job[])
       } catch {
         toast.error(tc("error"))
       } finally {
@@ -78,7 +73,7 @@ export default function EmpleosPage() {
       const q = search.toLowerCase()
       if (
         !job.title.toLowerCase().includes(q) &&
-        !(job.expand?.company?.name || "").toLowerCase().includes(q)
+        !(job.company?.name || "").toLowerCase().includes(q)
       )
         return false
     }
@@ -155,7 +150,7 @@ export default function EmpleosPage() {
                 </div>
                 <CardDescription className="flex items-center gap-1 mt-1">
                   <Building2 className="h-3 w-3" />
-                  {job.expand?.company?.name || "Empresa"}
+                  {job.company?.name || "Empresa"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">

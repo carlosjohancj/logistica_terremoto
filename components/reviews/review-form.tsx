@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 
 type ReviewFormProps = {
@@ -38,14 +38,14 @@ export function ReviewForm({ matchId, toUserId, onSuccess }: ReviewFormProps) {
 
     setSubmitting(true)
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.REVIEWS).create({
+      const supabase = getSupabase()
+      await supabase.from(TABLES.REVIEWS).insert({
         match: matchId,
         to_user: toUserId,
         rating,
         category,
         comment,
-      })
+      }).select().single()
       toast.success("Reseña publicada")
       setRating(0)
       setCategory("")

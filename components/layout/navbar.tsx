@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/shared/language-switcher"
 import { cn } from "@/lib/utils"
-import { getPB } from "@/lib/pocketbase"
+import { getSupabase } from "@/lib/supabase"
 import { Menu, X, Package, Image } from "lucide-react"
 
 export function Navbar() {
@@ -18,12 +18,14 @@ export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const pb = getPB()
-    setIsLoggedIn(!!pb.authStore.model)
-    const unsubscribe = pb.authStore.onChange(() => {
-      setIsLoggedIn(!!pb.authStore.model)
+    const supabase = getSupabase()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session)
     })
-    return () => unsubscribe()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session)
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
@@ -145,7 +147,7 @@ export function Navbar() {
                 </Link>
                 <button
                   className="block py-2 text-sm font-medium text-destructive"
-                  onClick={() => { getPB().authStore.clear(); window.location.href = `/${locale}` }}
+                  onClick={async () => { const supabase = getSupabase(); await supabase.auth.signOut(); window.location.href = `/${locale}` }}
                 >
                   {t("cerrarSesion")}
                 </button>

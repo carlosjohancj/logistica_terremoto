@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
 
@@ -69,7 +69,7 @@ export function TransportOfferForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const pb = getPB()
+    const supabase = getSupabase()
 
     if (!form.vehicle_type || !form.capacity) {
       toast.error(tc("error"), { description: tc("errorRequired") })
@@ -90,9 +90,8 @@ export function TransportOfferForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
-      }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) data.user = user.id
 
       if (form.available_from) data.available_from = new Date(form.available_from).toISOString()
       if (form.available_until) data.available_until = new Date(form.available_until).toISOString()
@@ -103,8 +102,9 @@ export function TransportOfferForm() {
       data.accepts_cargo = form.accepts_cargo
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
-        await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).create(data)
+      if (user) {
+        const { error } = await supabase.from("transport_offers").insert(data).select().single()
+        if (error) throw error
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",

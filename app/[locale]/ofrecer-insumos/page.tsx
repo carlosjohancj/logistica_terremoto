@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
 
@@ -61,7 +61,7 @@ export default function OfrecerInsumosPage() {
     }
     setSubmitting(true)
     try {
-      const pb = getPB()
+      const supabase = getSupabase()
       const data: Record<string, unknown> = {
         type: supplyType,
         title: form.title,
@@ -70,7 +70,8 @@ export default function OfrecerInsumosPage() {
         contact_name: form.contact_name,
         status: "open",
       }
-      if (pb.authStore.model) data.user = pb.authStore.model.id
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) data.user = user.id
       if (form.description) data.description = form.description
       if (form.quantity) data.quantity = Number(form.quantity)
       if (form.condition) data.condition = form.condition
@@ -80,8 +81,9 @@ export default function OfrecerInsumosPage() {
       if (form.contact_phone) data.contact_phone = form.contact_phone
       data.needs_transport = form.needs_transport
 
-      if (pb.authStore.model) {
-        await pb.collection(COLLECTIONS.SUPPLIES).create(data)
+      if (user) {
+        const { error } = await supabase.from("supplies").insert(data).select().single()
+        if (error) throw error
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",

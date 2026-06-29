@@ -13,10 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
-import type RecordModel from "pocketbase"
 
 type FormData = {
   has_destination: boolean | null
@@ -68,7 +67,7 @@ export function TravelRequestForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const pb = getPB()
+    const supabase = getSupabase()
 
     if (!form.housing_destruction || !form.registrant_type) {
       toast.error(tc("error"), { description: tc("errorRequired") })
@@ -87,9 +86,8 @@ export function TravelRequestForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
-      }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) data.user = user.id
 
       if (form.has_destination) {
         data.has_destination = true
@@ -104,8 +102,9 @@ export function TravelRequestForm() {
       if (form.registrant_relation) data.registrant_relation = form.registrant_relation
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
-        await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data)
+      if (user) {
+        const { error } = await supabase.from("travel_requests").insert(data).select().single()
+        if (error) throw error
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",

@@ -1,29 +1,11 @@
 import { NextResponse } from "next/server"
-
-const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://pocketbase.asmvnzla.org"
+import { getServiceSupabase } from "@/lib/supabase"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    const authResp = await fetch(`${PB_URL}/api/collections/_superusers/auth-with-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        identity: process.env.PB_ADMIN_EMAIL || "admin@asmvnzla.com",
-        password: process.env.PB_ADMIN_PASSWORD || "",
-      }),
-    })
-
-    if (!authResp.ok) {
-      return NextResponse.json({ error: "Auth failed" }, { status: 500 })
-    }
-
-    const { token } = await authResp.json()
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    }
+    const supabase = getServiceSupabase()
 
     if (body.type === "travel_request") {
       const record = {
@@ -36,10 +18,8 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde Telegram. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/travel_requests/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      if (!res.ok) throw new Error(await res.text())
+      const { error } = await supabase.from("travel_requests").insert(record as never)
+      if (error) throw new Error(error.message)
       return NextResponse.json({ success: true })
     }
 
@@ -56,10 +36,8 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde Telegram. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/transport_offers/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      if (!res.ok) throw new Error(await res.text())
+      const { error } = await supabase.from("transport_offers").insert(record as never)
+      if (error) throw new Error(error.message)
       return NextResponse.json({ success: true })
     }
 
@@ -73,10 +51,8 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde Telegram. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/housing_offers/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      if (!res.ok) throw new Error(await res.text())
+      const { error } = await supabase.from("housing_offers").insert(record as never)
+      if (error) throw new Error(error.message)
       return NextResponse.json({ success: true })
     }
 

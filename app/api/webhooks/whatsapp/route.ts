@@ -1,29 +1,11 @@
 import { NextResponse } from "next/server"
-
-const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://pocketbase.asmvnzla.org"
+import { getServiceSupabase } from "@/lib/supabase"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    const authResp = await fetch(`${PB_URL}/api/collections/_superusers/auth-with-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        identity: process.env.PB_ADMIN_EMAIL || "admin@asmvnzla.com",
-        password: process.env.PB_ADMIN_PASSWORD || "",
-      }),
-    })
-
-    if (!authResp.ok) {
-      return NextResponse.json({ error: "Auth failed" }, { status: 500 })
-    }
-
-    const { token } = await authResp.json()
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    }
+    const supabase = getServiceSupabase()
 
     if (body.type === "travel_request") {
       const record = {
@@ -36,10 +18,9 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde WhatsApp. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/travel_requests/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      return NextResponse.json(await res.json())
+      const { data, error } = await supabase.from("travel_requests").insert(record as never).select().single()
+      if (error) throw new Error(error.message)
+      return NextResponse.json(data)
     }
 
     if (body.type === "transport_offer") {
@@ -55,10 +36,9 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde WhatsApp. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/transport_offers/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      return NextResponse.json(await res.json())
+      const { data, error } = await supabase.from("transport_offers").insert(record as never).select().single()
+      if (error) throw new Error(error.message)
+      return NextResponse.json(data)
     }
 
     if (body.type === "housing_offer") {
@@ -71,10 +51,9 @@ export async function POST(request: Request) {
         status: "open",
         notes: body.notes || `Creado desde WhatsApp. Contacto: ${body.contact || "N/A"}`,
       }
-      const res = await fetch(`${PB_URL}/api/collections/housing_offers/records`, {
-        method: "POST", headers, body: JSON.stringify(record),
-      })
-      return NextResponse.json(await res.json())
+      const { data, error } = await supabase.from("housing_offers").insert(record as never).select().single()
+      if (error) throw new Error(error.message)
+      return NextResponse.json(data)
     }
 
     return NextResponse.json({ error: "Unknown type" }, { status: 400 })

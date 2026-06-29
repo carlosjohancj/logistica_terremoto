@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
@@ -77,21 +77,24 @@ export default function DashboardPage() {
   })
 
   useEffect(() => {
-    const pb = getPB()
-    if (!pb.authStore.model) {
-      window.location.href = `/${window.location.pathname.split("/")[1]}/auth/login`
-      return
+    async function init() {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        window.location.href = `/${window.location.pathname.split("/")[1]}/auth/login`
+        return
+      }
+      loadCompanies()
     }
-    loadCompanies()
+    init()
   }, [])
 
   async function loadCompanies() {
-    const pb = getPB()
+    const supabase = getSupabase()
     try {
-      const res = await pb.collection(COLLECTIONS.COMPANIES).getList(1, 50, {
-        filter: `user = "${pb.authStore.model!.id}"`,
-      })
-      const items = res.items as unknown as Company[]
+      const { data: { user } } = await supabase.auth.getUser()
+      const res = await supabase.from(TABLES.COMPANIES).select("*").eq("user_id", user!.id)
+      const items = (res.data || []) as unknown as Company[]
       setCompanies(items)
       if (items.length > 0) {
         setSelectedCompany(items[0].id)
@@ -106,13 +109,10 @@ export default function DashboardPage() {
   }
 
   async function loadJobs(companyId: string) {
-    const pb = getPB()
+    const supabase = getSupabase()
     try {
-      const res = await pb.collection(COLLECTIONS.JOBS).getList(1, 100, {
-        filter: `company = "${companyId}"`,
-        sort: "-created",
-      })
-      setJobs(res.items as unknown as Job[])
+      const res = await supabase.from(TABLES.JOBS).select("*").eq("company_id", companyId).order("created", { ascending: false })
+      setJobs((res.data || []) as unknown as Job[])
     } catch {
       toast.error(tc("error"))
     } finally {
@@ -128,12 +128,12 @@ export default function DashboardPage() {
     }
 
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.JOBS).create({
+      const supabase = getSupabase()
+      await supabase.from(TABLES.JOBS).insert({
         ...jobForm,
         company: selectedCompany,
         status: "open",
-      })
+      }).select().single()
       toast.success(tj("success") || "Empleo creado")
       setDialogOpen(false)
       setJobForm({
@@ -155,8 +155,8 @@ export default function DashboardPage() {
 
   async function closeJob(jobId: string) {
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.JOBS).update(jobId, { status: "closed" })
+      const supabase = getSupabase()
+      await supabase.from(TABLES.JOBS).update({ status: "closed" }).eq("id", jobId)
       toast.success("Empleo cerrado")
       loadJobs(selectedCompany)
     } catch (err) {

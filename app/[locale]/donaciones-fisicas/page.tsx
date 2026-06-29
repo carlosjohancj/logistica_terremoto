@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Search, Package, MapPin, Truck, ArrowDownUp } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
@@ -71,12 +71,9 @@ export default function DonacionesFisicasPage() {
     async function fetchData() {
       setLoading(true)
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.SUPPLIES).getList(1, 100, {
-          filter: 'status = "open"',
-          sort: "-created",
-        })
-        setItems(res.items as unknown as Supply[])
+        const supabase = getSupabase()
+        const { data } = await supabase.from(TABLES.SUPPLIES).select("*").eq("status", "open").order("created_at", { ascending: false }).range(0, 99)
+        setItems((data ?? []) as unknown as Supply[])
       } catch {
         toast.error(tc("error"))
       } finally {

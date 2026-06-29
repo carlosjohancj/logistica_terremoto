@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getPB, type Role } from "@/lib/pocketbase"
+import { getSupabase, type Role } from "@/lib/supabase"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
@@ -53,16 +53,13 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      const pb = getPB()
-      await pb.collection("users").create({
-        name: form.name,
+      const supabase = getSupabase()
+      const { error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        passwordConfirm: form.passwordConfirm,
-        phone: form.phone,
-        role: form.role || "damnificado",
+        options: { data: { name: form.name, role: form.role } },
       })
-      await pb.collection("users").authWithPassword(form.email, form.password)
+      if (error) throw error
       toast.success(tc("success"))
       router.push("/")
     } catch (err) {

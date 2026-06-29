@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS, type Role } from "@/lib/pocketbase"
+import { getSupabase, TABLES, type Role } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonProfile } from "@/components/ui/skeleton"
 import { User, Package, Truck, Home, LogOut } from "lucide-react"
@@ -37,29 +37,27 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const pb = getPB()
-    if (!pb.authStore.model) {
-      router.push("/auth/login")
-      return
-    }
-
     async function loadProfile() {
       setLoading(true)
       try {
-        const pb = getPB()
-        const userId = pb.authStore.model!.id
-
-        setUser(pb.authStore.model as Record<string, unknown>)
+        const supabase = getSupabase()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.push("/auth/login")
+          return
+        }
+        const userId = user.id
+        setUser(user as unknown as Record<string, unknown>)
 
         const [travelRes, transportRes, housingRes] = await Promise.all([
-          pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 50, { filter: `user = "${userId}"` }),
-          pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 50, { filter: `user = "${userId}"` }),
-          pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 50, { filter: `user = "${userId}"` }),
+          supabase.from(TABLES.TRAVEL_REQUESTS).select("*").eq("user_id", userId),
+          supabase.from(TABLES.TRANSPORT_OFFERS).select("*").eq("user_id", userId),
+          supabase.from(TABLES.HOUSING_OFFERS).select("*").eq("user_id", userId),
         ])
 
-        setTravelReqs(travelRes.items as Record<string, unknown>[])
-        setTransportOffers(transportRes.items as Record<string, unknown>[])
-        setHousingOffers(housingRes.items as Record<string, unknown>[])
+        setTravelReqs(travelRes.data as Record<string, unknown>[])
+        setTransportOffers(transportRes.data as Record<string, unknown>[])
+        setHousingOffers(housingRes.data as Record<string, unknown>[])
       } catch {
         toast.error(tc("error"))
       } finally {
@@ -70,7 +68,7 @@ export default function PerfilPage() {
   }, [])
 
   function handleLogout() {
-    getPB().authStore.clear()
+    getSupabase().auth.signOut()
     router.push("/")
   }
 

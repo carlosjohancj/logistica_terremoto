@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { ArrowRight } from "lucide-react"
@@ -32,27 +32,25 @@ export default function MatchesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const pb = getPB()
-    if (!pb.authStore.model) {
-      router.push("/auth/login")
-      return
-    }
+    async function init() {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push("/auth/login")
+        return
+      }
 
-    async function loadMatches() {
       setLoading(true)
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.MATCHES).getList(1, 50, {
-          sort: "-created",
-        })
-        setMatches(res.items as unknown as Match[])
+        const { data } = await supabase.from(TABLES.MATCHES).select("*").order("created_at", { ascending: false })
+        setMatches((data || []) as unknown as Match[])
       } catch {
         toast.error(tc("error"))
       } finally {
         setLoading(false)
       }
     }
-    loadMatches()
+    init()
   }, [])
 
   const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {

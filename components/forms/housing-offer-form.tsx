@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
 
@@ -62,7 +62,7 @@ export function HousingOfferForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const pb = getPB()
+    const supabase = getSupabase()
 
     if (!form.capacity || !form.max_stay_days) {
       toast.error(tc("error"), { description: tc("errorRequired") })
@@ -80,9 +80,8 @@ export function HousingOfferForm() {
         status: "open",
       }
 
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
-      }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) data.user = user.id
 
       if (form.address) data.address = form.address
       data.accepts_children = form.accepts_children
@@ -93,8 +92,9 @@ export function HousingOfferForm() {
       data.has_bathroom = form.has_bathroom
       if (form.notes) data.notes = form.notes
 
-      if (pb.authStore.model) {
-        await pb.collection(COLLECTIONS.HOUSING_OFFERS).create(data)
+      if (user) {
+        const { error } = await supabase.from("housing_offers").insert(data).select().single()
+        if (error) throw error
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",

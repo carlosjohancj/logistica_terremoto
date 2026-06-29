@@ -1,23 +1,5 @@
 import { NextResponse } from "next/server"
-
-const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://pocketbase.asmvnzla.org"
-
-async function getAdminHeaders() {
-  const resp = await fetch(`${PB_URL}/api/collections/_superusers/auth-with-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      identity: process.env.PB_ADMIN_EMAIL || "admin@asmvnzla.com",
-      password: process.env.PB_ADMIN_PASSWORD || "",
-    }),
-  })
-  if (!resp.ok) throw new Error("PB admin auth failed")
-  const { token } = await resp.json()
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  } as const
-}
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
 
 export async function POST(request: Request) {
   try {
@@ -27,45 +9,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing formType or data" }, { status: 400 })
     }
 
-    const headers = await getAdminHeaders()
-    let collection: string
+    let table: string
 
     if (formType === "travel_request") {
-      collection = "travel_requests"
+      table = TABLES.TRAVEL_REQUESTS
       data.status = data.status || "open"
       data.registrant_type = data.registrant_type || "damnificado"
       data.housing_destruction = data.housing_destruction || "se_puede_reparar"
     } else if (formType === "transport_offer") {
-      collection = "transport_offers"
+      table = TABLES.TRANSPORT_OFFERS
       data.status = data.status || "open"
     } else if (formType === "housing_offer") {
-      collection = "housing_offers"
+      table = TABLES.HOUSING_OFFERS
       data.status = data.status || "open"
     } else if (formType === "company") {
-      collection = "companies"
+      table = TABLES.COMPANIES
     } else if (formType === "job") {
-      collection = "jobs"
+      table = TABLES.JOBS
       data.status = data.status || "open"
     } else if (formType === "supply") {
-      collection = "supplies"
+      table = TABLES.SUPPLIES
       data.status = data.status || "open"
     } else {
       return NextResponse.json({ error: "Invalid formType" }, { status: 400 })
     }
 
-    const res = await fetch(`${PB_URL}/api/collections/${collection}/records`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    })
+    const supabase = getServiceSupabase()
+    const { data: record, error } = await supabase.from(table).insert(data).select().single()
 
-    if (!res.ok) {
-      const errText = await res.text()
-      return NextResponse.json({ error: errText }, { status: res.status })
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const record = await res.json()
-    return NextResponse.json({ success: true, id: record.id })
+    return NextResponse.json({ success: true, id: (record as { id: string } | null)?.id })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

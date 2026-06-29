@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getPB } from "./pocketbase"
+import { getSupabase } from "./supabase"
 
 type Municipio = {
   municipio: string
@@ -22,25 +22,12 @@ let cache: Estado[] | null = null
 async function fetchEstados(): Promise<Estado[]> {
   if (cache) return cache
   try {
-    const pb = getPB()
-    const res = await pb.collection("estados").getFullList<Estado>({ sort: "name" })
+    const supabase = getSupabase()
+    const res = (await supabase.from("estados").select("*").order("name")).data as Estado[] | null || []
     cache = res
     return res
   } catch {
-    const { default: fallback } = await import("@/data/venezuela.json")
-    const { default: coordsFallback } = await import("@/data/coords.json")
-    cache = fallback.map((e: { estado: string; capital: string; municipios: Municipio[] }) => {
-      const coord = (coordsFallback as Record<string, number[]>)[e.estado] || [0, 0]
-      return {
-        id: e.estado,
-        name: e.estado,
-        capital: e.capital,
-        municipios: e.municipios,
-        lat: coord[0],
-        lng: coord[1],
-      }
-    })
-    return cache!
+    return []
   }
 }
 

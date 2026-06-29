@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 import {
@@ -26,8 +26,7 @@ import {
 type Job = {
   id: string
   title: string
-  company?: string
-  expand?: { company?: { name: string; description: string; website: string } }
+  company?: { name: string; description: string; website: string } | null
   description: string
   requirements: string
   location_state: string
@@ -50,10 +49,12 @@ export default function JobDetailPage() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const pb = getPB()
-        const res = await pb
-          .collection(COLLECTIONS.JOBS)
-          .getOne(id, { expand: "company" })
+        const supabase = getSupabase()
+        const { data: res } = await supabase
+          .from(TABLES.JOBS)
+          .select("*, company:companies(*)")
+          .eq("id", id)
+          .single()
         setJob(res as unknown as Job)
       } catch {
         toast.error(tc("error"))
@@ -87,7 +88,7 @@ export default function JobDetailPage() {
               </div>
               <p className="text-muted-foreground flex items-center gap-1">
                 <Building2 className="h-4 w-4" />
-                {job.expand?.company?.name || "Empresa"}
+                {job.company?.name || "Empresa"}
               </p>
             </div>
             <Badge variant="outline" className="shrink-0 text-sm px-3 py-1">

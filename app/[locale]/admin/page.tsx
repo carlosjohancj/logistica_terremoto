@@ -10,7 +10,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 import { Shield } from "lucide-react"
@@ -34,28 +34,36 @@ export default function AdminPage() {
   const [housingOffers, setHousingOffers] = useState<Post[]>([])
 
   useEffect(() => {
-    const pb = getPB()
-    const role = (pb.authStore.model as Record<string, unknown> | null)?.role
-    if (role !== "admin") {
-      router.push("/auth/login")
-      return
+    async function init() {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push("/auth/login")
+        return
+      }
+      const { data: profile } = await supabase.from(TABLES.PROFILES).select("role").eq("id", user.id).single()
+      if (profile?.role !== "admin") {
+        router.push("/auth/login")
+        return
+      }
+      setIsAdmin(true)
+      setAuthChecked(true)
+      loadAll()
     }
-    setIsAdmin(true)
-    setAuthChecked(true)
-    loadAll()
+    init()
   }, [])
 
   async function loadAll() {
-    const pb = getPB()
+    const supabase = getSupabase()
     try {
       const [travel, transport, housing] = await Promise.all([
-        pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 100, { sort: "-created" }),
-        pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 100, { sort: "-created" }),
-        pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 100, { sort: "-created" }),
+        supabase.from(TABLES.TRAVEL_REQUESTS).select("*").order("created_at", { ascending: false }),
+        supabase.from(TABLES.TRANSPORT_OFFERS).select("*").order("created_at", { ascending: false }),
+        supabase.from(TABLES.HOUSING_OFFERS).select("*").order("created_at", { ascending: false }),
       ])
-      setTravelReqs(travel.items as unknown as Post[])
-      setTransportOffers(transport.items as unknown as Post[])
-      setHousingOffers(housing.items as unknown as Post[])
+      setTravelReqs((travel.data || []) as unknown as Post[])
+      setTransportOffers((transport.data || []) as unknown as Post[])
+      setHousingOffers((housing.data || []) as unknown as Post[])
     } catch {
       toast.error(tc("error"))
     }
@@ -63,8 +71,8 @@ export default function AdminPage() {
 
   async function updateStatus(collection: string, id: string, status: string) {
     try {
-      const pb = getPB()
-      await pb.collection(collection).update(id, { status })
+      const supabase = getSupabase()
+      await supabase.from(collection).update({ status }).eq("id", id)
       toast.success(`Estado actualizado a: ${status}`)
       loadAll()
     } catch {
@@ -133,9 +141,9 @@ export default function AdminPage() {
           <TabsTrigger value="transport">Transporte ({transportOffers.length})</TabsTrigger>
           <TabsTrigger value="housing">Hospedaje ({housingOffers.length})</TabsTrigger>
         </TabsList>
-        <TabsContent value="travel">{renderPosts(travelReqs, COLLECTIONS.TRAVEL_REQUESTS)}</TabsContent>
-        <TabsContent value="transport">{renderPosts(transportOffers, COLLECTIONS.TRANSPORT_OFFERS)}</TabsContent>
-        <TabsContent value="housing">{renderPosts(housingOffers, COLLECTIONS.HOUSING_OFFERS)}</TabsContent>
+        <TabsContent value="travel">{renderPosts(travelReqs, TABLES.TRAVEL_REQUESTS)}</TabsContent>
+        <TabsContent value="transport">{renderPosts(transportOffers, TABLES.TRANSPORT_OFFERS)}</TabsContent>
+        <TabsContent value="housing">{renderPosts(housingOffers, TABLES.HOUSING_OFFERS)}</TabsContent>
       </Tabs>
     </div>
   )
