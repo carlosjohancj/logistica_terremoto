@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, startTransition } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
@@ -67,11 +67,12 @@ export function Navbar() {
   const pathname = usePathname()
   const locale = pathname.split("/")[1] || "es"
   const [menuOpen, setMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() =>
+    typeof window !== "undefined" ? !!getPB().authStore.record : false
+  )
 
   useEffect(() => {
     const pb = getPB()
-    setIsLoggedIn(!!pb.authStore.record)
     const unsubscribe = pb.authStore.onChange(() => {
       setIsLoggedIn(!!pb.authStore.record)
     })
@@ -79,7 +80,7 @@ export function Navbar() {
   }, [])
 
   useEffect(() => {
-    setMenuOpen(false)
+    startTransition(() => setMenuOpen(false))
   }, [pathname])
 
   const isActive = (href: string) => pathname === href
