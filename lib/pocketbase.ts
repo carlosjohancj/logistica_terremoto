@@ -27,6 +27,8 @@ export const COLLECTIONS = {
   REVIEWS: "reviews",
   COMPANIES: "companies",
   JOBS: "jobs",
+  SUPPLIES: "supplies",
+  GRAPHICS: "graphics",
 } as const
 
 export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "admin"

@@ -46,6 +46,9 @@ export async function POST(request: Request) {
     } else if (formType === "job") {
       collection = "jobs"
       data.status = data.status || "open"
+    } else if (formType === "supply") {
+      collection = "supplies"
+      data.status = data.status || "open"
     } else {
       return NextResponse.json({ error: "Invalid formType" }, { status: 400 })
     }

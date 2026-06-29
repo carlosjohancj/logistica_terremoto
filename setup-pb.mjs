@@ -283,6 +283,41 @@ async function main() {
     { name: "status", type: "select", required: true, options: { maxSelect: 1, values: ["open", "closed", "filled"] } },
   ], companyReqCommon);
 
+  // Supplies collection (physical donations & requests)
+  console.log("\nCreating supplies & graphics collections...");
+  const supplyReqCommon = { listRule: "@request.auth.id != \"\"", viewRule: "@request.auth.id != \"\"", createRule: "@request.auth.id != \"\"" };
+
+  await upsertCollection("supplies", "base", [
+    { name: "user", type: "relation", required: false, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "type", type: "select", required: true, options: { maxSelect: 1, values: ["offer", "request"] } },
+    { name: "category", type: "select", required: true, options: { maxSelect: 1, values: ["camas", "comida", "ropa", "medicinas", "agua", "higiene", "electronico", "materiales", "muebles", "otros"] } },
+    { name: "title", type: "text", required: true, options: {} },
+    { name: "description", type: "editor", required: false, options: {} },
+    { name: "quantity", type: "number", required: false, options: { min: 0 } },
+    { name: "condition", type: "select", required: false, options: { maxSelect: 1, values: ["nuevo", "usado_bueno", "usado_regular", "no_aplica"] } },
+    { name: "state", type: "text", required: true, options: {} },
+    { name: "municipality", type: "text", required: false, options: {} },
+    { name: "city", type: "text", required: false, options: {} },
+    { name: "address", type: "text", required: false, options: {} },
+    { name: "contact_name", type: "text", required: true, options: {} },
+    { name: "contact_phone", type: "text", required: false, options: {} },
+    { name: "needs_transport", type: "bool", required: false, options: {} },
+    { name: "photos", type: "file", required: false, options: { maxSelect: 5, maxSize: 10485760 } },
+    { name: "status", type: "select", required: true, options: { maxSelect: 1, values: ["open", "matched", "completed", "cancelled"] } },
+  ], supplyReqCommon);
+
+  // Graphics collection (downloadable resources)
+  await upsertCollection("graphics", "base", [
+    { name: "title", type: "text", required: true, options: {} },
+    { name: "description", type: "editor", required: false, options: {} },
+    { name: "category", type: "select", required: true, options: { maxSelect: 1, values: ["flyer", "infografia", "banner", "logo", "manual", "otro"] } },
+    { name: "file", type: "file", required: true, options: { maxSelect: 1, maxSize: 52428800 } },
+    { name: "thumbnail", type: "file", required: false, options: { maxSelect: 1, maxSize: 5242880 } },
+    { name: "tags", type: "text", required: false, options: {} },
+    { name: "downloads", type: "number", required: false, options: { min: 0 } },
+    { name: "status", type: "select", required: true, options: { maxSelect: 1, values: ["published", "draft"] } },
+  ], supplyReqCommon);
+
   console.log("\n✓ All collections ready!");
 }
 

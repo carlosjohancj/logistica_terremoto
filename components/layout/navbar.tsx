@@ -37,7 +37,9 @@ export function Navbar() {
     { href: `/${locale}/ofrecer-hospedaje`, label: t("ofrecerHospedaje") },
     { href: `/${locale}/explorar`, label: t("explorar") },
     { href: `/${locale}/donar`, label: t("donar") },
+    { href: `/${locale}/donaciones-fisicas`, label: t("donacionesFisicas") },
     { href: `/${locale}/empleos`, label: t("empleos") },
+    { href: `/${locale}/recursos`, label: t("recursos") },
     { href: `/${locale}/sobre-nosotros`, label: t("sobreNosotros") },
   ]
 
