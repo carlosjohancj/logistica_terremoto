@@ -87,8 +87,8 @@ export default function AdminPage() {
       <div className="space-y-2">
         {posts.map((post) => (
           <Card key={post.id}>
-            <CardContent className="p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <CardContent className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {new Date(post.created).toLocaleDateString()}
                 </span>

@@ -103,7 +103,19 @@ export function TravelRequestForm() {
       if (form.registrant_relation) data.registrant_relation = form.registrant_relation
       if (form.notes) data.notes = form.notes
 
-      await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data)
+      if (pb.authStore.model) {
+        await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data)
+      } else {
+        const res = await fetch("/api/forms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formType: "travel_request", data }),
+        })
+        if (!res.ok) {
+          const errData = await res.json()
+          throw new Error(errData.error || tc("error"))
+        }
+      }
 
       toast.success(t("success"))
       setForm({

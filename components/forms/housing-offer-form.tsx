@@ -92,7 +92,19 @@ export function HousingOfferForm() {
       data.has_bathroom = form.has_bathroom
       if (form.notes) data.notes = form.notes
 
-      await pb.collection(COLLECTIONS.HOUSING_OFFERS).create(data)
+      if (pb.authStore.model) {
+        await pb.collection(COLLECTIONS.HOUSING_OFFERS).create(data)
+      } else {
+        const res = await fetch("/api/forms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formType: "housing_offer", data }),
+        })
+        if (!res.ok) {
+          const errData = await res.json()
+          throw new Error(errData.error || tc("error"))
+        }
+      }
 
       toast.success(t("success"))
       setForm({

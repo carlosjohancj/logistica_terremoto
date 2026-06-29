@@ -102,7 +102,19 @@ export function TransportOfferForm() {
       data.accepts_cargo = form.accepts_cargo
       if (form.notes) data.notes = form.notes
 
-      await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).create(data)
+      if (pb.authStore.model) {
+        await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).create(data)
+      } else {
+        const res = await fetch("/api/forms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formType: "transport_offer", data }),
+        })
+        if (!res.ok) {
+          const errData = await res.json()
+          throw new Error(errData.error || tc("error"))
+        }
+      }
 
       toast.success(t("success"))
       setForm({

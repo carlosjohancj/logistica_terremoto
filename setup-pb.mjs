@@ -1,6 +1,12 @@
-const PB_URL = "https://pocketbase.asmvnzla.org";
-const ADMIN_EMAIL = "admin@asmvnzla.com";
-const ADMIN_PASSWORD = "nhshowpbxtgyzgiycml8747nv44a96aa";
+const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://pocketbase.asmvnzla.org";
+const ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || "admin@asmvnzla.com";
+const ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD;
+
+if (!ADMIN_PASSWORD) {
+  console.error("ERROR: PB_ADMIN_PASSWORD environment variable is required");
+  console.error("Usage: PB_ADMIN_PASSWORD=yourpassword node setup-pb.mjs");
+  process.exit(1);
+}
 
 async function main() {
   console.log("Authenticating...");
@@ -83,7 +89,7 @@ async function main() {
 
   // Extend users with custom fields via PATCH
   console.log("\nExtending users collection...");
-  const existingFieldNames = (usersCol.schema || []).map(f => f.name);
+  const existingFieldNames = (usersCol.fields || usersCol.schema || []).map(f => f.name);
   const extraUserFields = [
     { name: "phone", type: "text", required: false, options: {} },
     { name: "whatsapp", type: "text", required: false, options: {} },
@@ -93,11 +99,11 @@ async function main() {
   ].filter(f => !existingFieldNames.includes(f.name));
 
   if (extraUserFields.length > 0) {
-    const newSchema = [...(usersCol.schema || []), ...extraUserFields];
+    const newSchema = [...(usersCol.fields || usersCol.schema || []), ...extraUserFields];
     const upResp = await fetch(`${PB_URL}/api/collections/${USERS_ID}`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify({ schema: newSchema }),
+      body: JSON.stringify({ fields: newSchema }),
     });
     if (upResp.ok) console.log("  ✓ users extended");
     else {
@@ -126,7 +132,7 @@ async function main() {
   const reqCommon = { listRule: "@request.auth.id != \"\"", viewRule: "@request.auth.id != \"\"", createRule: "@request.auth.id != \"\"" };
 
   await upsertCollection("travel_requests", "base", [
-    { name: "user", type: "relation", required: true, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "user", type: "relation", required: false, options: { collectionId: USERS_ID, maxSelect: 1 } },
     { name: "has_destination", type: "bool", required: false, options: {} },
     { name: "origin_state", type: "text", required: true, options: {} },
     { name: "origin_municipality", type: "text", required: true, options: {} },
@@ -147,7 +153,7 @@ async function main() {
   ], reqCommon);
 
   await upsertCollection("transport_offers", "base", [
-    { name: "user", type: "relation", required: true, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "user", type: "relation", required: false, options: { collectionId: USERS_ID, maxSelect: 1 } },
     { name: "vehicle_type", type: "select", required: true, options: { maxSelect: 1, values: ["moto", "carro", "camioneta", "camion"] } },
     { name: "capacity", type: "number", required: true, options: { min: 1 } },
     { name: "origin_state", type: "text", required: true, options: {} },
@@ -168,7 +174,7 @@ async function main() {
   ], reqCommon);
 
   await upsertCollection("housing_offers", "base", [
-    { name: "user", type: "relation", required: true, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "user", type: "relation", required: false, options: { collectionId: USERS_ID, maxSelect: 1 } },
     { name: "state", type: "text", required: true, options: {} },
     { name: "municipality", type: "text", required: true, options: {} },
     { name: "city", type: "text", required: true, options: {} },
@@ -198,8 +204,10 @@ async function main() {
   ], reqCommon);
 
   // Get all collections to resolve IDs for relations
+  console.log("\nFetching collection IDs...");
   const allColsResp = await fetch(`${PB_URL}/api/collections?skipTotal=1`, { headers });
-  const allCols = (await allColsResp.json()).items || [];
+  const allColsData = await allColsResp.json();
+  const allCols = allColsData.items || allColsData || [];
   const travelReqId = allCols.find(c => c.name === "travel_requests")?.id;
   const transportOfferId = allCols.find(c => c.name === "transport_offers")?.id;
   const housingOfferId = allCols.find(c => c.name === "housing_offers")?.id;
@@ -215,7 +223,8 @@ async function main() {
   // Fix matches relations to correct collectionIds
   const matchesCol = allCols.find(c => c.name === "matches");
   if (matchesCol && travelReqId && transportOfferId && housingOfferId) {
-    const updatedSchema = matchesCol.schema.map(f => {
+    const existingFields = matchesCol.fields || matchesCol.schema || [];
+    const updatedSchema = existingFields.map(f => {
       if (f.name === "travel_request") f.options.collectionId = travelReqId;
       if (f.name === "transport_offer") f.options.collectionId = transportOfferId;
       if (f.name === "housing_offer") f.options.collectionId = housingOfferId;
@@ -224,7 +233,7 @@ async function main() {
     const upResp = await fetch(`${PB_URL}/api/collections/${matchesCol.id}`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify({ schema: updatedSchema }),
+      body: JSON.stringify({ fields: updatedSchema }),
     });
     if (upResp.ok) console.log("  ✓ matches relations fixed");
     else console.error("  ✗ matches relations fix failed:", await upResp.text());
@@ -239,6 +248,40 @@ async function main() {
     { name: "comment", type: "editor", required: false, options: {} },
     { name: "category", type: "select", required: true, options: { maxSelect: 1, values: ["transporte", "hospedaje", "colaboracion"] } },
   ], reqCommon);
+
+  // Companies & Jobs collections (public create via API route proxy)
+  console.log("\nCreating companies & jobs collections...");
+  const companyReqCommon = { listRule: "@request.auth.id != \"\"", viewRule: "@request.auth.id != \"\"", createRule: "@request.auth.id != \"\"" };
+
+  await upsertCollection("companies", "base", [
+    { name: "user", type: "relation", required: false, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "name", type: "text", required: true, options: {} },
+    { name: "rif", type: "text", required: false, options: {} },
+    { name: "sector", type: "select", required: false, options: { maxSelect: 1, values: ["tecnologia", "salud", "educacion", "construccion", "comercio", "transporte", "alimentacion", "servicios", "otro"] } },
+    { name: "state", type: "text", required: false, options: {} },
+    { name: "municipality", type: "text", required: false, options: {} },
+    { name: "city", type: "text", required: false, options: {} },
+    { name: "address", type: "text", required: false, options: {} },
+    { name: "description", type: "editor", required: false, options: {} },
+    { name: "contact_name", type: "text", required: true, options: {} },
+    { name: "contact_phone", type: "text", required: false, options: {} },
+    { name: "contact_email", type: "email", required: true, options: {} },
+    { name: "website", type: "url", required: false, options: {} },
+    { name: "verified", type: "bool", required: false, options: {} },
+  ], companyReqCommon);
+
+  await upsertCollection("jobs", "base", [
+    { name: "company", type: "relation", required: true, options: { collectionId: USERS_ID, maxSelect: 1 } },
+    { name: "title", type: "text", required: true, options: {} },
+    { name: "description", type: "editor", required: false, options: {} },
+    { name: "requirements", type: "editor", required: false, options: {} },
+    { name: "location_state", type: "text", required: true, options: {} },
+    { name: "location_city", type: "text", required: false, options: {} },
+    { name: "modality", type: "select", required: true, options: { maxSelect: 1, values: ["presencial", "remoto", "hibrido"] } },
+    { name: "salary_range", type: "text", required: false, options: {} },
+    { name: "contact_email", type: "email", required: true, options: {} },
+    { name: "status", type: "select", required: true, options: { maxSelect: 1, values: ["open", "closed", "filled"] } },
+  ], companyReqCommon);
 
   console.log("\n✓ All collections ready!");
 }

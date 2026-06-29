@@ -18,36 +18,22 @@ type MapViewProps = {
   zoom?: number
 }
 
-const defaultIcon = L.divIcon({
-  className: "rounded-full border-2 border-white shadow-md",
-  html: `<div style="width:12px;height:12px;border-radius:50%;background:#CC5A3A;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  popupAnchor: [0, -10],
-})
+const markerSize = 28
+
+function createIcon(color: string) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:${markerSize}px;height:${markerSize}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`,
+    iconSize: [markerSize, markerSize],
+    iconAnchor: [markerSize / 2, markerSize / 2],
+    popupAnchor: [0, -markerSize / 2],
+  })
+}
 
 const typeIcons: Record<string, L.DivIcon> = {
-  travel: L.divIcon({
-    className: "rounded-full border-2 border-white shadow-md",
-    html: `<div style="width:12px;height:12px;border-radius:50%;background:#CC5A3A;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
-  }),
-  transport: L.divIcon({
-    className: "rounded-full border-2 border-white shadow-md",
-    html: `<div style="width:12px;height:12px;border-radius:50%;background:#E8B84B;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
-  }),
-  housing: L.divIcon({
-    className: "rounded-full border-2 border-white shadow-md",
-    html: `<div style="width:12px;height:12px;border-radius:50%;background:#2D8A4E;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
-  }),
+  travel: createIcon("#CC5A3A"),
+  transport: createIcon("#E8B84B"),
+  housing: createIcon("#2D8A4E"),
 }
 
 export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps) {
@@ -67,7 +53,7 @@ export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps
           <Marker
             key={item.id}
             position={[item.lat, item.lng]}
-            icon={typeIcons[item.type] ?? defaultIcon}
+            icon={typeIcons[item.type]}
           >
             <Popup>
               <div className="text-sm">

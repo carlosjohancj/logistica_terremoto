@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { MapIcon, ListIcon } from "lucide-react"
+import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
 import estados from "@/data/venezuela.json"
 import coords from "@/data/coords.json"
@@ -63,7 +64,9 @@ export default function ExplorarPage() {
             })
           }
         }
-      } catch {}
+      } catch {
+        toast.error(tc("error"), { description: "No se pudieron cargar las solicitudes de viaje" })
+      }
 
       try {
         const transportOffers = await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 50, {
@@ -82,7 +85,9 @@ export default function ExplorarPage() {
             })
           }
         }
-      } catch {}
+      } catch {
+        toast.error(tc("error"), { description: "No se pudieron cargar las ofertas de transporte" })
+      }
 
       try {
         const housingOffers = await pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 50, {
@@ -101,7 +106,9 @@ export default function ExplorarPage() {
             })
           }
         }
-      } catch {}
+      } catch {
+        toast.error(tc("error"), { description: "No se pudieron cargar las ofertas de hospedaje" })
+      }
 
       setItems(allItems)
       setLoading(false)
@@ -129,8 +136,8 @@ export default function ExplorarPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Filters bar */}
-      <div className="border-b bg-card p-3 flex flex-wrap items-center gap-3">
-        <div className="flex gap-1">
+      <div className="border-b bg-card p-3 flex flex-wrap items-center gap-2">
+        <div className="hidden sm:flex gap-1">
           <Button
             size="sm"
             variant={filterType === "all" ? "default" : "outline"}
@@ -161,7 +168,21 @@ export default function ExplorarPage() {
           </Button>
         </div>
 
-        <div className="w-48">
+        <div className="sm:hidden w-full">
+          <Select value={filterType} onValueChange={(v) => setFilterType((v ?? "all") as FilterType)}>
+            <SelectTrigger>
+              <SelectValue placeholder={t("filterType")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("all")}</SelectItem>
+              <SelectItem value="travel">{t("travelRequests")}</SelectItem>
+              <SelectItem value="transport">{t("transportOffers")}</SelectItem>
+              <SelectItem value="housing">{t("housingOffers")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-full sm:w-48">
           <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
             <SelectTrigger>
               <SelectValue placeholder={t("filterOrigin")} />
@@ -177,7 +198,7 @@ export default function ExplorarPage() {
           </Select>
         </div>
 
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative flex-1 min-w-0 w-full sm:w-auto">
           <Input
             placeholder={t("search")}
             value={search}
