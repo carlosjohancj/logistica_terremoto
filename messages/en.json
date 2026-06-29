@@ -102,7 +102,11 @@
     "destinationMunicipality": "Destination municipality",
     "destinationCity": "Destination city",
     "needsGasDonation": "Do you need gas donation?",
-    "submit": "Post offer"
+    "yes": "Yes",
+    "no": "No",
+    "notes": "Additional notes",
+    "submit": "Post offer",
+    "success": "Offer posted successfully"
   },
   "housingOffer": {
     "title": "Offer Housing",
@@ -115,7 +119,9 @@
     "acceptsChildren": "Accepts children",
     "acceptsAdults": "Accepts adults",
     "acceptsFamilies": "Accepts families",
-    "submit": "Post housing"
+    "notes": "Additional notes",
+    "submit": "Post housing",
+    "success": "Housing posted successfully"
   },
   "donate": {
     "title": "Donate",

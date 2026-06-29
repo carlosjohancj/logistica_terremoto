@@ -102,7 +102,11 @@
     "destinationMunicipality": "Municipio de destino",
     "destinationCity": "Ciudad de destino",
     "needsGasDonation": "¿Necesitas donación para gasolina?",
-    "submit": "Publicar oferta"
+    "yes": "Sí",
+    "no": "No",
+    "notes": "Notas adicionales",
+    "submit": "Publicar oferta",
+    "success": "Oferta publicada exitosamente"
   },
   "housingOffer": {
     "title": "Ofrecer Hospedaje",
@@ -115,7 +119,9 @@
     "acceptsChildren": "Acepta niños",
     "acceptsAdults": "Acepta adultos",
     "acceptsFamilies": "Acepta familias",
-    "submit": "Publicar hospedaje"
+    "notes": "Notas adicionales",
+    "submit": "Publicar hospedaje",
+    "success": "Hospedaje publicado exitosamente"
   },
   "donate": {
     "title": "Donar",
