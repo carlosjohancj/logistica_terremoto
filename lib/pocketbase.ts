@@ -11,6 +11,9 @@ export function getPB(): PocketBase {
   if (!_pb) {
     _pb = new PocketBase(PB_URL)
     _pb.authStore.loadFromCookie(document.cookie)
+    _pb.authStore.onChange(() => {
+      document.cookie = (_pb as PocketBase).authStore.exportToCookie({ httpOnly: false })
+    })
   }
   return _pb
 }
