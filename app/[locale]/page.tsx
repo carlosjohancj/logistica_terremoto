@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -8,20 +11,45 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getPB, COLLECTIONS } from "@/lib/pocketbase";
 
 export default function HomePage() {
-  return <HomeContent />;
-}
-
-function HomeContent() {
   const t = useTranslations("home");
 
-  const stats = [
-    { value: "128", label: t("statsViajes") },
-    { value: "45", label: t("statsTransportistas") },
-    { value: "32", label: t("statsAnfitriones") },
-    { value: "$2,840", label: t("statsDonaciones") },
-  ];
+  const [stats, setStats] = useState([
+    { value: "-", label: t("statsViajes") },
+    { value: "-", label: t("statsTransportistas") },
+    { value: "-", label: t("statsAnfitriones") },
+    { value: "-", label: t("statsDonaciones") },
+  ]);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const pb = getPB()
+        const [travelCount, transportCount, housingCount, donations] = await Promise.all([
+          pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 1, { filter: 'status = "open"' }),
+          pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 1, { filter: 'status = "open"' }),
+          pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 1, { filter: 'status = "open"' }),
+          pb.collection(COLLECTIONS.DONATIONS).getList(1, 1),
+        ])
+        setStats([
+          { value: String(travelCount.totalItems), label: t("statsViajes") },
+          { value: String(transportCount.totalItems), label: t("statsTransportistas") },
+          { value: String(housingCount.totalItems), label: t("statsAnfitriones") },
+          { value: `${donations.totalItems}`, label: t("statsDonaciones") },
+        ])
+      } catch {
+        setStats([
+          { value: "0", label: t("statsViajes") },
+          { value: "0", label: t("statsTransportistas") },
+          { value: "0", label: t("statsAnfitriones") },
+          { value: "0", label: t("statsDonaciones") },
+        ])
+      }
+    }
+    fetchStats()
+  }, [])
 
   const steps = [
     { icon: "📝", title: t("paso1"), desc: t("paso1Desc") },
@@ -30,16 +58,16 @@ function HomeContent() {
   ];
 
   const ctaItems = [
-    { href: "solicitar-viaje", label: t("ctaSolicitar"), desc: "Publica tu solicitud de traslado", variant: "default" as const },
-    { href: "ofrecer-transporte", label: t("ctaTransporte"), desc: "Ofrece llevar personas o carga", variant: "outline" as const },
-    { href: "ofrecer-hospedaje", label: t("ctaHospedaje"), desc: "Ofrece un lugar donde quedarse", variant: "outline" as const },
-    { href: "donar", label: t("ctaDonar"), desc: "Contribuye económicamente", variant: "secondary" as const },
+    { href: "solicitar-viaje", label: t("ctaSolicitar"), desc: t("ctaSolicitarDesc"), variant: "default" as const },
+    { href: "ofrecer-transporte", label: t("ctaTransporte"), desc: t("ctaTransporteDesc"), variant: "outline" as const },
+    { href: "ofrecer-hospedaje", label: t("ctaHospedaje"), desc: t("ctaHospedajeDesc"), variant: "outline" as const },
+    { href: "donar", label: t("ctaDonar"), desc: t("ctaDonarDesc"), variant: "secondary" as const },
   ];
 
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-terracotta/10 to-background py-20 md:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-20 md:py-32">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
             <span className="text-primary">{t("title")}</span>

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import {
   Card,
@@ -8,20 +11,44 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { SkeletonDetail } from "@/components/ui/skeleton"
 
-export default function DonarPage() {
-  return <DonarContent />
+type DonationSetting = {
+  id: string
+  method: string
+  label: string
+  details: Record<string, string>
 }
 
-function DonarContent() {
+export default function DonarPage() {
   const t = useTranslations("donate")
+  const [settings, setSettings] = useState<DonationSetting[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const pb = getPB()
+        const res = await pb.collection(COLLECTIONS.DONATION_SETTINGS).getFullList<DonationSetting>({ sort: "sort_order" })
+        setSettings(res)
+      } catch {
+        setSettings([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchSettings()
+  }, [])
 
   const targets = [
-    { key: "generalFund", desc: "Ayuda a cubrir gastos operativos de la plataforma." },
-    { key: "gasolina", desc: "Destinado a transportistas que llevan damnificados." },
-    { key: "hospedaje", desc: "Apoya a anfitriones que alojan familias." },
-    { key: "familia", desc: "Ayuda directa a una familia damnificada específica." },
+    { key: "generalFund", desc: t("generalFundDesc") },
+    { key: "gasolina", desc: t("gasolinaDesc") },
+    { key: "hospedaje", desc: t("hospedajeDesc") },
+    { key: "familia", desc: t("familiaDesc") },
   ]
+
+  if (loading) return <SkeletonDetail />
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -44,34 +71,18 @@ function DonarContent() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("bankInfo")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-1">
-            <p><strong>Banco:</strong> Banco de Venezuela</p>
-            <p><strong>Cuenta:</strong> 0102-XXXX-XXXX-XXXX</p>
-            <p><strong>Titular:</strong> Fundación Desde Cero</p>
-            <p><strong>RIF:</strong> J-XXXXXXXX-X</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("paypalInfo")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <p>donaciones@desdecero.org</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("zelleInfo")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <p>donaciones@desdecero.org</p>
-            <p>Fundación Desde Cero</p>
-          </CardContent>
-        </Card>
+        {settings.map((s) => (
+          <Card key={s.id}>
+            <CardHeader>
+              <CardTitle className="text-lg">{s.label}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground space-y-1">
+              {Object.entries(s.details).map(([key, val]) => (
+                <p key={key}><strong>{key}:</strong> {val}</p>
+              ))}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="text-center">

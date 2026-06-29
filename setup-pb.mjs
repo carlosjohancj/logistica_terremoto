@@ -318,6 +318,24 @@ async function main() {
     { name: "status", type: "select", required: true, options: { maxSelect: 1, values: ["published", "draft"] } },
   ], supplyReqCommon);
 
+  // Estados collection (Venezuelan states, municipalities, coords)
+  console.log("\nCreating estados & donation_settings collections...");
+  await upsertCollection("estados", "base", [
+    { name: "name", type: "text", required: true, options: {} },
+    { name: "capital", type: "text", required: false, options: {} },
+    { name: "municipios", type: "json", required: false, options: {} },
+    { name: "lat", type: "number", required: false, options: { min: -90, max: 90 } },
+    { name: "lng", type: "number", required: false, options: { min: -180, max: 180 } },
+  ], { listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "" });
+
+  // Donation settings collection
+  await upsertCollection("donation_settings", "base", [
+    { name: "method", type: "select", required: true, options: { maxSelect: 1, values: ["bank", "paypal", "zelle"] } },
+    { name: "label", type: "text", required: true, options: {} },
+    { name: "details", type: "json", required: true, options: {} },
+    { name: "sort_order", type: "number", required: false, options: { min: 0 } },
+  ], { listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "" });
+
   console.log("\n✓ All collections ready!");
 }
 

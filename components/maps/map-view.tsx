@@ -31,9 +31,9 @@ function createIcon(color: string) {
 }
 
 const typeIcons: Record<string, L.DivIcon> = {
-  travel: createIcon("#CC5A3A"),
-  transport: createIcon("#E8B84B"),
-  housing: createIcon("#2D8A4E"),
+  travel: createIcon("#6B8F71"),
+  transport: createIcon("#A0845C"),
+  housing: createIcon("#4A7C59"),
 }
 
 export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps) {

@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
-import { toast } from "sonner"
-import estados from "@/data/venezuela.json"
+} from "@/components/ui/select";
+import { getPB, COLLECTIONS } from "@/lib/pocketbase";
+import { toast } from "sonner";
+import { useEstados } from "@/lib/estados";
 
 type FormData = {
-  has_destination: boolean | null
-  origin_state: string
-  origin_municipality: string
-  origin_city: string
-  destination_state: string
-  destination_municipality: string
-  destination_city: string
-  people_to_move: string
-  people_to_house: string
-  children_count: string
-  adults_count: string
-  housing_destruction: string
-  registrant_type: string
-  registrant_relation: string
-  notes: string
-}
+  has_destination: boolean | null;
+  origin_state: string;
+  origin_municipality: string;
+  origin_city: string;
+  destination_state: string;
+  destination_municipality: string;
+  destination_city: string;
+  people_to_move: string;
+  people_to_house: string;
+  children_count: string;
+  adults_count: string;
+  housing_destruction: string;
+  registrant_type: string;
+  registrant_relation: string;
+  notes: string;
+};
 
 export function TravelRequestForm() {
-  const t = useTranslations("travelRequest")
-  const tc = useTranslations("common")
+  const t = useTranslations("travelRequest");
+  const tc = useTranslations("common");
 
   const [form, setForm] = useState<FormData>({
     has_destination: null,
@@ -55,25 +55,30 @@ export function TravelRequestForm() {
     registrant_type: "",
     registrant_relation: "",
     notes: "",
-  })
-  const [submitting, setSubmitting] = useState(false)
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { estados, loading: estadosLoading } = useEstados();
 
-  const selectedOrigin = estados.find((e) => e.estado === form.origin_state)
-  const selectedDest = estados.find((e) => e.estado === form.destination_state)
+  const selectedOrigin = estados.find((e) => e.name === form.origin_state);
+  const selectedDest = estados.find((e) => e.name === form.destination_state);
 
   const update = (field: keyof FormData, value: string | boolean | null) =>
-    setForm((prev) => ({ ...prev, [field]: value ?? "" }))
+    setForm((prev) => ({ ...prev, [field]: value ?? "" }));
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const pb = getPB()
+    e.preventDefault();
+    const pb = getPB();
 
-    if (!form.registrant_type || !form.origin_state || !form.housing_destruction) {
-      toast.error(tc("error"), { description: tc("errorRequired") })
-      return
+    if (
+      !form.registrant_type ||
+      !form.origin_state ||
+      !form.housing_destruction
+    ) {
+      toast.error(tc("error"), { description: tc("errorRequired") });
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const data: Record<string, unknown> = {
         origin_state: form.origin_state,
@@ -83,40 +88,43 @@ export function TravelRequestForm() {
         housing_destruction: form.housing_destruction,
         registrant_type: form.registrant_type,
         status: "open",
-      }
+      };
 
       if (pb.authStore.record) {
-        data.user = pb.authStore.record.id
+        data.user = pb.authStore.record.id;
       }
 
       if (form.has_destination) {
-        data.has_destination = true
-        data.destination_state = form.destination_state
-        data.destination_municipality = form.destination_municipality
-        data.destination_city = form.destination_city
+        data.has_destination = true;
+        data.destination_state = form.destination_state;
+        data.destination_municipality = form.destination_municipality;
+        data.destination_city = form.destination_city;
       }
 
-      if (form.people_to_house) data.people_to_house = Number(form.people_to_house)
-      if (form.children_count) data.children_count = Number(form.children_count)
-      if (form.adults_count) data.adults_count = Number(form.adults_count)
-      if (form.registrant_relation) data.registrant_relation = form.registrant_relation
-      if (form.notes) data.notes = form.notes
+      if (form.people_to_house)
+        data.people_to_house = Number(form.people_to_house);
+      if (form.children_count)
+        data.children_count = Number(form.children_count);
+      if (form.adults_count) data.adults_count = Number(form.adults_count);
+      if (form.registrant_relation)
+        data.registrant_relation = form.registrant_relation;
+      if (form.notes) data.notes = form.notes;
 
       if (pb.authStore.record) {
-        await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data)
+        await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).create(data);
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ formType: "travel_request", data }),
-        })
+        });
         if (!res.ok) {
-          const errData = await res.json()
-          throw new Error(errData.error || tc("error"))
+          const errData = await res.json();
+          throw new Error(errData.error || tc("error"));
         }
       }
 
-      toast.success(t("success"))
+      toast.success(t("success"));
       setForm({
         has_destination: null,
         origin_state: "",
@@ -133,16 +141,16 @@ export function TravelRequestForm() {
         registrant_type: "",
         registrant_relation: "",
         notes: "",
-      })
+      });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : tc("error")
-      toast.error(msg)
+      const msg = err instanceof Error ? err.message : tc("error");
+      toast.error(msg);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
-  const inputClass = "w-full"
+  const inputClass = "w-full";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -152,14 +160,18 @@ export function TravelRequestForm() {
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
-            variant={form.registrant_type === "damnificado" ? "default" : "outline"}
+            variant={
+              form.registrant_type === "damnificado" ? "default" : "outline"
+            }
             onClick={() => update("registrant_type", "damnificado")}
           >
             {t("registrantDamnificado")}
           </Button>
           <Button
             type="button"
-            variant={form.registrant_type === "colaborador" ? "default" : "outline"}
+            variant={
+              form.registrant_type === "colaborador" ? "default" : "outline"
+            }
             onClick={() => update("registrant_type", "colaborador")}
           >
             {t("registrantColaborador")}
@@ -188,16 +200,26 @@ export function TravelRequestForm() {
             <Select
               value={form.origin_state}
               onValueChange={(v) => {
-                update("origin_state", v)
-                update("origin_municipality", "")
-                update("origin_city", "")
+                update("origin_state", v);
+                update("origin_municipality", "");
+                update("origin_city", "");
               }}
             >
-              <SelectTrigger><SelectValue placeholder={t("originState")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originState")} />
+              </SelectTrigger>
               <SelectContent>
-                {estados.map((e) => (
-                  <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                ))}
+                {estadosLoading ? (
+                  <SelectItem value="" disabled>
+                    {tc("loading")}
+                  </SelectItem>
+                ) : (
+                  estados.map((e) => (
+                    <SelectItem key={e.name} value={e.name}>
+                      {e.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -206,15 +228,19 @@ export function TravelRequestForm() {
             <Select
               value={form.origin_municipality}
               onValueChange={(v) => {
-                update("origin_municipality", v)
-                update("origin_city", "")
+                update("origin_municipality", v);
+                update("origin_city", "");
               }}
               disabled={!selectedOrigin}
             >
-              <SelectTrigger><SelectValue placeholder={t("originMunicipality")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originMunicipality")} />
+              </SelectTrigger>
               <SelectContent>
                 {selectedOrigin?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
+                  <SelectItem key={m.municipio} value={m.municipio}>
+                    {m.municipio}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -226,12 +252,16 @@ export function TravelRequestForm() {
               onValueChange={(v) => update("origin_city", v)}
               disabled={!selectedOrigin || !form.origin_municipality}
             >
-              <SelectTrigger><SelectValue placeholder={t("originCity")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originCity")} />
+              </SelectTrigger>
               <SelectContent>
                 {selectedOrigin?.municipios
                   .find((m) => m.municipio === form.origin_municipality)
                   ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
               </SelectContent>
             </Select>
@@ -269,16 +299,26 @@ export function TravelRequestForm() {
               <Select
                 value={form.destination_state}
                 onValueChange={(v) => {
-                  update("destination_state", v)
-                  update("destination_municipality", "")
-                  update("destination_city", "")
+                  update("destination_state", v);
+                  update("destination_municipality", "");
+                  update("destination_city", "");
                 }}
               >
-                <SelectTrigger><SelectValue placeholder={t("destinationState")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("destinationState")} />
+                </SelectTrigger>
                 <SelectContent>
-                  {estados.map((e) => (
-                    <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                  ))}
+                  {estadosLoading ? (
+                    <SelectItem value="" disabled>
+                      {tc("loading")}
+                    </SelectItem>
+                  ) : (
+                    estados.map((e) => (
+                      <SelectItem key={e.name} value={e.name}>
+                        {e.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -287,15 +327,19 @@ export function TravelRequestForm() {
               <Select
                 value={form.destination_municipality}
                 onValueChange={(v) => {
-                  update("destination_municipality", v)
-                  update("destination_city", "")
+                  update("destination_municipality", v);
+                  update("destination_city", "");
                 }}
                 disabled={!selectedDest}
               >
-                <SelectTrigger><SelectValue placeholder={t("destinationMunicipality")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("destinationMunicipality")} />
+                </SelectTrigger>
                 <SelectContent>
                   {selectedDest?.municipios.map((m) => (
-                    <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
+                    <SelectItem key={m.municipio} value={m.municipio}>
+                      {m.municipio}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -307,12 +351,16 @@ export function TravelRequestForm() {
                 onValueChange={(v) => update("destination_city", v)}
                 disabled={!selectedDest || !form.destination_municipality}
               >
-                <SelectTrigger><SelectValue placeholder={t("destinationCity")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("destinationCity")} />
+                </SelectTrigger>
                 <SelectContent>
                   {selectedDest?.municipios
                     .find((m) => m.municipio === form.destination_municipality)
                     ?.ciudades.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
                     ))}
                 </SelectContent>
               </Select>
@@ -373,12 +421,21 @@ export function TravelRequestForm() {
       {/* Housing destruction */}
       <div className="space-y-2">
         <Label>{t("housingDestruction")}</Label>
-        <Select value={form.housing_destruction} onValueChange={(v) => update("housing_destruction", v)}>
-          <SelectTrigger><SelectValue placeholder={t("housingDestruction")} /></SelectTrigger>
+        <Select
+          value={form.housing_destruction}
+          onValueChange={(v) => update("housing_destruction", v)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={t("housingDestruction")} />
+          </SelectTrigger>
           <SelectContent>
-            {["total", "grave", "se_puede_reparar", "prestada_emergencia"].map((opt) => (
-              <SelectItem key={opt} value={opt}>{t(opt)}</SelectItem>
-            ))}
+            {["total", "grave", "se_puede_reparar", "prestada_emergencia"].map(
+              (opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {t(opt)}
+                </SelectItem>
+              )
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -394,9 +451,14 @@ export function TravelRequestForm() {
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={submitting}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full md:w-auto"
+        disabled={submitting}
+      >
         {submitting ? tc("loading") : t("submit")}
       </Button>
     </form>
-  )
+  );
 }

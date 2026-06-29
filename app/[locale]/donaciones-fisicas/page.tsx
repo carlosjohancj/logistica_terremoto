@@ -24,7 +24,7 @@ import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Search, Package, MapPin, Truck, ArrowDownUp } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 type Supply = {
   id: string
@@ -52,6 +52,7 @@ export default function DonacionesFisicasPage() {
   const [filterCategory, setFilterCategory] = useState("")
   const [filterState, setFilterState] = useState("")
   const [search, setSearch] = useState("")
+  const { estados, loading: estadosLoading } = useEstados()
 
   const categories: { value: string; label: string }[] = [
     { value: "camas", label: t("camas") },
@@ -159,9 +160,13 @@ export default function DonacionesFisicasPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("all")}</SelectItem>
-            {estados.map((e) => (
-              <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-            ))}
+            {estadosLoading ? (
+              <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+            ) : (
+              estados.map((e) => (
+                <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
