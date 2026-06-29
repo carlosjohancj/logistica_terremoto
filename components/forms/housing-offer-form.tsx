@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 type FormData = {
   state: string
@@ -53,8 +53,9 @@ export function HousingOfferForm() {
     notes: "",
   })
   const [submitting, setSubmitting] = useState(false)
+  const { estados, loading: estadosLoading } = useEstados()
 
-  const selectedEstado = estados.find((e) => e.estado === form.state)
+  const selectedEstado = estados.find((e) => e.name === form.state)
 
   const update = (field: keyof FormData, value: string | boolean | null) =>
     setForm((prev) => ({ ...prev, [field]: value ?? "" }))
@@ -157,9 +158,13 @@ export function HousingOfferForm() {
             >
               <SelectTrigger><SelectValue placeholder={t("state")} /></SelectTrigger>
               <SelectContent>
-                {estados.map((e) => (
-                  <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                ))}
+                {estadosLoading ? (
+                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                ) : (
+                  estados.map((e) => (
+                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>

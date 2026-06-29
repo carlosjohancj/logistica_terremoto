@@ -18,8 +18,8 @@ import { MapIcon, ListIcon } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
-import estados from "@/data/venezuela.json"
-import coords from "@/data/coords.json"
+import { getEstados, getCoords } from "@/lib/estados"
+import type { Estado } from "@/lib/estados"
 
 const MapView = dynamic(
   () => import("@/components/maps/map-view").then((m) => ({ default: m.MapView })),
@@ -41,6 +41,7 @@ export default function ExplorarPage() {
   const [filterState, setFilterState] = useState("")
   const [search, setSearch] = useState("")
   const [viewMode, setViewMode] = useState<"map" | "list">("map")
+  const [estados, setEstados] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchData() {
@@ -48,12 +49,16 @@ export default function ExplorarPage() {
       const pb = getPB()
       const allItems: ListItem[] = []
 
+      const estadosData = await getEstados()
+      const estados = await getCoords()
+      setEstados(estadosData.map((e) => e.name))
+
       try {
         const travelReqs = await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 50, {
           filter: 'status = "open"',
         })
         for (const req of travelReqs.items) {
-          const stateCoords = coords[req.origin_state as keyof typeof coords]
+          const stateCoords = estados[req.origin_state]
           if (stateCoords) {
             allItems.push({
               id: `travel-${req.id}`,
@@ -74,7 +79,7 @@ export default function ExplorarPage() {
           filter: 'status = "open"',
         })
         for (const offer of transportOffers.items) {
-          const stateCoords = coords[offer.origin_state as keyof typeof coords]
+          const stateCoords = estados[offer.origin_state]
           if (stateCoords) {
             allItems.push({
               id: `transport-${offer.id}`,
@@ -95,7 +100,7 @@ export default function ExplorarPage() {
           filter: 'status = "open"',
         })
         for (const offer of housingOffers.items) {
-          const stateCoords = coords[offer.state as keyof typeof coords]
+          const stateCoords = estados[offer.state]
           if (stateCoords) {
             allItems.push({
               id: `housing-${offer.id}`,
@@ -191,8 +196,8 @@ export default function ExplorarPage() {
               <SelectContent>
                 <SelectItem value="all">{t("all")}</SelectItem>
                 {estados.map((e) => (
-                <SelectItem key={e.estado} value={e.estado}>
-                  {e.estado}
+                <SelectItem key={e} value={e}>
+                  {e}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -251,8 +256,8 @@ export default function ExplorarPage() {
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className={
-                      item.type === "travel" ? "border-terracotta text-terracotta" :
-                      item.type === "transport" ? "border-mostaza text-mostaza" :
+                      item.type === "travel" ? "border-primary text-primary" :
+                      item.type === "transport" ? "border-accent text-accent" :
                       "border-green-600 text-green-600"
                     }>
                       {item.type === "travel" ? t("travelRequests") :

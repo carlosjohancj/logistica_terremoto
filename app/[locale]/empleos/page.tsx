@@ -24,7 +24,7 @@ import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Search, Building2, MapPin, Briefcase } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 type Job = {
   id: string
@@ -51,6 +51,7 @@ export default function EmpleosPage() {
   const [search, setSearch] = useState("")
   const [filterState, setFilterState] = useState("")
   const [filterModality, setFilterModality] = useState("")
+  const { estados, loading: estadosLoading } = useEstados()
 
   useEffect(() => {
     async function fetchJobs() {
@@ -114,9 +115,13 @@ export default function EmpleosPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("all")}</SelectItem>
-            {estados.map((e) => (
-              <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-            ))}
+            {estadosLoading ? (
+              <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+            ) : (
+              estados.map((e) => (
+                <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
         <Select value={filterModality} onValueChange={(v) => setFilterModality(v ?? "")}>

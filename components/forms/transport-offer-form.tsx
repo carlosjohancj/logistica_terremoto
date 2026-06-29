@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 type FormData = {
   vehicle_type: string
@@ -59,9 +59,10 @@ export function TransportOfferForm() {
     notes: "",
   })
   const [submitting, setSubmitting] = useState(false)
+  const { estados, loading: estadosLoading } = useEstados()
 
-  const originEstado = estados.find((e) => e.estado === form.origin_state)
-  const destEstado = estados.find((e) => e.estado === form.destination_state)
+  const originEstado = estados.find((e) => e.name === form.origin_state)
+  const destEstado = estados.find((e) => e.name === form.destination_state)
 
   const update = (field: keyof FormData, value: string | boolean | null) =>
     setForm((prev) => ({ ...prev, [field]: value ?? "" }))
@@ -194,9 +195,13 @@ export function TransportOfferForm() {
             >
               <SelectTrigger><SelectValue placeholder={t("originState")} /></SelectTrigger>
               <SelectContent>
-                {estados.map((e) => (
-                  <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                ))}
+                {estadosLoading ? (
+                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                ) : (
+                  estados.map((e) => (
+                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -254,9 +259,13 @@ export function TransportOfferForm() {
             >
               <SelectTrigger><SelectValue placeholder={t("destinationState")} /></SelectTrigger>
               <SelectContent>
-                {estados.map((e) => (
-                  <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                ))}
+                {estadosLoading ? (
+                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                ) : (
+                  estados.map((e) => (
+                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>

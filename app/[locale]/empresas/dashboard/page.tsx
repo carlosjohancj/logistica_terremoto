@@ -34,7 +34,7 @@ import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 type Company = {
   id: string
@@ -63,6 +63,7 @@ export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { estados } = useEstados()
 
   const [jobForm, setJobForm] = useState({
     title: "",
@@ -164,7 +165,7 @@ export default function DashboardPage() {
     }
   }
 
-  const selectedEstado = estados.find((e) => e.estado === jobForm.location_state)
+  const selectedEstado = estados.find((e) => e.name === jobForm.location_state)
 
   if (!loading && companies.length === 0) {
     return (
@@ -233,7 +234,7 @@ export default function DashboardPage() {
                           <SelectTrigger><SelectValue placeholder={tj("filterState")} /></SelectTrigger>
                           <SelectContent>
                             {estados.map((e) => (
-                              <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
+                              <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>

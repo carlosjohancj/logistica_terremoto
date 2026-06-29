@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/card"
 import { toast } from "sonner"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 export default function RegistroEmpresaPage() {
   const t = useTranslations("companies")
@@ -45,8 +45,9 @@ export default function RegistroEmpresaPage() {
     website: "",
   })
   const [submitting, setSubmitting] = useState(false)
+  const { estados, loading: estadosLoading } = useEstados()
 
-  const selectedEstado = estados.find((e) => e.estado === form.state)
+  const selectedEstado = estados.find((e) => e.name === form.state)
 
   const update = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -138,9 +139,13 @@ export default function RegistroEmpresaPage() {
                       <SelectValue placeholder={t("state")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {estados.map((e) => (
-                        <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
-                      ))}
+                      {estadosLoading ? (
+                        <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                      ) : (
+                        estados.map((e) => (
+                          <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

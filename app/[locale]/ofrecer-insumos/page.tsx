@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card"
 import { getPB, COLLECTIONS } from "@/lib/pocketbase"
 import { toast } from "sonner"
-import estados from "@/data/venezuela.json"
+import { useEstados } from "@/lib/estados"
 
 const CATEGORIES = ["camas", "comida", "ropa", "medicinas", "agua", "higiene", "electronico", "materiales", "muebles", "otros"] as const
 const CONDITIONS = ["nuevo", "usado_bueno", "usado_regular", "no_aplica"] as const
@@ -47,8 +47,9 @@ export default function OfrecerInsumosPage() {
     needs_transport: false,
   })
   const [submitting, setSubmitting] = useState(false)
+  const { estados } = useEstados()
 
-  const selectedEstado = estados.find((e) => e.estado === form.state)
+  const selectedEstado = estados.find((e) => e.name === form.state)
   const update = (field: string, value: string | boolean) =>
     setForm((p) => ({ ...p, [field]: value }))
 
@@ -220,7 +221,7 @@ export default function OfrecerInsumosPage() {
                     <SelectTrigger><SelectValue placeholder={t("state")} /></SelectTrigger>
                     <SelectContent>
                       {estados.map((e) => (
-                        <SelectItem key={e.estado} value={e.estado}>{e.estado}</SelectItem>
+                        <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
