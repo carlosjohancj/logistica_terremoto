@@ -28,8 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not created" }, { status: 500 })
     }
 
-    const { error: profileError } = await supabase
-      .from(TABLES.PROFILES)
+    const { error: profileError } = await (supabase.from(TABLES.PROFILES) as any)
       .insert({ id: userId, name, role: role || "damnificado", phone })
 
     if (profileError) {
