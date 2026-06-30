@@ -10,8 +10,9 @@ import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { cn } from "@/lib/utils";
 import { getSupabase } from "@/lib/supabase";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
-import { NavDropdown, DropdownLink } from "@/components/layout/nav-dropdown";
-import { NavMobileMenu } from "@/components/layout/nav-mobile-menu";
+import { NavDropdown } from "./dropdown";
+import { DropdownLink } from "./dropdown-link";
+import { NavMobileMenu } from "./mobile-menu";
 
 export function Navbar() {
   const t = useTranslations("nav");
