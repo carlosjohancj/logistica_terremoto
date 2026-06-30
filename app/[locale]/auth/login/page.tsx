@@ -1,44 +1,45 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { toast } from "sonner"
-import { getSupabase } from "@/lib/supabase"
+} from "@/components/ui/card";
+import { toast } from "sonner";
+import { loginUser } from "@/lib/auth";
 
 export default function LoginPage() {
-  const t = useTranslations("auth")
-  const tc = useTranslations("common")
-  const router = useRouter()
+  const t = useTranslations("auth");
+  const tc = useTranslations("common");
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1] || "es";
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
     try {
-      const supabase = getSupabase()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) throw error
-      toast.success(tc("success"))
-      router.push("/")
+      await loginUser({ email, password });
+      toast.success(tc("success"));
+      router.push(`/${locale}`);
     } catch {
-      toast.error(t("errorLogin"))
+      toast.error(t("errorLogin"));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -63,9 +64,8 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -77,12 +77,15 @@ export default function LoginPage() {
           </form>
           <p className="text-sm text-muted-foreground text-center mt-4">
             {t("noAccount")}{" "}
-            <Link href="/auth/register" className="text-primary hover:underline">
+            <Link
+              href={`/${locale}/auth/register`}
+              className="text-primary hover:underline"
+            >
               {t("registerHere")}
             </Link>
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

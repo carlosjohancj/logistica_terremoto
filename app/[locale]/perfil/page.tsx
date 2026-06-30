@@ -15,7 +15,6 @@ import {
 import { getSupabase, TABLES, type Role } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonProfile } from "@/components/ui/skeleton"
-import { User, Package, Truck, Home, LogOut } from "lucide-react"
 
 const roleLabels: Record<Role, string> = {
   damnificado: "Damnificado",

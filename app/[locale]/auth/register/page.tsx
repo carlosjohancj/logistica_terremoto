@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordInput } from "@/components/ui/password-input"
 import {
   Select,
   SelectContent,
@@ -22,12 +23,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getSupabase, type Role } from "@/lib/supabase"
+import { getSupabase } from "@/lib/supabase"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
   const tc = useTranslations("common")
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
 
   const [form, setForm] = useState({
     name: "",
@@ -35,7 +38,7 @@ export default function RegisterPage() {
     password: "",
     passwordConfirm: "",
     phone: "",
-    role: "",
+    role: "damnificado",
   })
   const [loading, setLoading] = useState(false)
 
@@ -57,11 +60,11 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: { data: { name: form.name, role: form.role } },
+        options: { data: { name: form.name, role: form.role, phone: form.phone } },
       })
       if (error) throw error
       toast.success(tc("success"))
-      router.push("/")
+      router.push(`/${locale}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error")
       toast.error(msg)
@@ -81,36 +84,20 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t("name")}</Label>
-              <Input
-                id="name"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                required
-              />
+              <Input id="name" value={form.name} onChange={(e) => update("name", e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                required
-              />
+              <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{t("phone")}</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={form.phone}
-                onChange={(e) => update("phone", e.target.value)}
-              />
+              <Input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>{t("role")}</Label>
               <Select value={form.role} onValueChange={(v) => update("role", v ?? "")}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("role")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -123,24 +110,11 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={form.password}
-                onChange={(e) => update("password", e.target.value)}
-                required
-                minLength={6}
-              />
+              <PasswordInput id="password" value={form.password} onChange={(e) => update("password", e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="passwordConfirm">{t("passwordConfirm")}</Label>
-              <Input
-                id="passwordConfirm"
-                type="password"
-                value={form.passwordConfirm}
-                onChange={(e) => update("passwordConfirm", e.target.value)}
-                required
-              />
+              <PasswordInput id="passwordConfirm" value={form.passwordConfirm} onChange={(e) => update("passwordConfirm", e.target.value)} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? tc("loading") : t("submit")}
@@ -148,7 +122,7 @@ export default function RegisterPage() {
           </form>
           <p className="text-sm text-muted-foreground text-center mt-4">
             {t("hasAccount")}{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
+            <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
               {t("loginHere")}
             </Link>
           </p>

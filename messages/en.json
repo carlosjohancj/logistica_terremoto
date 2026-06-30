@@ -70,6 +70,7 @@
   },
   "travelRequest": {
     "title": "Request Trip",
+    "description": "Fill out the form to publish your travel request. A driver will contact you if they have availability on your route.",
     "hasDestination": "Do you have somewhere to go?",
     "yes": "Yes",
     "no": "No",
