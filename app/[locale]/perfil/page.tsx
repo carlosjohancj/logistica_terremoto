@@ -21,6 +21,7 @@ const roleLabels: Record<Role, string> = {
   transportista: "Transportista",
   anfitrion: "Anfitrión",
   donante: "Donante",
+  voluntario: "Voluntario",
   admin: "Admin",
 }
 
