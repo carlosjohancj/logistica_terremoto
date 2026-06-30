@@ -13,6 +13,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { registerUser } from "@/lib/auth"
 import { getSupabase } from "@/lib/supabase"
 import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/auth"
 
@@ -39,16 +40,8 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterFormValues) {
     setLoading(true)
     try {
+      await registerUser(values)
       const supabase = getSupabase()
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: { data: { name: values.name, role: values.role, phone: values.phone } },
-      })
-      // Ignore email confirmation errors — user is created, sign in directly
-      if (signUpError && !signUpError.message.includes("confirmation email")) {
-        throw signUpError
-      }
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
