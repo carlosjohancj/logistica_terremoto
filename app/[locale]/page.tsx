@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getSupabase, TABLES } from "@/lib/supabase";
+import { usePathname } from "next/navigation";
+
+const LOGO_URL =
+  "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/desde-cero.webp";
 
 export default function HomePage() {
   const t = useTranslations("home");
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1] || "es";
 
   const [stats, setStats] = useState([
     { value: "-", label: t("statsViajes") },
@@ -26,30 +32,45 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const supabase = getSupabase()
-        const [travelCount, transportCount, housingCount, donations] = await Promise.all([
-          supabase.from(TABLES.TRAVEL_REQUESTS).select("*", { count: "exact", head: true }).eq("status", "open"),
-          supabase.from(TABLES.TRANSPORT_OFFERS).select("*", { count: "exact", head: true }).eq("status", "open"),
-          supabase.from(TABLES.HOUSING_OFFERS).select("*", { count: "exact", head: true }).eq("status", "open"),
-          supabase.from(TABLES.DONATIONS).select("*", { count: "exact", head: true }),
-        ])
+        const supabase = getSupabase();
+        const [travelCount, transportCount, housingCount, donations] =
+          await Promise.all([
+            supabase
+              .from(TABLES.TRAVEL_REQUESTS)
+              .select("*", { count: "exact", head: true })
+              .eq("status", "open"),
+            supabase
+              .from(TABLES.TRANSPORT_OFFERS)
+              .select("*", { count: "exact", head: true })
+              .eq("status", "open"),
+            supabase
+              .from(TABLES.HOUSING_OFFERS)
+              .select("*", { count: "exact", head: true })
+              .eq("status", "open"),
+            supabase
+              .from(TABLES.DONATIONS)
+              .select("*", { count: "exact", head: true }),
+          ]);
         setStats([
           { value: String(travelCount.count), label: t("statsViajes") },
-          { value: String(transportCount.count), label: t("statsTransportistas") },
+          {
+            value: String(transportCount.count),
+            label: t("statsTransportistas"),
+          },
           { value: String(housingCount.count), label: t("statsAnfitriones") },
           { value: `${donations.count}`, label: t("statsDonaciones") },
-        ])
+        ]);
       } catch {
         setStats([
           { value: "0", label: t("statsViajes") },
           { value: "0", label: t("statsTransportistas") },
           { value: "0", label: t("statsAnfitriones") },
           { value: "0", label: t("statsDonaciones") },
-        ])
+        ]);
       }
     }
-    fetchStats()
-  }, [])
+    fetchStats();
+  }, []);
 
   const steps = [
     { icon: "📝", title: t("paso1"), desc: t("paso1Desc") },
@@ -57,40 +78,32 @@ export default function HomePage() {
     { icon: "🤝", title: t("paso3"), desc: t("paso3Desc") },
   ];
 
-  const ctaItems = [
-    { href: "solicitar-viaje", label: t("ctaSolicitar"), desc: t("ctaSolicitarDesc"), variant: "default" as const },
-    { href: "ofrecer-transporte", label: t("ctaTransporte"), desc: t("ctaTransporteDesc"), variant: "outline" as const },
-    { href: "ofrecer-hospedaje", label: t("ctaHospedaje"), desc: t("ctaHospedajeDesc"), variant: "outline" as const },
-    { href: "donar", label: t("ctaDonar"), desc: t("ctaDonarDesc"), variant: "secondary" as const },
-  ];
-
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-20 md:py-32">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
-            <span className="text-primary">{t("title")}</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-            {t("subtitle")}
-          </p>
-          <p className="text-base text-muted-foreground mb-10 max-w-xl mx-auto">
-            {t("heroDesc")}
-          </p>
+      <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-stone-50 overflow-hidden px-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={LOGO_URL}
+          alt="Desde Cero"
+          className="w-full max-w-3xl h-auto"
+        />
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {ctaItems.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <Button variant={item.variant} size="lg" className="min-w-[180px]">
-                  <div className="flex flex-col items-center py-1">
-                    <span className="text-sm font-semibold">{item.label}</span>
-                    <span className="text-[10px] opacity-70">{item.desc}</span>
-                  </div>
-                </Button>
-              </Link>
-            ))}
-          </div>
+        <p className="mt-8 text-base md:text-lg text-muted-foreground text-center max-w-md">
+          {t("subtitle")}
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <Link href={`/${locale}/solicitar-viaje`}>
+            <Button size="lg" className="rounded-full px-10">
+              {t("ctaSolicitar")}
+            </Button>
+          </Link>
+          <Link href={`/${locale}/donar`}>
+            <Button size="lg" variant="outline" className="rounded-full px-10">
+              {t("ctaDonar")}
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -100,8 +113,12 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-3xl font-bold text-primary">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -111,9 +128,11 @@ export default function HomePage() {
       {/* How it works */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center mb-10">{t("comoFunciona")}</h2>
+          <h2 className="text-2xl font-bold text-center mb-10">
+            {t("comoFunciona")}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, i) => (
+            {steps.map((step) => (
               <Card key={step.title} className="text-center">
                 <CardHeader>
                   <div className="text-4xl mb-2">{step.icon}</div>

@@ -1,12 +1,12 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { Globe } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 const languages = [
@@ -33,13 +33,13 @@ export function LanguageSwitcher() {
 
   return (
     <Select value={currentLocale} onValueChange={switchLocale}>
-      <SelectTrigger className="w-20 h-7 text-xs">
-        <SelectValue />
+      <SelectTrigger className="rounded-full border border-border px-2.5 py-1 h-auto text-xs font-medium hover:bg-muted transition-colors shadow-none bg-transparent w-auto gap-1">
+        <Globe className="size-3.5 shrink-0 text-muted-foreground" />
       </SelectTrigger>
       <SelectContent>
         {languages.map((lang) => (
           <SelectItem key={lang.code} value={lang.code}>
-            {lang.label} - {lang.name}
+            {lang.label} — {lang.name}
           </SelectItem>
         ))}
       </SelectContent>

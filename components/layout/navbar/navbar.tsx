@@ -65,7 +65,7 @@ export function Navbar() {
           <Link
             href={`/${locale}`}
             className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
+              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}`) ? "text-primary" : "text-muted-foreground"
             )}
           >
@@ -74,7 +74,7 @@ export function Navbar() {
           <Link
             href={`/${locale}/solicitar-viaje`}
             className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
+              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/solicitar-viaje`)
                 ? "text-primary"
                 : "text-muted-foreground"
@@ -108,7 +108,7 @@ export function Navbar() {
           <Link
             href={`/${locale}/explorar`}
             className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
+              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/explorar`)
                 ? "text-primary"
                 : "text-muted-foreground"
@@ -119,7 +119,7 @@ export function Navbar() {
           <Link
             href={`/${locale}/donar`}
             className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
+              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/donar`)
                 ? "text-primary"
                 : "text-muted-foreground"
@@ -155,12 +155,12 @@ export function Navbar() {
             {isLoggedIn ? (
               <>
                 <Link href={`/${locale}/matches`}>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
                     {t("matches")}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/perfil`}>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase px-5">
                     {t("perfil")}
                   </Button>
                 </Link>
@@ -168,12 +168,14 @@ export function Navbar() {
             ) : (
               <>
                 <Link href={`/${locale}/auth/login`}>
-                  <Button variant="outline" size="sm">
+                  <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
                     {t("iniciarSesion")}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/auth/register`}>
-                  <Button size="sm">{t("registrarse")}</Button>
+                  <Button size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase px-5">
+                    {t("registrarse")}
+                  </Button>
                 </Link>
               </>
             )}
