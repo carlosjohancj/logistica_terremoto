@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
@@ -20,10 +20,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { Controller } from "react-hook-form"
 import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
-import { useEstados } from "@/lib/estados"
 import { jobSchema, JobValues } from "@/lib/schemas/job"
+import { JOB_MODALITIES } from "@/lib/forms/constants"
+import { JobLocationFields } from "./location-fields"
 
 type JobFormProps = {
   companyId: string
@@ -33,13 +35,11 @@ type JobFormProps = {
 export function JobForm({ companyId, onSuccess }: JobFormProps) {
   const tj = useTranslations("jobs")
   const tc = useTranslations("common")
-  const { estados } = useEstados()
 
   const {
     register,
     control,
     handleSubmit,
-    watch,
     setValue,
     reset,
     formState: { errors, isSubmitting },
@@ -56,19 +56,12 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
     },
   })
 
-  const locationState = watch("location_state")
-  const selectedEstado = estados.find((e) => e.name === locationState)
-
   async function onSubmit(values: JobValues) {
     try {
       const supabase = getSupabase()
       await supabase
         .from(TABLES.JOBS)
-        .insert({
-          ...values,
-          company: companyId,
-          status: "open",
-        })
+        .insert({ ...values, company: companyId, status: "open" })
         .select()
         .single()
       toast.success(tj("success") || "Empleo creado")
@@ -103,63 +96,13 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
             <Label>{tj("requirements")}</Label>
             <Textarea {...register("requirements")} rows={3} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{tj("filterState")}</Label>
-              <Controller
-                name="location_state"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value ?? ""}
-                    onValueChange={(v) => {
-                      field.onChange(v)
-                      setValue("location_city", "")
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={tj("filterState")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {estados.map((e) => (
-                        <SelectItem key={e.name} value={e.name}>
-                          {e.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.location_state && (
-                <p className="text-sm text-destructive">{errors.location_state.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label>{tj("location")}</Label>
-              <Controller
-                name="location_city"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value ?? ""}
-                    onValueChange={field.onChange}
-                    disabled={!selectedEstado}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={tj("location")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedEstado?.municipios.map((m) => (
-                        <SelectItem key={m.municipio} value={m.municipio}>
-                          {m.municipio}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
+
+          <JobLocationFields
+            control={control}
+            setValue={setValue}
+            stateError={errors.location_state?.message}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{tj("modality")}</Label>
@@ -172,9 +115,9 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
                       <SelectValue placeholder={tj("modality")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="presencial">{tj("presencial")}</SelectItem>
-                      <SelectItem value="remoto">{tj("remoto")}</SelectItem>
-                      <SelectItem value="hibrido">{tj("hibrido")}</SelectItem>
+                      {JOB_MODALITIES.map((m) => (
+                        <SelectItem key={m} value={m}>{tj(m)}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -188,6 +131,7 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
               <Input {...register("salary_range")} placeholder="$" />
             </div>
           </div>
+
           <div className="space-y-2">
             <Label>{tj("contact")}</Label>
             <Input type="email" {...register("contact_email")} />

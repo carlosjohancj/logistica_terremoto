@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl"
-import { TransportOfferForm } from "@/components/forms/transport-offer-form"
+import { TransportOfferForm } from "@/components/forms/transport-offer/form"
 import {
   Card,
   CardContent,

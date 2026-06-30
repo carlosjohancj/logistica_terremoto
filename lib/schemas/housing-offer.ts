@@ -17,3 +17,13 @@ export const housingOfferSchema = z.object({
 })
 
 export type HousingOfferValues = z.infer<typeof housingOfferSchema>
+
+export type BooleanToggleField = keyof Pick<
+  HousingOfferValues,
+  | "accepts_children"
+  | "accepts_adults"
+  | "accepts_families"
+  | "has_furniture"
+  | "has_kitchen"
+  | "has_bathroom"
+>

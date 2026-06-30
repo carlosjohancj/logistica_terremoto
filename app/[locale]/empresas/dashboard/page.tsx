@@ -19,7 +19,7 @@ import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import { JobForm } from "@/components/forms/job-form"
+import { JobForm } from "@/components/forms/job/form"
 
 type Company = {
   id: string
