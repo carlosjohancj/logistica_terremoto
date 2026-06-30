@@ -15,7 +15,8 @@ export function Footer() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold text-lg text-primary mb-3">Desde Cero</h3>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/logo-main.png" alt="Desde Cero" className="h-auto w-40 mb-3" />
             <p className="text-sm text-muted-foreground">{t("heroDesc")}</p>
           </div>
           <div>
