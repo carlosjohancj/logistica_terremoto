@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,9 +22,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
+import { supplySchema, SupplyValues } from "@/lib/schemas/supply"
 
 const CATEGORIES = ["camas", "comida", "ropa", "medicinas", "agua", "higiene", "electronico", "materiales", "muebles", "otros"] as const
 const CONDITIONS = ["nuevo", "usado_bueno", "usado_regular", "no_aplica"] as const
@@ -32,54 +35,61 @@ export default function OfrecerInsumosPage() {
   const tc = useTranslations("common")
 
   const [supplyType, setSupplyType] = useState<"offer" | "request" | null>(null)
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    category: "",
-    quantity: "",
-    condition: "",
-    state: "",
-    municipality: "",
-    city: "",
-    address: "",
-    contact_name: "",
-    contact_phone: "",
-    needs_transport: false,
-  })
-  const [submitting, setSubmitting] = useState(false)
   const { estados } = useEstados()
 
-  const selectedEstado = estados.find((e) => e.name === form.state)
-  const update = (field: string, value: string | boolean) =>
-    setForm((p) => ({ ...p, [field]: value }))
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SupplyValues>({
+    resolver: zodResolver(supplySchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "",
+      condition: "",
+      state: "",
+      municipality: "",
+      city: "",
+      address: "",
+      contact_name: "",
+      contact_phone: "",
+      needs_transport: false,
+    },
+  })
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!supplyType || !form.title || !form.category || !form.state) {
-      toast.error(tc("error"), { description: tc("errorRequired") })
-      return
-    }
-    setSubmitting(true)
+  const selectedStateName = watch("state")
+  const municipalityValue = watch("municipality")
+  const selectedEstado = estados.find((e) => e.name === selectedStateName)
+
+  async function onSubmit(values: SupplyValues) {
+    if (!supplyType) return
     try {
       const supabase = getSupabase()
       const data: Record<string, unknown> = {
         type: supplyType,
-        title: form.title,
-        category: form.category,
-        state: form.state,
-        contact_name: form.contact_name,
+        title: values.title,
+        category: values.category,
+        state: values.state,
+        contact_name: values.contact_name,
         status: "open",
+        needs_transport: values.needs_transport,
       }
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) data.user = user.id
-      if (form.description) data.description = form.description
-      if (form.quantity) data.quantity = Number(form.quantity)
-      if (form.condition) data.condition = form.condition
-      if (form.municipality) data.municipality = form.municipality
-      if (form.city) data.city = form.city
-      if (form.address) data.address = form.address
-      if (form.contact_phone) data.contact_phone = form.contact_phone
-      data.needs_transport = form.needs_transport
+      if (values.description) data.description = values.description
+      if (values.quantity) data.quantity = values.quantity
+      if (values.condition) data.condition = values.condition
+      if (values.municipality) data.municipality = values.municipality
+      if (values.city) data.city = values.city
+      if (values.address) data.address = values.address
+      if (values.contact_phone) data.contact_phone = values.contact_phone
 
       if (user) {
         const { error } = await supabase.from("supplies").insert(data).select().single()
@@ -97,17 +107,11 @@ export default function OfrecerInsumosPage() {
       }
 
       toast.success(t("success"))
+      reset()
       setSupplyType(null)
-      setForm({
-        title: "", description: "", category: "", quantity: "",
-        condition: "", state: "", municipality: "", city: "",
-        address: "", contact_name: "", contact_phone: "", needs_transport: false,
-      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error")
       toast.error(msg)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -120,11 +124,7 @@ export default function OfrecerInsumosPage() {
             <CardDescription>{t("subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={() => setSupplyType("offer")}
-            >
+            <Button size="lg" className="w-full" onClick={() => setSupplyType("offer")}>
               {t("iOffer")}
             </Button>
             <Button
@@ -151,60 +151,73 @@ export default function OfrecerInsumosPage() {
           <CardDescription>{t("fillForm")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <Label>{t("title")}</Label>
-              <Input
-                value={form.title}
-                onChange={(e) => update("title", e.target.value)}
-                placeholder={t("titlePlaceholder")}
-                required
-              />
+              <Input {...register("title")} placeholder={t("titlePlaceholder")} />
+              {errors.title && (
+                <p className="text-sm text-destructive">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t("category")}</Label>
-                <Select value={form.category} onValueChange={(v) => update("category", v ?? "")}>
-                  <SelectTrigger><SelectValue placeholder={t("category")} /></SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>{t(c)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("category")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {t(c)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.category && (
+                  <p className="text-sm text-destructive">{errors.category.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>{t("quantity")}</Label>
-                <Input
-                  type="number" min={0}
-                  value={form.quantity}
-                  onChange={(e) => update("quantity", e.target.value)}
-                />
+                <Input type="number" min={0} {...register("quantity")} />
               </div>
             </div>
 
             {supplyType === "offer" && (
               <div className="space-y-2">
                 <Label>{t("condition")}</Label>
-                <Select value={form.condition} onValueChange={(v) => update("condition", v ?? "")}>
-                  <SelectTrigger><SelectValue placeholder={t("condition")} /></SelectTrigger>
-                  <SelectContent>
-                    {CONDITIONS.map((c) => (
-                      <SelectItem key={c} value={c}>{t(c)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="condition"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("condition")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CONDITIONS.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {t(c)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
             )}
 
             <div className="space-y-2">
               <Label>{t("description")}</Label>
-              <Textarea
-                value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                rows={4}
-              />
+              <Textarea {...register("description")} rows={4} />
             </div>
 
             <div className="space-y-4">
@@ -212,61 +225,94 @@ export default function OfrecerInsumosPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>{t("state")}</Label>
-                  <Select
-                    value={form.state}
-                    onValueChange={(v) => {
-                      update("state", v ?? "")
-                      update("municipality", "")
-                      update("city", "")
-                    }}
-                  >
-                    <SelectTrigger><SelectValue placeholder={t("state")} /></SelectTrigger>
-                    <SelectContent>
-                      {estados.map((e) => (
-                        <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="state"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={(v) => {
+                          field.onChange(v)
+                          setValue("municipality", "")
+                          setValue("city", "")
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("state")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {estados.map((e) => (
+                            <SelectItem key={e.name} value={e.name}>
+                              {e.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.state && (
+                    <p className="text-sm text-destructive">{errors.state.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{t("municipality")}</Label>
-                  <Select
-                    value={form.municipality}
-                    onValueChange={(v) => { update("municipality", v ?? ""); update("city", "") }}
-                    disabled={!selectedEstado}
-                  >
-                    <SelectTrigger><SelectValue placeholder={t("municipality")} /></SelectTrigger>
-                    <SelectContent>
-                      {selectedEstado?.municipios.map((m) => (
-                        <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="municipality"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={(v) => {
+                          field.onChange(v)
+                          setValue("city", "")
+                        }}
+                        disabled={!selectedEstado}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("municipality")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedEstado?.municipios.map((m) => (
+                            <SelectItem key={m.municipio} value={m.municipio}>
+                              {m.municipio}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>{t("city")}</Label>
-                  <Select
-                    value={form.city}
-                    onValueChange={(v) => update("city", v ?? "")}
-                    disabled={!selectedEstado}
-                  >
-                    <SelectTrigger><SelectValue placeholder={t("city")} /></SelectTrigger>
-                    <SelectContent>
-                      {selectedEstado?.municipios
-                        .find((m) => m.municipio === form.municipality)
-                        ?.ciudades.map((c) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="city"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={field.onChange}
+                        disabled={!selectedEstado || !municipalityValue}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("city")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedEstado?.municipios
+                            .find((m) => m.municipio === municipalityValue)
+                            ?.ciudades.map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>{t("address")}</Label>
-                <Input
-                  value={form.address}
-                  onChange={(e) => update("address", e.target.value)}
-                />
+                <Input {...register("address")} />
               </div>
             </div>
 
@@ -275,18 +321,14 @@ export default function OfrecerInsumosPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t("contactName")}</Label>
-                  <Input
-                    value={form.contact_name}
-                    onChange={(e) => update("contact_name", e.target.value)}
-                    required
-                  />
+                  <Input {...register("contact_name")} />
+                  {errors.contact_name && (
+                    <p className="text-sm text-destructive">{errors.contact_name.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{t("contactPhone")}</Label>
-                  <Input
-                    value={form.contact_phone}
-                    onChange={(e) => update("contact_phone", e.target.value)}
-                  />
+                  <Input {...register("contact_phone")} />
                 </div>
               </div>
             </div>
@@ -296,16 +338,15 @@ export default function OfrecerInsumosPage() {
                 <input
                   type="checkbox"
                   id="needs_transport"
-                  checked={form.needs_transport}
-                  onChange={(e) => update("needs_transport", e.target.checked)}
+                  {...register("needs_transport")}
                   className="h-4 w-4"
                 />
                 <Label htmlFor="needs_transport">{t("needsTransport")}</Label>
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full md:w-auto" disabled={submitting}>
-              {submitting ? tc("loading") : t("submit")}
+            <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
+              {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>
         </CardContent>

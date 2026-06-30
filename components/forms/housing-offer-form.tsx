@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,71 +14,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getSupabase, TABLES } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useEstados } from "@/lib/estados";
+import { housingOfferSchema, HousingOfferValues } from "@/lib/schemas/housing-offer";
 
-type FormData = {
-  state: string;
-  municipality: string;
-  city: string;
-  address: string;
-  capacity: string;
-  max_stay_days: string;
-  accepts_children: boolean;
-  accepts_adults: boolean;
-  accepts_families: boolean;
-  has_furniture: boolean;
-  has_kitchen: boolean;
-  has_bathroom: boolean;
-  notes: string;
-};
+type BooleanToggleField = keyof Pick<
+  HousingOfferValues,
+  | "accepts_children"
+  | "accepts_adults"
+  | "accepts_families"
+  | "has_furniture"
+  | "has_kitchen"
+  | "has_bathroom"
+>;
 
 export function HousingOfferForm() {
   const t = useTranslations("housingOffer");
   const tc = useTranslations("common");
-
-  const [form, setForm] = useState<FormData>({
-    state: "",
-    municipality: "",
-    city: "",
-    address: "",
-    capacity: "",
-    max_stay_days: "",
-    accepts_children: false,
-    accepts_adults: false,
-    accepts_families: false,
-    has_furniture: false,
-    has_kitchen: false,
-    has_bathroom: false,
-    notes: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
   const { estados, loading: estadosLoading } = useEstados();
 
-  const selectedEstado = estados.find((e) => e.name === form.state);
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<HousingOfferValues>({
+    resolver: zodResolver(housingOfferSchema),
+    defaultValues: {
+      state: "",
+      municipality: "",
+      city: "",
+      address: "",
+      accepts_children: false,
+      accepts_adults: false,
+      accepts_families: false,
+      has_furniture: false,
+      has_kitchen: false,
+      has_bathroom: false,
+      notes: "",
+    },
+  });
 
-  const update = (field: keyof FormData, value: string | boolean | null) =>
-    setForm((prev) => ({ ...prev, [field]: value ?? "" }));
+  const selectedStateName = watch("state");
+  const municipality = watch("municipality");
+  const selectedEstado = estados.find((e) => e.name === selectedStateName);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const supabase = getSupabase();
+  const acceptToggles: Array<{ field: BooleanToggleField; label: string }> = [
+    { field: "accepts_children", label: t("acceptsChildren") },
+    { field: "accepts_adults", label: t("acceptsAdults") },
+    { field: "accepts_families", label: t("acceptsFamilies") },
+  ];
 
-    if (!form.capacity || !form.max_stay_days) {
-      toast.error(tc("error"), { description: tc("errorRequired") });
-      return;
-    }
+  const amenityToggles: Array<{ field: BooleanToggleField; label: string }> = [
+    { field: "has_furniture", label: "Tiene muebles" },
+    { field: "has_kitchen", label: "Tiene cocina" },
+    { field: "has_bathroom", label: "Tiene baño" },
+  ];
 
-    setSubmitting(true);
+  async function onSubmit(values: HousingOfferValues) {
     try {
+      const supabase = getSupabase();
+
       const data: Record<string, unknown> = {
-        state: form.state,
-        municipality: form.municipality,
-        city: form.city,
-        capacity: Number(form.capacity),
-        max_stay_days: Number(form.max_stay_days),
+        state: values.state,
+        municipality: values.municipality,
+        city: values.city,
+        capacity: values.capacity,
+        max_stay_days: values.max_stay_days,
         status: "open",
+        accepts_children: values.accepts_children,
+        accepts_adults: values.accepts_adults,
+        accepts_families: values.accepts_families,
+        has_furniture: values.has_furniture,
+        has_kitchen: values.has_kitchen,
+        has_bathroom: values.has_bathroom,
       };
 
       const {
@@ -85,14 +99,8 @@ export function HousingOfferForm() {
       } = await supabase.auth.getUser();
       if (user) data.user = user.id;
 
-      if (form.address) data.address = form.address;
-      data.accepts_children = form.accepts_children;
-      data.accepts_adults = form.accepts_adults;
-      data.accepts_families = form.accepts_families;
-      data.has_furniture = form.has_furniture;
-      data.has_kitchen = form.has_kitchen;
-      data.has_bathroom = form.has_bathroom;
-      if (form.notes) data.notes = form.notes;
+      if (values.address) data.address = values.address;
+      if (values.notes) data.notes = values.notes;
 
       if (user) {
         const { error } = await supabase
@@ -114,124 +122,114 @@ export function HousingOfferForm() {
       }
 
       toast.success(t("success"));
-      setForm({
-        state: "",
-        municipality: "",
-        city: "",
-        address: "",
-        capacity: "",
-        max_stay_days: "",
-        accepts_children: false,
-        accepts_adults: false,
-        accepts_families: false,
-        has_furniture: false,
-        has_kitchen: false,
-        has_bathroom: false,
-        notes: "",
-      });
+      reset();
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error");
       toast.error(msg);
-    } finally {
-      setSubmitting(false);
     }
   }
 
-  const inputClass = "w-full";
-  const amenities = [
-    { key: "accepts_children", label: "Acepta niños" },
-    { key: "accepts_adults", label: "Acepta adultos" },
-    { key: "accepts_families", label: "Acepta familias" },
-    { key: "has_furniture", label: "Tiene muebles" },
-    { key: "has_kitchen", label: "Tiene cocina" },
-    { key: "has_bathroom", label: "Tiene baño" },
-  ] as const;
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* Location */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>{t("state")}</Label>
-            <Select
-              value={form.state}
-              onValueChange={(v) => {
-                update("state", v);
-                update("municipality", "");
-                update("city", "");
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("state")} />
-              </SelectTrigger>
-              <SelectContent>
-                {estadosLoading ? (
-                  <SelectItem value="" disabled>
-                    {tc("loading")}
-                  </SelectItem>
-                ) : (
-                  estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>
-                      {e.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="state"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("municipality", "");
+                    setValue("city", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("state")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {estadosLoading ? (
+                      <SelectItem value="" disabled>
+                        {tc("loading")}
+                      </SelectItem>
+                    ) : (
+                      estados.map((e) => (
+                        <SelectItem key={e.name} value={e.name}>
+                          {e.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.state && (
+              <p className="text-sm text-destructive">{errors.state.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>{t("municipality")}</Label>
-            <Select
-              value={form.municipality}
-              onValueChange={(v) => {
-                update("municipality", v);
-                update("city", "");
-              }}
-              disabled={!selectedEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("municipality")} />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>
-                    {m.municipio}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="municipality"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("city", "");
+                  }}
+                  disabled={!selectedEstado}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("municipality")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedEstado?.municipios.map((m) => (
+                      <SelectItem key={m.municipio} value={m.municipio}>
+                        {m.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="space-y-2">
             <Label>{t("city")}</Label>
-            <Select
-              value={form.city}
-              onValueChange={(v) => update("city", v)}
-              disabled={!selectedEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("city")} />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedEstado?.municipios
-                  .find((m) => m.municipio === form.municipality)
-                  ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
+                  disabled={!selectedEstado || !municipality}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("city")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedEstado?.municipios
+                      .find((m) => m.municipio === municipality)
+                      ?.ciudades.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         </div>
         <div className="space-y-2">
           <Label>{t("address")}</Label>
-          <Input
-            value={form.address}
-            onChange={(e) => update("address", e.target.value)}
-            placeholder={t("address")}
-            className={inputClass}
-          />
+          <Input {...register("address")} placeholder={t("address")} />
         </div>
       </div>
 
@@ -239,25 +237,17 @@ export function HousingOfferForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>{t("capacity")}</Label>
-          <Input
-            type="number"
-            min={1}
-            value={form.capacity}
-            onChange={(e) => update("capacity", e.target.value)}
-            required
-            className={inputClass}
-          />
+          <Input type="number" min={1} {...register("capacity")} />
+          {errors.capacity && (
+            <p className="text-sm text-destructive">{errors.capacity.message}</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>{t("maxStayDays")}</Label>
-          <Input
-            type="number"
-            min={1}
-            value={form.max_stay_days}
-            onChange={(e) => update("max_stay_days", e.target.value)}
-            required
-            className={inputClass}
-          />
+          <Input type="number" min={1} {...register("max_stay_days")} />
+          {errors.max_stay_days && (
+            <p className="text-sm text-destructive">{errors.max_stay_days.message}</p>
+          )}
         </div>
       </div>
 
@@ -265,27 +255,22 @@ export function HousingOfferForm() {
       <div className="space-y-3">
         <Label>¿A quién aceptas?</Label>
         <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant={form.accepts_children ? "default" : "outline"}
-            onClick={() => update("accepts_children", !form.accepts_children)}
-          >
-            {t("acceptsChildren")}
-          </Button>
-          <Button
-            type="button"
-            variant={form.accepts_adults ? "default" : "outline"}
-            onClick={() => update("accepts_adults", !form.accepts_adults)}
-          >
-            {t("acceptsAdults")}
-          </Button>
-          <Button
-            type="button"
-            variant={form.accepts_families ? "default" : "outline"}
-            onClick={() => update("accepts_families", !form.accepts_families)}
-          >
-            {t("acceptsFamilies")}
-          </Button>
+          {acceptToggles.map(({ field, label }) => (
+            <Controller
+              key={field}
+              name={field}
+              control={control}
+              render={({ field: f }) => (
+                <Button
+                  type="button"
+                  variant={(f.value as boolean) ? "default" : "outline"}
+                  onClick={() => f.onChange(!(f.value as boolean))}
+                >
+                  {label}
+                </Button>
+              )}
+            />
+          ))}
         </div>
       </div>
 
@@ -293,15 +278,21 @@ export function HousingOfferForm() {
       <div className="space-y-3">
         <Label>Servicios del lugar</Label>
         <div className="flex flex-wrap gap-2">
-          {amenities.map((a) => (
-            <Button
-              key={a.key}
-              type="button"
-              variant={form[a.key] ? "default" : "outline"}
-              onClick={() => update(a.key, !form[a.key])}
-            >
-              {a.label}
-            </Button>
+          {amenityToggles.map(({ field, label }) => (
+            <Controller
+              key={field}
+              name={field}
+              control={control}
+              render={({ field: f }) => (
+                <Button
+                  type="button"
+                  variant={(f.value as boolean) ? "default" : "outline"}
+                  onClick={() => f.onChange(!(f.value as boolean))}
+                >
+                  {label}
+                </Button>
+              )}
+            />
           ))}
         </div>
       </div>
@@ -309,21 +300,11 @@ export function HousingOfferForm() {
       {/* Notes */}
       <div className="space-y-2">
         <Label>{t("notes")}</Label>
-        <Textarea
-          value={form.notes}
-          onChange={(e) => update("notes", e.target.value)}
-          rows={4}
-          className={inputClass}
-        />
+        <Textarea {...register("notes")} rows={4} />
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full md:w-auto"
-        disabled={submitting}
-      >
-        {submitting ? tc("loading") : t("submit")}
+      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
+        {isSubmitting ? tc("loading") : t("submit")}
       </Button>
     </form>
   );

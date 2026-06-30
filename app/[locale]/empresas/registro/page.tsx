@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,56 +24,65 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase } from "@/lib/supabase"
 import { useEstados } from "@/lib/estados"
+import { companySchema, CompanyValues } from "@/lib/schemas/company"
 
 export default function RegistroEmpresaPage() {
   const t = useTranslations("companies")
   const tc = useTranslations("common")
-
   const router = useRouter()
-  const [form, setForm] = useState({
-    name: "",
-    rif: "",
-    sector: "",
-    state: "",
-    municipality: "",
-    city: "",
-    address: "",
-    description: "",
-    contact_name: "",
-    contact_phone: "",
-    contact_email: "",
-    website: "",
-  })
-  const [submitting, setSubmitting] = useState(false)
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
   const { estados, loading: estadosLoading } = useEstados()
 
-  const selectedEstado = estados.find((e) => e.name === form.state)
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<CompanyValues>({
+    resolver: zodResolver(companySchema),
+    defaultValues: {
+      name: "",
+      rif: "",
+      sector: "",
+      state: "",
+      municipality: "",
+      city: "",
+      address: "",
+      description: "",
+      contact_name: "",
+      contact_phone: "",
+      contact_email: "",
+      website: "",
+    },
+  })
 
-  const update = (field: string, value: string) =>
-    setForm((prev) => ({ ...prev, [field]: value }))
+  const selectedStateName = watch("state")
+  const municipalityValue = watch("municipality")
+  const selectedEstado = estados.find((e) => e.name === selectedStateName)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setSubmitting(true)
+  async function onSubmit(values: CompanyValues) {
     try {
       const supabase = getSupabase()
       const data: Record<string, unknown> = {
-        ...form,
+        ...values,
         verified: false,
       }
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) data.user = user.id
       const { error } = await supabase.from("companies").insert(data).select().single()
       if (error) throw error
       toast.success(t("success"))
-      router.push("/empleos")
+      router.push(`/${locale}/empleos`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error")
       toast.error(msg)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -83,45 +94,53 @@ export default function RegistroEmpresaPage() {
           <CardDescription>{t("registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-semibold">{t("companyInfo")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t("name")}</Label>
-                  <Input value={form.name} onChange={(e) => update("name", e.target.value)} required />
+                  <Input {...register("name")} />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>RIF</Label>
-                  <Input value={form.rif} onChange={(e) => update("rif", e.target.value)} />
+                  <Input {...register("rif")} />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>{t("sector")}</Label>
-                <Select value={form.sector} onValueChange={(v) => update("sector", v ?? "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("sector")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tecnologia">Tecnología</SelectItem>
-                    <SelectItem value="salud">Salud</SelectItem>
-                    <SelectItem value="educacion">Educación</SelectItem>
-                    <SelectItem value="construccion">Construcción</SelectItem>
-                    <SelectItem value="comercio">Comercio</SelectItem>
-                    <SelectItem value="transporte">Transporte</SelectItem>
-                    <SelectItem value="alimentacion">Alimentación</SelectItem>
-                    <SelectItem value="servicios">Servicios</SelectItem>
-                    <SelectItem value="otro">Otro</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="sector"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("sector")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tecnologia">Tecnología</SelectItem>
+                        <SelectItem value="salud">Salud</SelectItem>
+                        <SelectItem value="educacion">Educación</SelectItem>
+                        <SelectItem value="construccion">Construcción</SelectItem>
+                        <SelectItem value="comercio">Comercio</SelectItem>
+                        <SelectItem value="transporte">Transporte</SelectItem>
+                        <SelectItem value="alimentacion">Alimentación</SelectItem>
+                        <SelectItem value="servicios">Servicios</SelectItem>
+                        <SelectItem value="otro">Otro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.sector && (
+                  <p className="text-sm text-destructive">{errors.sector.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>{t("description")}</Label>
-                <Textarea
-                  value={form.description}
-                  onChange={(e) => update("description", e.target.value)}
-                  rows={4}
-                />
+                <Textarea {...register("description")} rows={4} />
               </div>
             </div>
 
@@ -130,68 +149,97 @@ export default function RegistroEmpresaPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>{t("state")}</Label>
-                  <Select value={form.state} onValueChange={(v) => {
-                    update("state", v ?? "")
-                    update("municipality", "")
-                    update("city", "")
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("state")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {estadosLoading ? (
-                        <SelectItem value="" disabled>{tc("loading")}</SelectItem>
-                      ) : (
-                        estados.map((e) => (
-                          <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="state"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={(v) => {
+                          field.onChange(v)
+                          setValue("municipality", "")
+                          setValue("city", "")
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("state")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {estadosLoading ? (
+                            <SelectItem value="" disabled>
+                              {tc("loading")}
+                            </SelectItem>
+                          ) : (
+                            estados.map((e) => (
+                              <SelectItem key={e.name} value={e.name}>
+                                {e.name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>{t("municipality")}</Label>
-                  <Select
-                    value={form.municipality}
-                    onValueChange={(v) => {
-                      update("municipality", v ?? "")
-                      update("city", "")
-                    }}
-                    disabled={!selectedEstado}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("municipality")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedEstado?.municipios.map((m) => (
-                        <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="municipality"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={(v) => {
+                          field.onChange(v)
+                          setValue("city", "")
+                        }}
+                        disabled={!selectedEstado}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("municipality")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedEstado?.municipios.map((m) => (
+                            <SelectItem key={m.municipio} value={m.municipio}>
+                              {m.municipio}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>{t("city")}</Label>
-                  <Select
-                    value={form.city}
-                    onValueChange={(v) => update("city", v ?? "")}
-                    disabled={!selectedEstado}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("city")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedEstado?.municipios
-                        .find((m) => m.municipio === form.municipality)
-                        ?.ciudades.map((c) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="city"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ""}
+                        onValueChange={field.onChange}
+                        disabled={!selectedEstado || !municipalityValue}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("city")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedEstado?.municipios
+                            .find((m) => m.municipio === municipalityValue)
+                            ?.ciudades.map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>{t("address")}</Label>
-                <Input value={form.address} onChange={(e) => update("address", e.target.value)} />
+                <Input {...register("address")} />
               </div>
             </div>
 
@@ -200,27 +248,36 @@ export default function RegistroEmpresaPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t("contactName")}</Label>
-                  <Input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} required />
+                  <Input {...register("contact_name")} />
+                  {errors.contact_name && (
+                    <p className="text-sm text-destructive">{errors.contact_name.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{t("contactPhone")}</Label>
-                  <Input value={form.contact_phone} onChange={(e) => update("contact_phone", e.target.value)} />
+                  <Input {...register("contact_phone")} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t("contactEmail")}</Label>
-                  <Input type="email" value={form.contact_email} onChange={(e) => update("contact_email", e.target.value)} required />
+                  <Input type="email" {...register("contact_email")} />
+                  {errors.contact_email && (
+                    <p className="text-sm text-destructive">{errors.contact_email.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{t("website")}</Label>
-                  <Input type="url" value={form.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" />
+                  <Input type="url" {...register("website")} placeholder="https://" />
+                  {errors.website && (
+                    <p className="text-sm text-destructive">{errors.website.message}</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? tc("loading") : t("submit")}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>
         </CardContent>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,81 +14,72 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getSupabase, TABLES } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useEstados } from "@/lib/estados";
+import { transportOfferSchema, TransportOfferValues } from "@/lib/schemas/transport-offer";
 
-type FormData = {
-  vehicle_type: string;
-  capacity: string;
-  origin_state: string;
-  origin_municipality: string;
-  origin_city: string;
-  destination_state: string;
-  destination_municipality: string;
-  destination_city: string;
-  available_from: string;
-  available_until: string;
-  flexible_date: boolean;
-  needs_gas_donation: boolean;
-  gas_donation_amount: string;
-  accepts_passengers: boolean;
-  accepts_cargo: boolean;
-  notes: string;
-};
+const VEHICLE_TYPES = ["moto", "carro", "camioneta", "camion"] as const;
 
 export function TransportOfferForm() {
   const t = useTranslations("transportOffer");
   const tc = useTranslations("common");
-
-  const [form, setForm] = useState<FormData>({
-    vehicle_type: "",
-    capacity: "",
-    origin_state: "",
-    origin_municipality: "",
-    origin_city: "",
-    destination_state: "",
-    destination_municipality: "",
-    destination_city: "",
-    available_from: "",
-    available_until: "",
-    flexible_date: false,
-    needs_gas_donation: false,
-    gas_donation_amount: "",
-    accepts_passengers: false,
-    accepts_cargo: false,
-    notes: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
   const { estados, loading: estadosLoading } = useEstados();
 
-  const originEstado = estados.find((e) => e.name === form.origin_state);
-  const destEstado = estados.find((e) => e.name === form.destination_state);
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TransportOfferValues>({
+    resolver: zodResolver(transportOfferSchema),
+    defaultValues: {
+      origin_state: "",
+      origin_municipality: "",
+      origin_city: "",
+      destination_state: "",
+      destination_municipality: "",
+      destination_city: "",
+      available_from: "",
+      available_until: "",
+      flexible_date: false,
+      needs_gas_donation: false,
+      accepts_passengers: false,
+      accepts_cargo: false,
+      notes: "",
+    },
+  });
 
-  const update = (field: keyof FormData, value: string | boolean | null) =>
-    setForm((prev) => ({ ...prev, [field]: value ?? "" }));
+  const originState = watch("origin_state");
+  const originMunicipality = watch("origin_municipality");
+  const destState = watch("destination_state");
+  const destMunicipality = watch("destination_municipality");
+  const needsGasDonation = watch("needs_gas_donation");
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const supabase = getSupabase();
+  const originEstado = estados.find((e) => e.name === originState);
+  const destEstado = estados.find((e) => e.name === destState);
 
-    if (!form.vehicle_type || !form.capacity) {
-      toast.error(tc("error"), { description: tc("errorRequired") });
-      return;
-    }
-
-    setSubmitting(true);
+  async function onSubmit(values: TransportOfferValues) {
     try {
+      const supabase = getSupabase();
+
       const data: Record<string, unknown> = {
-        vehicle_type: form.vehicle_type,
-        capacity: Number(form.capacity),
-        origin_state: form.origin_state,
-        origin_municipality: form.origin_municipality,
-        origin_city: form.origin_city,
-        destination_state: form.destination_state,
-        destination_municipality: form.destination_municipality,
-        destination_city: form.destination_city,
+        vehicle_type: values.vehicle_type,
+        capacity: values.capacity,
+        origin_state: values.origin_state,
+        origin_municipality: values.origin_municipality,
+        origin_city: values.origin_city,
+        destination_state: values.destination_state,
+        destination_municipality: values.destination_municipality,
+        destination_city: values.destination_city,
         status: "open",
+        flexible_date: values.flexible_date,
+        needs_gas_donation: values.needs_gas_donation,
+        accepts_passengers: values.accepts_passengers,
+        accepts_cargo: values.accepts_cargo,
       };
 
       const {
@@ -95,17 +87,13 @@ export function TransportOfferForm() {
       } = await supabase.auth.getUser();
       if (user) data.user = user.id;
 
-      if (form.available_from)
-        data.available_from = new Date(form.available_from).toISOString();
-      if (form.available_until)
-        data.available_until = new Date(form.available_until).toISOString();
-      data.flexible_date = form.flexible_date;
-      data.needs_gas_donation = form.needs_gas_donation;
-      if (form.gas_donation_amount)
-        data.gas_donation_amount = Number(form.gas_donation_amount);
-      data.accepts_passengers = form.accepts_passengers;
-      data.accepts_cargo = form.accepts_cargo;
-      if (form.notes) data.notes = form.notes;
+      if (values.available_from)
+        data.available_from = new Date(values.available_from).toISOString();
+      if (values.available_until)
+        data.available_until = new Date(values.available_until).toISOString();
+      if (values.gas_donation_amount)
+        data.gas_donation_amount = values.gas_donation_amount;
+      if (values.notes) data.notes = values.notes;
 
       if (user) {
         const { error } = await supabase
@@ -127,65 +115,48 @@ export function TransportOfferForm() {
       }
 
       toast.success(t("success"));
-      setForm({
-        vehicle_type: "",
-        capacity: "",
-        origin_state: "",
-        origin_municipality: "",
-        origin_city: "",
-        destination_state: "",
-        destination_municipality: "",
-        destination_city: "",
-        available_from: "",
-        available_until: "",
-        flexible_date: false,
-        needs_gas_donation: false,
-        gas_donation_amount: "",
-        accepts_passengers: false,
-        accepts_cargo: false,
-        notes: "",
-      });
+      reset();
     } catch (err) {
       const msg = err instanceof Error ? err.message : tc("error");
       toast.error(msg);
-    } finally {
-      setSubmitting(false);
     }
   }
 
-  const inputClass = "w-full";
-  const vehicleTypes = ["moto", "carro", "camioneta", "camion"] as const;
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* Vehicle type */}
       <div className="space-y-2">
         <Label>{t("vehicleType")}</Label>
-        <div className="flex flex-wrap gap-2">
-          {vehicleTypes.map((vt) => (
-            <Button
-              key={vt}
-              type="button"
-              variant={form.vehicle_type === vt ? "default" : "outline"}
-              onClick={() => update("vehicle_type", vt)}
-            >
-              {t(vt)}
-            </Button>
-          ))}
-        </div>
+        <Controller
+          name="vehicle_type"
+          control={control}
+          render={({ field }) => (
+            <div className="flex flex-wrap gap-2">
+              {VEHICLE_TYPES.map((vt) => (
+                <Button
+                  key={vt}
+                  type="button"
+                  variant={field.value === vt ? "default" : "outline"}
+                  onClick={() => field.onChange(vt)}
+                >
+                  {t(vt)}
+                </Button>
+              ))}
+            </div>
+          )}
+        />
+        {errors.vehicle_type && (
+          <p className="text-sm text-destructive">{errors.vehicle_type.message}</p>
+        )}
       </div>
 
       {/* Capacity */}
       <div className="space-y-2">
         <Label>{t("capacity")}</Label>
-        <Input
-          type="number"
-          min={1}
-          value={form.capacity}
-          onChange={(e) => update("capacity", e.target.value)}
-          required
-          className={inputClass}
-        />
+        <Input type="number" min={1} {...register("capacity")} />
+        {errors.capacity && (
+          <p className="text-sm text-destructive">{errors.capacity.message}</p>
+        )}
       </div>
 
       {/* Origin */}
@@ -194,74 +165,95 @@ export function TransportOfferForm() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>{t("originState")}</Label>
-            <Select
-              value={form.origin_state}
-              onValueChange={(v) => {
-                update("origin_state", v);
-                update("origin_municipality", "");
-                update("origin_city", "");
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("originState")} />
-              </SelectTrigger>
-              <SelectContent>
-                {estadosLoading ? (
-                  <SelectItem value="" disabled>
-                    {tc("loading")}
-                  </SelectItem>
-                ) : (
-                  estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>
-                      {e.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="origin_state"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("origin_municipality", "");
+                    setValue("origin_city", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("originState")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {estadosLoading ? (
+                      <SelectItem value="" disabled>
+                        {tc("loading")}
+                      </SelectItem>
+                    ) : (
+                      estados.map((e) => (
+                        <SelectItem key={e.name} value={e.name}>
+                          {e.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.origin_state && (
+              <p className="text-sm text-destructive">{errors.origin_state.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>{t("originMunicipality")}</Label>
-            <Select
-              value={form.origin_municipality}
-              onValueChange={(v) => {
-                update("origin_municipality", v);
-                update("origin_city", "");
-              }}
-              disabled={!originEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("originMunicipality")} />
-              </SelectTrigger>
-              <SelectContent>
-                {originEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>
-                    {m.municipio}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="origin_municipality"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("origin_city", "");
+                  }}
+                  disabled={!originEstado}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("originMunicipality")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {originEstado?.municipios.map((m) => (
+                      <SelectItem key={m.municipio} value={m.municipio}>
+                        {m.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="space-y-2">
             <Label>{t("originCity")}</Label>
-            <Select
-              value={form.origin_city}
-              onValueChange={(v) => update("origin_city", v)}
-              disabled={!originEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("originCity")} />
-              </SelectTrigger>
-              <SelectContent>
-                {originEstado?.municipios
-                  .find((m) => m.municipio === form.origin_municipality)
-                  ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="origin_city"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
+                  disabled={!originEstado || !originMunicipality}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("originCity")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {originEstado?.municipios
+                      .find((m) => m.municipio === originMunicipality)
+                      ?.ciudades.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         </div>
       </div>
@@ -272,74 +264,92 @@ export function TransportOfferForm() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>{t("destinationState")}</Label>
-            <Select
-              value={form.destination_state}
-              onValueChange={(v) => {
-                update("destination_state", v);
-                update("destination_municipality", "");
-                update("destination_city", "");
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("destinationState")} />
-              </SelectTrigger>
-              <SelectContent>
-                {estadosLoading ? (
-                  <SelectItem value="" disabled>
-                    {tc("loading")}
-                  </SelectItem>
-                ) : (
-                  estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>
-                      {e.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="destination_state"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("destination_municipality", "");
+                    setValue("destination_city", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("destinationState")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {estadosLoading ? (
+                      <SelectItem value="" disabled>
+                        {tc("loading")}
+                      </SelectItem>
+                    ) : (
+                      estados.map((e) => (
+                        <SelectItem key={e.name} value={e.name}>
+                          {e.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="space-y-2">
             <Label>{t("destinationMunicipality")}</Label>
-            <Select
-              value={form.destination_municipality}
-              onValueChange={(v) => {
-                update("destination_municipality", v);
-                update("destination_city", "");
-              }}
-              disabled={!destEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("destinationMunicipality")} />
-              </SelectTrigger>
-              <SelectContent>
-                {destEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>
-                    {m.municipio}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="destination_municipality"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    setValue("destination_city", "");
+                  }}
+                  disabled={!destEstado}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("destinationMunicipality")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {destEstado?.municipios.map((m) => (
+                      <SelectItem key={m.municipio} value={m.municipio}>
+                        {m.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="space-y-2">
             <Label>{t("destinationCity")}</Label>
-            <Select
-              value={form.destination_city}
-              onValueChange={(v) => update("destination_city", v)}
-              disabled={!destEstado}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("destinationCity")} />
-              </SelectTrigger>
-              <SelectContent>
-                {destEstado?.municipios
-                  .find((m) => m.municipio === form.destination_municipality)
-                  ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="destination_city"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
+                  disabled={!destEstado || !destMunicipality}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("destinationCity")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {destEstado?.municipios
+                      .find((m) => m.municipio === destMunicipality)
+                      ?.ciudades.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         </div>
       </div>
@@ -350,8 +360,7 @@ export function TransportOfferForm() {
           <input
             type="checkbox"
             id="flexible_date"
-            checked={form.flexible_date}
-            onChange={(e) => update("flexible_date", e.target.checked)}
+            {...register("flexible_date")}
             className="h-4 w-4"
           />
           <Label htmlFor="flexible_date">Fecha flexible</Label>
@@ -359,21 +368,11 @@ export function TransportOfferForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Disponible desde</Label>
-            <Input
-              type="date"
-              value={form.available_from}
-              onChange={(e) => update("available_from", e.target.value)}
-              className={inputClass}
-            />
+            <Input type="date" {...register("available_from")} />
           </div>
           <div className="space-y-2">
             <Label>Disponible hasta</Label>
-            <Input
-              type="date"
-              value={form.available_until}
-              onChange={(e) => update("available_until", e.target.value)}
-              className={inputClass}
-            />
+            <Input type="date" {...register("available_until")} />
           </div>
         </div>
       </div>
@@ -381,32 +380,32 @@ export function TransportOfferForm() {
       {/* Gas donation */}
       <div className="space-y-3">
         <Label>{t("needsGasDonation")}</Label>
-        <div className="flex gap-4">
-          <Button
-            type="button"
-            variant={form.needs_gas_donation ? "default" : "outline"}
-            onClick={() => update("needs_gas_donation", true)}
-          >
-            {t("yes")}
-          </Button>
-          <Button
-            type="button"
-            variant={!form.needs_gas_donation ? "default" : "outline"}
-            onClick={() => update("needs_gas_donation", false)}
-          >
-            {t("no")}
-          </Button>
-        </div>
-        {form.needs_gas_donation && (
+        <Controller
+          name="needs_gas_donation"
+          control={control}
+          render={({ field }) => (
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                variant={field.value ? "default" : "outline"}
+                onClick={() => field.onChange(true)}
+              >
+                {t("yes")}
+              </Button>
+              <Button
+                type="button"
+                variant={!field.value ? "default" : "outline"}
+                onClick={() => field.onChange(false)}
+              >
+                {t("no")}
+              </Button>
+            </div>
+          )}
+        />
+        {needsGasDonation && (
           <div className="space-y-2">
             <Label>Monto estimado ($)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={form.gas_donation_amount}
-              onChange={(e) => update("gas_donation_amount", e.target.value)}
-              className={inputClass}
-            />
+            <Input type="number" min={0} {...register("gas_donation_amount")} />
           </div>
         )}
       </div>
@@ -415,43 +414,43 @@ export function TransportOfferForm() {
       <div className="space-y-3">
         <Label>¿Qué ofreces transportar?</Label>
         <div className="flex gap-4">
-          <Button
-            type="button"
-            variant={form.accepts_passengers ? "default" : "outline"}
-            onClick={() =>
-              update("accepts_passengers", !form.accepts_passengers)
-            }
-          >
-            Pasajeros
-          </Button>
-          <Button
-            type="button"
-            variant={form.accepts_cargo ? "default" : "outline"}
-            onClick={() => update("accepts_cargo", !form.accepts_cargo)}
-          >
-            Carga
-          </Button>
+          <Controller
+            name="accepts_passengers"
+            control={control}
+            render={({ field }) => (
+              <Button
+                type="button"
+                variant={field.value ? "default" : "outline"}
+                onClick={() => field.onChange(!field.value)}
+              >
+                Pasajeros
+              </Button>
+            )}
+          />
+          <Controller
+            name="accepts_cargo"
+            control={control}
+            render={({ field }) => (
+              <Button
+                type="button"
+                variant={field.value ? "default" : "outline"}
+                onClick={() => field.onChange(!field.value)}
+              >
+                Carga
+              </Button>
+            )}
+          />
         </div>
       </div>
 
       {/* Notes */}
       <div className="space-y-2">
         <Label>{t("notes")}</Label>
-        <Textarea
-          value={form.notes}
-          onChange={(e) => update("notes", e.target.value)}
-          rows={4}
-          className={inputClass}
-        />
+        <Textarea {...register("notes")} rows={4} />
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full md:w-auto"
-        disabled={submitting}
-      >
-        {submitting ? tc("loading") : t("submit")}
+      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
+        {isSubmitting ? tc("loading") : t("submit")}
       </Button>
     </form>
   );

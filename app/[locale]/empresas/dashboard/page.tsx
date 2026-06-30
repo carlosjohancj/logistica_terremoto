@@ -5,38 +5,21 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import { useEstados } from "@/lib/estados"
+import { JobForm } from "@/components/forms/job-form"
 
 type Company = {
   id: string
@@ -67,24 +50,17 @@ export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { estados } = useEstados()
-
-  const [jobForm, setJobForm] = useState({
-    title: "",
-    description: "",
-    requirements: "",
-    location_state: "",
-    location_city: "",
-    modality: "",
-    salary_range: "",
-    contact_email: "",
-  })
 
   async function loadCompanies() {
     const supabase = getSupabase()
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const res = await supabase.from(TABLES.COMPANIES).select("*").eq("user_id", user!.id)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      const res = await supabase
+        .from(TABLES.COMPANIES)
+        .select("*")
+        .eq("user_id", user!.id)
       const items = (res.data || []) as unknown as Company[]
       setCompanies(items)
       if (items.length > 0) {
@@ -102,7 +78,9 @@ export default function DashboardPage() {
   useEffect(() => {
     async function init() {
       const supabase = getSupabase()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) {
         window.location.href = `/${window.location.pathname.split("/")[1]}/auth/login`
         return
@@ -116,45 +94,16 @@ export default function DashboardPage() {
   async function loadJobs(companyId: string) {
     const supabase = getSupabase()
     try {
-      const res = await supabase.from(TABLES.JOBS).select("*").eq("company_id", companyId).order("created", { ascending: false })
+      const res = await supabase
+        .from(TABLES.JOBS)
+        .select("*")
+        .eq("company_id", companyId)
+        .order("created", { ascending: false })
       setJobs((res.data || []) as unknown as Job[])
     } catch {
       toast.error(tc("error"))
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleCreateJob(e: React.FormEvent) {
-    e.preventDefault()
-    if (!jobForm.title || !jobForm.modality || !jobForm.location_state) {
-      toast.error(tc("error"), { description: tc("errorRequired") })
-      return
-    }
-
-    try {
-      const supabase = getSupabase()
-      await supabase.from(TABLES.JOBS).insert({
-        ...jobForm,
-        company: selectedCompany,
-        status: "open",
-      }).select().single()
-      toast.success(tj("success") || "Empleo creado")
-      setDialogOpen(false)
-      setJobForm({
-        title: "",
-        description: "",
-        requirements: "",
-        location_state: "",
-        location_city: "",
-        modality: "",
-        salary_range: "",
-        contact_email: "",
-      })
-      loadJobs(selectedCompany)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : tc("error")
-      toast.error(msg)
     }
   }
 
@@ -170,15 +119,15 @@ export default function DashboardPage() {
     }
   }
 
-  const selectedEstado = estados.find((e) => e.name === jobForm.location_state)
-
   if (!loading && companies.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-2xl text-center">
         <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-xl font-bold mb-2">{t("register")}</h2>
         <p className="text-muted-foreground mb-6">{t("registerDesc")}</p>
-        <Link href={`/${locale}/empresas/registro`}><Button>{t("submit")}</Button></Link>
+        <Link href={`/${locale}/empresas/registro`}>
+          <Button>{t("submit")}</Button>
+        </Link>
       </div>
     )
   }
@@ -199,105 +148,13 @@ export default function DashboardPage() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                <form onSubmit={handleCreateJob}>
-                  <DialogHeader>
-                    <DialogTitle>{tj("newJob") || "Crear empleo"}</DialogTitle>
-                    <DialogDescription>{tj("subtitle")}</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>{tj("title")}</Label>
-                      <Input
-                        value={jobForm.title}
-                        onChange={(e) => setJobForm((p) => ({ ...p, title: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{tj("description") || "Descripción"}</Label>
-                      <Textarea
-                        value={jobForm.description}
-                        onChange={(e) => setJobForm((p) => ({ ...p, description: e.target.value }))}
-                        rows={3}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{tj("requirements")}</Label>
-                      <Textarea
-                        value={jobForm.requirements}
-                        onChange={(e) => setJobForm((p) => ({ ...p, requirements: e.target.value }))}
-                        rows={3}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>{tj("filterState")}</Label>
-                        <Select
-                          value={jobForm.location_state}
-                          onValueChange={(v) => setJobForm((p) => ({ ...p, location_state: v ?? "", location_city: "" }))}
-                        >
-                          <SelectTrigger><SelectValue placeholder={tj("filterState")} /></SelectTrigger>
-                          <SelectContent>
-                            {estados.map((e) => (
-                              <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>{tj("location")}</Label>
-                        <Select
-                          value={jobForm.location_city}
-                          onValueChange={(v) => setJobForm((p) => ({ ...p, location_city: v ?? "" }))}
-                          disabled={!selectedEstado}
-                        >
-                          <SelectTrigger><SelectValue placeholder={tj("location")} /></SelectTrigger>
-                          <SelectContent>
-                            {selectedEstado?.municipios.map((m) => (
-                              <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>{tj("modality")}</Label>
-                        <Select
-                          value={jobForm.modality}
-                          onValueChange={(v) => setJobForm((p) => ({ ...p, modality: v ?? "" }))}
-                        >
-                          <SelectTrigger><SelectValue placeholder={tj("modality")} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="presencial">{tj("presencial")}</SelectItem>
-                            <SelectItem value="remoto">{tj("remoto")}</SelectItem>
-                            <SelectItem value="hibrido">{tj("hibrido")}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>{tj("salary")}</Label>
-                        <Input
-                          value={jobForm.salary_range}
-                          onChange={(e) => setJobForm((p) => ({ ...p, salary_range: e.target.value }))}
-                          placeholder="$"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{tj("contact")}</Label>
-                      <Input
-                        type="email"
-                        value={jobForm.contact_email}
-                        onChange={(e) => setJobForm((p) => ({ ...p, contact_email: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">{tc("save")}</Button>
-                  </DialogFooter>
-                </form>
+                <JobForm
+                  companyId={selectedCompany}
+                  onSuccess={() => {
+                    setDialogOpen(false)
+                    loadJobs(selectedCompany)
+                  }}
+                />
               </DialogContent>
             </Dialog>
           )}
