@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 import {
@@ -50,8 +50,8 @@ export default function SupplyDetailPage() {
   useEffect(() => {
     async function fetchItem() {
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.SUPPLIES).getOne(id)
+        const supabase = getSupabase()
+        const { data: res } = await supabase.from(TABLES.SUPPLIES).select("*").eq("id", id).single()
         setItem(res as unknown as Supply)
       } catch {
         toast.error(tc("error"))

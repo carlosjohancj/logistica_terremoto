@@ -1,41 +1,41 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
-import { toast } from "sonner"
-import { useEstados } from "@/lib/estados"
+} from "@/components/ui/select";
+import { getSupabase, TABLES } from "@/lib/supabase";
+import { toast } from "sonner";
+import { useEstados } from "@/lib/estados";
 
 type FormData = {
-  state: string
-  municipality: string
-  city: string
-  address: string
-  capacity: string
-  max_stay_days: string
-  accepts_children: boolean
-  accepts_adults: boolean
-  accepts_families: boolean
-  has_furniture: boolean
-  has_kitchen: boolean
-  has_bathroom: boolean
-  notes: string
-}
+  state: string;
+  municipality: string;
+  city: string;
+  address: string;
+  capacity: string;
+  max_stay_days: string;
+  accepts_children: boolean;
+  accepts_adults: boolean;
+  accepts_families: boolean;
+  has_furniture: boolean;
+  has_kitchen: boolean;
+  has_bathroom: boolean;
+  notes: string;
+};
 
 export function HousingOfferForm() {
-  const t = useTranslations("housingOffer")
-  const tc = useTranslations("common")
+  const t = useTranslations("housingOffer");
+  const tc = useTranslations("common");
 
   const [form, setForm] = useState<FormData>({
     state: "",
@@ -51,25 +51,25 @@ export function HousingOfferForm() {
     has_kitchen: false,
     has_bathroom: false,
     notes: "",
-  })
-  const [submitting, setSubmitting] = useState(false)
-  const { estados, loading: estadosLoading } = useEstados()
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { estados, loading: estadosLoading } = useEstados();
 
-  const selectedEstado = estados.find((e) => e.name === form.state)
+  const selectedEstado = estados.find((e) => e.name === form.state);
 
   const update = (field: keyof FormData, value: string | boolean | null) =>
-    setForm((prev) => ({ ...prev, [field]: value ?? "" }))
+    setForm((prev) => ({ ...prev, [field]: value ?? "" }));
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const pb = getPB()
+    e.preventDefault();
+    const supabase = getSupabase();
 
     if (!form.capacity || !form.max_stay_days) {
-      toast.error(tc("error"), { description: tc("errorRequired") })
-      return
+      toast.error(tc("error"), { description: tc("errorRequired") });
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const data: Record<string, unknown> = {
         state: form.state,
@@ -78,36 +78,42 @@ export function HousingOfferForm() {
         capacity: Number(form.capacity),
         max_stay_days: Number(form.max_stay_days),
         status: "open",
-      }
+      };
 
-      if (pb.authStore.record) {
-        data.user = pb.authStore.record.id
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) data.user = user.id;
 
-      if (form.address) data.address = form.address
-      data.accepts_children = form.accepts_children
-      data.accepts_adults = form.accepts_adults
-      data.accepts_families = form.accepts_families
-      data.has_furniture = form.has_furniture
-      data.has_kitchen = form.has_kitchen
-      data.has_bathroom = form.has_bathroom
-      if (form.notes) data.notes = form.notes
+      if (form.address) data.address = form.address;
+      data.accepts_children = form.accepts_children;
+      data.accepts_adults = form.accepts_adults;
+      data.accepts_families = form.accepts_families;
+      data.has_furniture = form.has_furniture;
+      data.has_kitchen = form.has_kitchen;
+      data.has_bathroom = form.has_bathroom;
+      if (form.notes) data.notes = form.notes;
 
-      if (pb.authStore.record) {
-        await pb.collection(COLLECTIONS.HOUSING_OFFERS).create(data)
+      if (user) {
+        const { error } = await supabase
+          .from("housing_offers")
+          .insert(data)
+          .select()
+          .single();
+        if (error) throw error;
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ formType: "housing_offer", data }),
-        })
+        });
         if (!res.ok) {
-          const errData = await res.json()
-          throw new Error(errData.error || tc("error"))
+          const errData = await res.json();
+          throw new Error(errData.error || tc("error"));
         }
       }
 
-      toast.success(t("success"))
+      toast.success(t("success"));
       setForm({
         state: "",
         municipality: "",
@@ -122,16 +128,16 @@ export function HousingOfferForm() {
         has_kitchen: false,
         has_bathroom: false,
         notes: "",
-      })
+      });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : tc("error")
-      toast.error(msg)
+      const msg = err instanceof Error ? err.message : tc("error");
+      toast.error(msg);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
-  const inputClass = "w-full"
+  const inputClass = "w-full";
   const amenities = [
     { key: "accepts_children", label: "Acepta niños" },
     { key: "accepts_adults", label: "Acepta adultos" },
@@ -139,7 +145,7 @@ export function HousingOfferForm() {
     { key: "has_furniture", label: "Tiene muebles" },
     { key: "has_kitchen", label: "Tiene cocina" },
     { key: "has_bathroom", label: "Tiene baño" },
-  ] as const
+  ] as const;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -151,18 +157,24 @@ export function HousingOfferForm() {
             <Select
               value={form.state}
               onValueChange={(v) => {
-                update("state", v)
-                update("municipality", "")
-                update("city", "")
+                update("state", v);
+                update("municipality", "");
+                update("city", "");
               }}
             >
-              <SelectTrigger><SelectValue placeholder={t("state")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("state")} />
+              </SelectTrigger>
               <SelectContent>
                 {estadosLoading ? (
-                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                  <SelectItem value="" disabled>
+                    {tc("loading")}
+                  </SelectItem>
                 ) : (
                   estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                    <SelectItem key={e.name} value={e.name}>
+                      {e.name}
+                    </SelectItem>
                   ))
                 )}
               </SelectContent>
@@ -173,15 +185,19 @@ export function HousingOfferForm() {
             <Select
               value={form.municipality}
               onValueChange={(v) => {
-                update("municipality", v)
-                update("city", "")
+                update("municipality", v);
+                update("city", "");
               }}
               disabled={!selectedEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("municipality")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("municipality")} />
+              </SelectTrigger>
               <SelectContent>
                 {selectedEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
+                  <SelectItem key={m.municipio} value={m.municipio}>
+                    {m.municipio}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -193,12 +209,16 @@ export function HousingOfferForm() {
               onValueChange={(v) => update("city", v)}
               disabled={!selectedEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("city")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("city")} />
+              </SelectTrigger>
               <SelectContent>
                 {selectedEstado?.municipios
                   .find((m) => m.municipio === form.municipality)
                   ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
               </SelectContent>
             </Select>
@@ -297,9 +317,14 @@ export function HousingOfferForm() {
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={submitting}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full md:w-auto"
+        disabled={submitting}
+      >
         {submitting ? tc("loading") : t("submit")}
       </Button>
     </form>
-  )
+  );
 }

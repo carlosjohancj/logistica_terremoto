@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import {
   Select,
   SelectContent,
@@ -46,7 +46,7 @@ export default function ExplorarPage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const pb = getPB()
+      const supabase = getSupabase()
       const allItems: ListItem[] = []
 
       const estadosData = await getEstados()
@@ -54,10 +54,8 @@ export default function ExplorarPage() {
       setEstados(estadosData.map((e) => e.name))
 
       try {
-        const travelReqs = await pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 50, {
-          filter: 'status = "open"',
-        })
-        for (const req of travelReqs.items) {
+        const { data: travelReqs } = await supabase.from(TABLES.TRAVEL_REQUESTS).select("*").eq("status", "open").range(0, 49)
+        for (const req of (travelReqs ?? [])) {
           const stateCoords = estados[req.origin_state]
           if (stateCoords) {
             allItems.push({
@@ -75,10 +73,8 @@ export default function ExplorarPage() {
       }
 
       try {
-        const transportOffers = await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 50, {
-          filter: 'status = "open"',
-        })
-        for (const offer of transportOffers.items) {
+        const { data: transportOffers } = await supabase.from(TABLES.TRANSPORT_OFFERS).select("*").eq("status", "open").range(0, 49)
+        for (const offer of (transportOffers ?? [])) {
           const stateCoords = estados[offer.origin_state]
           if (stateCoords) {
             allItems.push({
@@ -96,10 +92,8 @@ export default function ExplorarPage() {
       }
 
       try {
-        const housingOffers = await pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 50, {
-          filter: 'status = "open"',
-        })
-        for (const offer of housingOffers.items) {
+        const { data: housingOffers } = await supabase.from(TABLES.HOUSING_OFFERS).select("*").eq("status", "open").range(0, 49)
+        for (const offer of (housingOffers ?? [])) {
           const stateCoords = estados[offer.state]
           if (stateCoords) {
             allItems.push({

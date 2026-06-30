@@ -26,7 +26,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Search, Download, Eye, Tag } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
@@ -55,7 +55,6 @@ export default function RecursosPage() {
   const [filterCategory, setFilterCategory] = useState("")
   const [preview, setPreview] = useState<Graphic | null>(null)
 
-  const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://pocketbase.asmvnzla.org"
 
   const categories = [
     { value: "flyer", label: t("flyer") },
@@ -70,12 +69,9 @@ export default function RecursosPage() {
     async function fetchData() {
       setLoading(true)
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.GRAPHICS).getList(1, 50, {
-          filter: 'status = "published"',
-          sort: "-created",
-        })
-        setItems(res.items as unknown as Graphic[])
+        const supabase = getSupabase()
+        const res = await supabase.from(TABLES.GRAPHICS).select("*").eq("status", "published").order("created_at", { ascending: false })
+        setItems((res.data || []) as unknown as Graphic[])
       } catch {
         toast.error(tc("error"))
       } finally {
@@ -87,15 +83,15 @@ export default function RecursosPage() {
 
   function fileUrl(item: Graphic, field: "file" | "thumbnail") {
     if (!item[field]) return null
-    return `${PB_URL}/api/files/${item.collectionId}/${item.id}/${item[field]}`
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/graphics/${item[field]}`
   }
 
   async function trackDownload(item: Graphic) {
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.GRAPHICS).update(item.id, {
+      const supabase = getSupabase()
+      await supabase.from(TABLES.GRAPHICS).update({
         downloads: (item.downloads || 0) + 1,
-      })
+      }).eq("id", item.id)
     } catch {}
   }
 

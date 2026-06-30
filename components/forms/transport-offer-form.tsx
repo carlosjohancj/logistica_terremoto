@@ -1,44 +1,44 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
-import { toast } from "sonner"
-import { useEstados } from "@/lib/estados"
+} from "@/components/ui/select";
+import { getSupabase, TABLES } from "@/lib/supabase";
+import { toast } from "sonner";
+import { useEstados } from "@/lib/estados";
 
 type FormData = {
-  vehicle_type: string
-  capacity: string
-  origin_state: string
-  origin_municipality: string
-  origin_city: string
-  destination_state: string
-  destination_municipality: string
-  destination_city: string
-  available_from: string
-  available_until: string
-  flexible_date: boolean
-  needs_gas_donation: boolean
-  gas_donation_amount: string
-  accepts_passengers: boolean
-  accepts_cargo: boolean
-  notes: string
-}
+  vehicle_type: string;
+  capacity: string;
+  origin_state: string;
+  origin_municipality: string;
+  origin_city: string;
+  destination_state: string;
+  destination_municipality: string;
+  destination_city: string;
+  available_from: string;
+  available_until: string;
+  flexible_date: boolean;
+  needs_gas_donation: boolean;
+  gas_donation_amount: string;
+  accepts_passengers: boolean;
+  accepts_cargo: boolean;
+  notes: string;
+};
 
 export function TransportOfferForm() {
-  const t = useTranslations("transportOffer")
-  const tc = useTranslations("common")
+  const t = useTranslations("transportOffer");
+  const tc = useTranslations("common");
 
   const [form, setForm] = useState<FormData>({
     vehicle_type: "",
@@ -57,26 +57,26 @@ export function TransportOfferForm() {
     accepts_passengers: false,
     accepts_cargo: false,
     notes: "",
-  })
-  const [submitting, setSubmitting] = useState(false)
-  const { estados, loading: estadosLoading } = useEstados()
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { estados, loading: estadosLoading } = useEstados();
 
-  const originEstado = estados.find((e) => e.name === form.origin_state)
-  const destEstado = estados.find((e) => e.name === form.destination_state)
+  const originEstado = estados.find((e) => e.name === form.origin_state);
+  const destEstado = estados.find((e) => e.name === form.destination_state);
 
   const update = (field: keyof FormData, value: string | boolean | null) =>
-    setForm((prev) => ({ ...prev, [field]: value ?? "" }))
+    setForm((prev) => ({ ...prev, [field]: value ?? "" }));
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const pb = getPB()
+    e.preventDefault();
+    const supabase = getSupabase();
 
     if (!form.vehicle_type || !form.capacity) {
-      toast.error(tc("error"), { description: tc("errorRequired") })
-      return
+      toast.error(tc("error"), { description: tc("errorRequired") });
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const data: Record<string, unknown> = {
         vehicle_type: form.vehicle_type,
@@ -88,36 +88,45 @@ export function TransportOfferForm() {
         destination_municipality: form.destination_municipality,
         destination_city: form.destination_city,
         status: "open",
-      }
+      };
 
-      if (pb.authStore.record) {
-        data.user = pb.authStore.record.id
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) data.user = user.id;
 
-      if (form.available_from) data.available_from = new Date(form.available_from).toISOString()
-      if (form.available_until) data.available_until = new Date(form.available_until).toISOString()
-      data.flexible_date = form.flexible_date
-      data.needs_gas_donation = form.needs_gas_donation
-      if (form.gas_donation_amount) data.gas_donation_amount = Number(form.gas_donation_amount)
-      data.accepts_passengers = form.accepts_passengers
-      data.accepts_cargo = form.accepts_cargo
-      if (form.notes) data.notes = form.notes
+      if (form.available_from)
+        data.available_from = new Date(form.available_from).toISOString();
+      if (form.available_until)
+        data.available_until = new Date(form.available_until).toISOString();
+      data.flexible_date = form.flexible_date;
+      data.needs_gas_donation = form.needs_gas_donation;
+      if (form.gas_donation_amount)
+        data.gas_donation_amount = Number(form.gas_donation_amount);
+      data.accepts_passengers = form.accepts_passengers;
+      data.accepts_cargo = form.accepts_cargo;
+      if (form.notes) data.notes = form.notes;
 
-      if (pb.authStore.record) {
-        await pb.collection(COLLECTIONS.TRANSPORT_OFFERS).create(data)
+      if (user) {
+        const { error } = await supabase
+          .from("transport_offers")
+          .insert(data)
+          .select()
+          .single();
+        if (error) throw error;
       } else {
         const res = await fetch("/api/forms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ formType: "transport_offer", data }),
-        })
+        });
         if (!res.ok) {
-          const errData = await res.json()
-          throw new Error(errData.error || tc("error"))
+          const errData = await res.json();
+          throw new Error(errData.error || tc("error"));
         }
       }
 
-      toast.success(t("success"))
+      toast.success(t("success"));
       setForm({
         vehicle_type: "",
         capacity: "",
@@ -135,17 +144,17 @@ export function TransportOfferForm() {
         accepts_passengers: false,
         accepts_cargo: false,
         notes: "",
-      })
+      });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : tc("error")
-      toast.error(msg)
+      const msg = err instanceof Error ? err.message : tc("error");
+      toast.error(msg);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
-  const inputClass = "w-full"
-  const vehicleTypes = ["moto", "carro", "camioneta", "camion"] as const
+  const inputClass = "w-full";
+  const vehicleTypes = ["moto", "carro", "camioneta", "camion"] as const;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -188,18 +197,24 @@ export function TransportOfferForm() {
             <Select
               value={form.origin_state}
               onValueChange={(v) => {
-                update("origin_state", v)
-                update("origin_municipality", "")
-                update("origin_city", "")
+                update("origin_state", v);
+                update("origin_municipality", "");
+                update("origin_city", "");
               }}
             >
-              <SelectTrigger><SelectValue placeholder={t("originState")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originState")} />
+              </SelectTrigger>
               <SelectContent>
                 {estadosLoading ? (
-                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                  <SelectItem value="" disabled>
+                    {tc("loading")}
+                  </SelectItem>
                 ) : (
                   estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                    <SelectItem key={e.name} value={e.name}>
+                      {e.name}
+                    </SelectItem>
                   ))
                 )}
               </SelectContent>
@@ -210,15 +225,19 @@ export function TransportOfferForm() {
             <Select
               value={form.origin_municipality}
               onValueChange={(v) => {
-                update("origin_municipality", v)
-                update("origin_city", "")
+                update("origin_municipality", v);
+                update("origin_city", "");
               }}
               disabled={!originEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("originMunicipality")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originMunicipality")} />
+              </SelectTrigger>
               <SelectContent>
                 {originEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
+                  <SelectItem key={m.municipio} value={m.municipio}>
+                    {m.municipio}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -230,12 +249,16 @@ export function TransportOfferForm() {
               onValueChange={(v) => update("origin_city", v)}
               disabled={!originEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("originCity")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("originCity")} />
+              </SelectTrigger>
               <SelectContent>
                 {originEstado?.municipios
                   .find((m) => m.municipio === form.origin_municipality)
                   ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
               </SelectContent>
             </Select>
@@ -252,18 +275,24 @@ export function TransportOfferForm() {
             <Select
               value={form.destination_state}
               onValueChange={(v) => {
-                update("destination_state", v)
-                update("destination_municipality", "")
-                update("destination_city", "")
+                update("destination_state", v);
+                update("destination_municipality", "");
+                update("destination_city", "");
               }}
             >
-              <SelectTrigger><SelectValue placeholder={t("destinationState")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("destinationState")} />
+              </SelectTrigger>
               <SelectContent>
                 {estadosLoading ? (
-                  <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+                  <SelectItem value="" disabled>
+                    {tc("loading")}
+                  </SelectItem>
                 ) : (
                   estados.map((e) => (
-                    <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                    <SelectItem key={e.name} value={e.name}>
+                      {e.name}
+                    </SelectItem>
                   ))
                 )}
               </SelectContent>
@@ -274,15 +303,19 @@ export function TransportOfferForm() {
             <Select
               value={form.destination_municipality}
               onValueChange={(v) => {
-                update("destination_municipality", v)
-                update("destination_city", "")
+                update("destination_municipality", v);
+                update("destination_city", "");
               }}
               disabled={!destEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("destinationMunicipality")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("destinationMunicipality")} />
+              </SelectTrigger>
               <SelectContent>
                 {destEstado?.municipios.map((m) => (
-                  <SelectItem key={m.municipio} value={m.municipio}>{m.municipio}</SelectItem>
+                  <SelectItem key={m.municipio} value={m.municipio}>
+                    {m.municipio}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -294,12 +327,16 @@ export function TransportOfferForm() {
               onValueChange={(v) => update("destination_city", v)}
               disabled={!destEstado}
             >
-              <SelectTrigger><SelectValue placeholder={t("destinationCity")} /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder={t("destinationCity")} />
+              </SelectTrigger>
               <SelectContent>
                 {destEstado?.municipios
                   .find((m) => m.municipio === form.destination_municipality)
                   ?.ciudades.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
               </SelectContent>
             </Select>
@@ -381,7 +418,9 @@ export function TransportOfferForm() {
           <Button
             type="button"
             variant={form.accepts_passengers ? "default" : "outline"}
-            onClick={() => update("accepts_passengers", !form.accepts_passengers)}
+            onClick={() =>
+              update("accepts_passengers", !form.accepts_passengers)
+            }
           >
             Pasajeros
           </Button>
@@ -406,9 +445,14 @@ export function TransportOfferForm() {
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={submitting}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full md:w-auto"
+        disabled={submitting}
+      >
         {submitting ? tc("loading") : t("submit")}
       </Button>
     </form>
-  )
+  );
 }

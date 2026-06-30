@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getPB, COLLECTIONS } from "@/lib/pocketbase";
+import { getSupabase, TABLES } from "@/lib/supabase";
 
 export default function HomePage() {
   const t = useTranslations("home");
@@ -26,18 +26,18 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const pb = getPB()
+        const supabase = getSupabase()
         const [travelCount, transportCount, housingCount, donations] = await Promise.all([
-          pb.collection(COLLECTIONS.TRAVEL_REQUESTS).getList(1, 1, { filter: 'status = "open"' }),
-          pb.collection(COLLECTIONS.TRANSPORT_OFFERS).getList(1, 1, { filter: 'status = "open"' }),
-          pb.collection(COLLECTIONS.HOUSING_OFFERS).getList(1, 1, { filter: 'status = "open"' }),
-          pb.collection(COLLECTIONS.DONATIONS).getList(1, 1),
+          supabase.from(TABLES.TRAVEL_REQUESTS).select("*", { count: "exact", head: true }).eq("status", "open"),
+          supabase.from(TABLES.TRANSPORT_OFFERS).select("*", { count: "exact", head: true }).eq("status", "open"),
+          supabase.from(TABLES.HOUSING_OFFERS).select("*", { count: "exact", head: true }).eq("status", "open"),
+          supabase.from(TABLES.DONATIONS).select("*", { count: "exact", head: true }),
         ])
         setStats([
-          { value: String(travelCount.totalItems), label: t("statsViajes") },
-          { value: String(transportCount.totalItems), label: t("statsTransportistas") },
-          { value: String(housingCount.totalItems), label: t("statsAnfitriones") },
-          { value: `${donations.totalItems}`, label: t("statsDonaciones") },
+          { value: String(travelCount.count), label: t("statsViajes") },
+          { value: String(transportCount.count), label: t("statsTransportistas") },
+          { value: String(housingCount.count), label: t("statsAnfitriones") },
+          { value: `${donations.count}`, label: t("statsDonaciones") },
         ])
       } catch {
         setStats([

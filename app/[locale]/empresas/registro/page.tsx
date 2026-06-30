@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { useEstados } from "@/lib/estados"
 
 export default function RegistroEmpresaPage() {
@@ -56,15 +56,15 @@ export default function RegistroEmpresaPage() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      const pb = getPB()
+      const supabase = getSupabase()
       const data: Record<string, unknown> = {
         ...form,
         verified: false,
       }
-      if (pb.authStore.model) {
-        data.user = pb.authStore.model.id
-      }
-      await pb.collection(COLLECTIONS.COMPANIES).create(data)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) data.user = user.id
+      const { error } = await supabase.from("companies").insert(data).select().single()
+      if (error) throw error
       toast.success(t("success"))
       router.push("/empleos")
     } catch (err) {

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 
 type DonationSetting = {
@@ -29,9 +29,9 @@ export default function DonarPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const pb = getPB()
-        const res = await pb.collection(COLLECTIONS.DONATION_SETTINGS).getFullList<DonationSetting>({ sort: "sort_order" })
-        setSettings(res)
+        const supabase = getSupabase()
+        const res = await supabase.from(TABLES.DONATION_SETTINGS).select("*").order("sort_order")
+        setSettings((res.data || []) as DonationSetting[])
       } catch {
         setSettings([])
       } finally {

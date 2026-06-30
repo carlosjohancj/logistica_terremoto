@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,7 +32,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { getPB, COLLECTIONS } from "@/lib/pocketbase"
+import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
@@ -57,6 +59,8 @@ export default function DashboardPage() {
   const t = useTranslations("companies")
   const tj = useTranslations("jobs")
   const tc = useTranslations("common")
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
 
   const [companies, setCompanies] = useState<Company[]>([])
   const [selectedCompany, setSelectedCompany] = useState<string>("")
@@ -76,22 +80,12 @@ export default function DashboardPage() {
     contact_email: "",
   })
 
-  useEffect(() => {
-    const pb = getPB()
-    if (!pb.authStore.model) {
-      window.location.href = `/${window.location.pathname.split("/")[1]}/auth/login`
-      return
-    }
-    loadCompanies()
-  }, [])
-
   async function loadCompanies() {
-    const pb = getPB()
+    const supabase = getSupabase()
     try {
-      const res = await pb.collection(COLLECTIONS.COMPANIES).getList(1, 50, {
-        filter: `user = "${pb.authStore.model!.id}"`,
-      })
-      const items = res.items as unknown as Company[]
+      const { data: { user } } = await supabase.auth.getUser()
+      const res = await supabase.from(TABLES.COMPANIES).select("*").eq("user_id", user!.id)
+      const items = (res.data || []) as unknown as Company[]
       setCompanies(items)
       if (items.length > 0) {
         setSelectedCompany(items[0].id)
@@ -105,14 +99,25 @@ export default function DashboardPage() {
     }
   }
 
+  useEffect(() => {
+    async function init() {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        window.location.href = `/${window.location.pathname.split("/")[1]}/auth/login`
+        return
+      }
+      loadCompanies()
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function loadJobs(companyId: string) {
-    const pb = getPB()
+    const supabase = getSupabase()
     try {
-      const res = await pb.collection(COLLECTIONS.JOBS).getList(1, 100, {
-        filter: `company = "${companyId}"`,
-        sort: "-created",
-      })
-      setJobs(res.items as unknown as Job[])
+      const res = await supabase.from(TABLES.JOBS).select("*").eq("company_id", companyId).order("created", { ascending: false })
+      setJobs((res.data || []) as unknown as Job[])
     } catch {
       toast.error(tc("error"))
     } finally {
@@ -128,12 +133,12 @@ export default function DashboardPage() {
     }
 
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.JOBS).create({
+      const supabase = getSupabase()
+      await supabase.from(TABLES.JOBS).insert({
         ...jobForm,
         company: selectedCompany,
         status: "open",
-      })
+      }).select().single()
       toast.success(tj("success") || "Empleo creado")
       setDialogOpen(false)
       setJobForm({
@@ -155,8 +160,8 @@ export default function DashboardPage() {
 
   async function closeJob(jobId: string) {
     try {
-      const pb = getPB()
-      await pb.collection(COLLECTIONS.JOBS).update(jobId, { status: "closed" })
+      const supabase = getSupabase()
+      await supabase.from(TABLES.JOBS).update({ status: "closed" }).eq("id", jobId)
       toast.success("Empleo cerrado")
       loadJobs(selectedCompany)
     } catch (err) {
@@ -173,7 +178,7 @@ export default function DashboardPage() {
         <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-xl font-bold mb-2">{t("register")}</h2>
         <p className="text-muted-foreground mb-6">{t("registerDesc")}</p>
-        <a href="/empresas/registro"><Button>{t("submit")}</Button></a>
+        <Link href={`/${locale}/empresas/registro`}><Button>{t("submit")}</Button></Link>
       </div>
     )
   }
