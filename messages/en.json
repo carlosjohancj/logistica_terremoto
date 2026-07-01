@@ -315,6 +315,25 @@
     "phoneLabel": "Phone",
     "emailLabel": "Email"
   },
+  "terms": {
+    "title": "Terms of Use",
+    "intro": "Desde Cero is a community platform that connects displaced people with drivers, hosts, and donors willing to help. By using this platform, you agree to the following terms.",
+    "sectionServiceTitle": "What Desde Cero Is",
+    "sectionServiceBody": "Desde Cero does not own vehicles, housing, money, or resources of its own. Our only role is to act as an intermediary connecting people who need help with those who can offer it. Every trip, stay, or donation is arranged and carried out directly between the platform's users.",
+    "sectionLiabilityTitle": "Liability",
+    "sectionLiabilityBody": "Because we do not directly participate in transportation, housing, or the handling of resources, Desde Cero does not guarantee or take responsibility for the availability, quality, safety, or fulfillment of arrangements made between users. Each person is responsible for verifying information with whoever they choose to coordinate help with.",
+    "sectionUserTitle": "User Responsibilities",
+    "sectionUserBody": "By registering, you agree to provide truthful information, act in good faith, and take the necessary precautions before coordinating a trip, stay, or supply drop-off with another person. We recommend verifying identities and sharing contact information only with people you consider trustworthy.",
+    "sectionDonationsTitle": "Donations",
+    "sectionDonationsBody": "Donations made through this platform are voluntary and go toward the costs described on the Donate page (transportation, gas, housing, or direct help to families). Desde Cero does not hold or manage these funds as a business; it acts as a coordination channel between donors and those who need support.",
+    "sectionPrivacyTitle": "Privacy",
+    "sectionPrivacyBody": "The information you share is used only to facilitate connections within the platform. We do not sell or share your data with third parties for commercial purposes.",
+    "sectionChangesTitle": "Changes to These Terms",
+    "sectionChangesBody": "These terms may be updated as the platform evolves. We recommend reviewing them periodically.",
+    "sectionContactTitle": "Contact",
+    "sectionContactBody": "If you have questions about these terms, you can reach us through our contact page.",
+    "contactLinkLabel": "Go to the contact page"
+  },
   "explore": {
     "title": "Explore",
     "search": "Search...",

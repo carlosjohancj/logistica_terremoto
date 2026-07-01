@@ -313,6 +313,25 @@
     "phoneLabel": "Telefono",
     "emailLabel": "Email"
   },
+  "terms": {
+    "title": "Termini di Utilizzo",
+    "intro": "Desde Cero è una piattaforma comunitaria che mette in contatto le persone sfollate con autisti, ospiti e donatori disposti ad aiutare. Utilizzando questa piattaforma, accetti i seguenti termini.",
+    "sectionServiceTitle": "Cos'è Desde Cero",
+    "sectionServiceBody": "Desde Cero non possiede veicoli, alloggi, denaro o risorse proprie. Il nostro unico ruolo è quello di fungere da intermediario che collega chi ha bisogno di aiuto con chi può offrirlo. Ogni viaggio, alloggio o donazione viene concordato e realizzato direttamente tra gli utenti della piattaforma.",
+    "sectionLiabilityTitle": "Responsabilità",
+    "sectionLiabilityBody": "Non partecipando direttamente al trasporto, all'alloggio o alla gestione delle risorse, Desde Cero non garantisce né si assume responsabilità per la disponibilità, la qualità, la sicurezza o il rispetto degli accordi presi tra gli utenti. Ogni persona è responsabile di verificare le informazioni di chi sceglie per coordinare l'aiuto.",
+    "sectionUserTitle": "Responsabilità dell'utente",
+    "sectionUserBody": "Registrandoti, ti impegni a fornire informazioni veritiere, ad agire in buona fede e a prendere le precauzioni necessarie prima di coordinare un viaggio, un alloggio o una consegna di beni con un'altra persona. Ti consigliamo di verificare le identità e di condividere i contatti solo con persone di fiducia.",
+    "sectionDonationsTitle": "Donazioni",
+    "sectionDonationsBody": "Le donazioni effettuate tramite questa piattaforma sono volontarie e destinate a coprire le spese descritte nella pagina Dona (trasporto, benzina, alloggio o aiuto diretto alle famiglie). Desde Cero non trattiene né gestisce questi fondi come un'attività commerciale; funge da canale di coordinamento tra donatori e chi ha bisogno di supporto.",
+    "sectionPrivacyTitle": "Privacy",
+    "sectionPrivacyBody": "Le informazioni che condividi vengono utilizzate solo per facilitare le connessioni all'interno della piattaforma. Non vendiamo né condividiamo i tuoi dati con terzi per scopi commerciali.",
+    "sectionChangesTitle": "Modifiche a questi termini",
+    "sectionChangesBody": "Questi termini possono essere aggiornati con l'evolversi della piattaforma. Ti consigliamo di consultarli periodicamente.",
+    "sectionContactTitle": "Contatto",
+    "sectionContactBody": "Se hai domande su questi termini, puoi contattarci tramite la nostra pagina di contatto.",
+    "contactLinkLabel": "Vai alla pagina di contatto"
+  },
   "explore": {
     "title": "Esplora",
     "search": "Cerca...",

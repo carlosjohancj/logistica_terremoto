@@ -34,7 +34,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><span className="cursor-default">Preguntas frecuentes</span></li>
               <li><Link href={`/${locale}/contacto`} className="hover:text-primary">Contacto</Link></li>
-              <li><span className="cursor-default">Términos de uso</span></li>
+              <li><Link href={`/${locale}/terminos-de-uso`} className="hover:text-primary">Términos de uso</Link></li>
             </ul>
           </div>
           <div>

@@ -313,6 +313,25 @@
     "phoneLabel": "Telefon",
     "emailLabel": "E-Mail"
   },
+  "terms": {
+    "title": "Nutzungsbedingungen",
+    "intro": "Desde Cero ist eine Gemeinschaftsplattform, die Betroffene mit Fahrern, Gastgebern und Spendern verbindet, die helfen möchten. Durch die Nutzung dieser Plattform akzeptierst du die folgenden Bedingungen.",
+    "sectionServiceTitle": "Was Desde Cero ist",
+    "sectionServiceBody": "Desde Cero besitzt keine Fahrzeuge, Unterkünfte, Geld oder eigenen Ressourcen. Unsere einzige Aufgabe ist es, als Vermittler zwischen Menschen, die Hilfe benötigen, und denen, die sie anbieten können, zu fungieren. Jede Fahrt, Unterkunft oder Spende wird direkt zwischen den Nutzern der Plattform vereinbart und durchgeführt.",
+    "sectionLiabilityTitle": "Haftung",
+    "sectionLiabilityBody": "Da wir nicht direkt am Transport, an der Unterbringung oder an der Verwaltung von Ressourcen beteiligt sind, übernimmt Desde Cero keine Garantie oder Verantwortung für die Verfügbarkeit, Qualität, Sicherheit oder Erfüllung von Vereinbarungen zwischen Nutzern. Jede Person ist selbst dafür verantwortlich, die Informationen der Person zu überprüfen, mit der sie Hilfe koordiniert.",
+    "sectionUserTitle": "Verantwortlichkeiten der Nutzer",
+    "sectionUserBody": "Mit der Registrierung verpflichtest du dich, wahrheitsgemäße Angaben zu machen, in gutem Glauben zu handeln und die notwendigen Vorsichtsmaßnahmen zu treffen, bevor du eine Fahrt, Unterkunft oder Lieferung von Hilfsgütern mit einer anderen Person koordinierst. Wir empfehlen, Identitäten zu überprüfen und Kontaktdaten nur mit vertrauenswürdigen Personen zu teilen.",
+    "sectionDonationsTitle": "Spenden",
+    "sectionDonationsBody": "Spenden über diese Plattform erfolgen freiwillig und dienen der Deckung der auf der Spendenseite beschriebenen Kosten (Transport, Benzin, Unterkunft oder direkte Hilfe für Familien). Desde Cero verwaltet diese Mittel nicht geschäftlich, sondern dient als Koordinationskanal zwischen Spendern und Hilfesuchenden.",
+    "sectionPrivacyTitle": "Datenschutz",
+    "sectionPrivacyBody": "Die von dir geteilten Informationen werden ausschließlich verwendet, um Verbindungen innerhalb der Plattform zu ermöglichen. Wir verkaufen oder teilen deine Daten nicht zu kommerziellen Zwecken mit Dritten.",
+    "sectionChangesTitle": "Änderungen dieser Bedingungen",
+    "sectionChangesBody": "Diese Bedingungen können sich im Laufe der Weiterentwicklung der Plattform ändern. Wir empfehlen, sie regelmäßig zu überprüfen.",
+    "sectionContactTitle": "Kontakt",
+    "sectionContactBody": "Wenn du Fragen zu diesen Bedingungen hast, kannst du uns über unsere Kontaktseite erreichen.",
+    "contactLinkLabel": "Zur Kontaktseite"
+  },
   "explore": {
     "title": "Erkunden",
     "search": "Suchen...",
