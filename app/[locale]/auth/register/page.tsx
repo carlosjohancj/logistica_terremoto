@@ -16,6 +16,8 @@ import { toast } from "sonner"
 import { registerUser } from "@/lib/auth"
 import { getSupabase } from "@/lib/supabase"
 import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/auth"
+import { FIELD_CLASS, PASSWORD_FIELD_CLASS, SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
+import { cn } from "@/lib/utils"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
@@ -24,6 +26,13 @@ export default function RegisterPage() {
   const pathname = usePathname()
   const locale = pathname.split("/")[1] || "es"
   const [loading, setLoading] = useState(false)
+
+  const roleLabels: Record<string, string> = {
+    damnificado: t("roleDamnificado"),
+    transportista: t("roleTransportista"),
+    anfitrion: t("roleAnfitrion"),
+    donante: t("roleDonante"),
+  }
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(
@@ -68,17 +77,17 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t("name")}</Label>
-              <Input id="name" {...register("name")} />
+              <Input id="name" className={FIELD_CLASS} {...register("name")} />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <Input id="email" type="email" className={FIELD_CLASS} {...register("email")} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{t("phone")}</Label>
-              <Input id="phone" type="tel" {...register("phone")} />
+              <Input id="phone" type="tel" className={FIELD_CLASS} {...register("phone")} />
             </div>
             <div className="space-y-2">
               <Label>{t("role")}</Label>
@@ -87,8 +96,10 @@ export default function RegisterPage() {
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value ?? "damnificado"} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("role")} />
+                    <SelectTrigger className={SELECT_TRIGGER_CLASS}>
+                      <SelectValue placeholder={t("role")}>
+                        {(value: string | null) => (value ? roleLabels[value] : null)}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="damnificado">{t("roleDamnificado")}</SelectItem>
@@ -102,15 +113,15 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
-              <PasswordInput id="password" {...register("password")} />
+              <PasswordInput id="password" className={PASSWORD_FIELD_CLASS} {...register("password")} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="passwordConfirm">{t("passwordConfirm")}</Label>
-              <PasswordInput id="passwordConfirm" {...register("passwordConfirm")} />
+              <PasswordInput id="passwordConfirm" className={PASSWORD_FIELD_CLASS} {...register("passwordConfirm")} />
               {errors.passwordConfirm && <p className="text-sm text-destructive">{errors.passwordConfirm.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={loading}>
               {loading ? tc("loading") : t("submit")}
             </Button>
           </form>

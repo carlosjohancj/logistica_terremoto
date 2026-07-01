@@ -22,7 +22,8 @@ import { submitTravelRequest } from "@/lib/forms/submit";
 import { HOUSING_DESTRUCTION_OPTIONS } from "@/lib/forms/constants";
 import { FormSection } from "@/components/forms/shared/form-section";
 import { OptionCard } from "@/components/forms/shared/option-card";
-import { FIELD_CLASS, SELECT_TRIGGER_CLASS, TEXTAREA_CLASS } from "@/components/forms/shared/field-styles";
+import { FIELD_CLASS, SELECT_TRIGGER_CLASS, TEXTAREA_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles";
+import { cn } from "@/lib/utils";
 import { TravelLocationSection } from "./location-section";
 
 export function TravelRequestForm() {
@@ -207,7 +208,7 @@ export function TravelRequestForm() {
           </div>
 
           <div className="flex justify-end pt-6">
-            <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
+            <Button type="submit" className={cn(BUTTON_HEIGHT_CLASS, "w-full md:w-auto")} disabled={isSubmitting}>
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </div>

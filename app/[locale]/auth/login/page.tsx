@@ -13,6 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import { loginUser } from "@/lib/auth"
 import { createLoginSchema, type LoginFormValues } from "@/lib/schemas/auth"
+import { FIELD_CLASS, PASSWORD_FIELD_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
+import { cn } from "@/lib/utils"
 
 export default function LoginPage() {
   const t = useTranslations("auth")
@@ -53,15 +55,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <Input id="email" type="email" className={FIELD_CLASS} {...register("email")} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
-              <PasswordInput id="password" {...register("password")} />
+              <PasswordInput id="password" className={PASSWORD_FIELD_CLASS} {...register("password")} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={isSubmitting}>
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>

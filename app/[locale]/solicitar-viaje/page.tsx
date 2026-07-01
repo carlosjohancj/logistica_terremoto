@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl"
+import { Send } from "lucide-react"
 import { TravelRequestForm } from "@/components/forms/travel-request/form"
+import { PageHero } from "@/components/shared/page-hero"
+import { CommunityStatsBar } from "@/components/shared/community-stats-bar"
 
 export default function SolicitarViajePage() {
   return <SolicitarViajeContent />
@@ -9,12 +12,17 @@ function SolicitarViajeContent() {
   const t = useTranslations("travelRequest")
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="mb-6 space-y-1">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("description")}</p>
+    <div className="flex flex-col">
+      <PageHero
+        title={t("title")}
+        description={t("description")}
+        cta={{ label: t("heroCta"), href: "#form", icon: Send }}
+        className="bg-chart-3 text-white"
+      />
+      <CommunityStatsBar />
+      <div id="form" className="container mx-auto px-4 py-16 max-w-3xl scroll-mt-20">
+        <TravelRequestForm />
       </div>
-      <TravelRequestForm />
     </div>
   )
 }

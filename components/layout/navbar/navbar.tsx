@@ -49,6 +49,7 @@ export function Navbar() {
     `/${locale}/donaciones-fisicas`,
   ];
   const masPaths = [
+    `/${locale}/explorar`,
     `/${locale}/empleos`,
     `/${locale}/recursos`,
     `/${locale}/sobre-nosotros`,
@@ -63,15 +64,6 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href={`/${locale}`}
-            className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
-              isActive(`/${locale}`) ? "text-primary" : "text-muted-foreground"
-            )}
-          >
-            {t("inicio")}
-          </Link>
           <Link
             href={`/${locale}/solicitar-viaje`}
             className={cn(
@@ -107,17 +99,6 @@ export function Navbar() {
             </DropdownLink>
           </NavDropdown>
           <Link
-            href={`/${locale}/explorar`}
-            className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
-              isActive(`/${locale}/explorar`)
-                ? "text-primary"
-                : "text-muted-foreground"
-            )}
-          >
-            {t("explorar")}
-          </Link>
-          <Link
             href={`/${locale}/donar`}
             className={cn(
               "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
@@ -129,6 +110,12 @@ export function Navbar() {
             {t("donar")}
           </Link>
           <NavDropdown label="Más" active={masPaths.some(isActive)}>
+            <DropdownLink
+              href={`/${locale}/explorar`}
+              active={isActive(`/${locale}/explorar`)}
+            >
+              {t("explorar")}
+            </DropdownLink>
             <DropdownLink
               href={`/${locale}/empleos`}
               active={isActive(`/${locale}/empleos`)}

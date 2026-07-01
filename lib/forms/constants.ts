@@ -9,11 +9,11 @@ export const HOUSING_DESTRUCTION_OPTIONS = [
 
 export const JOB_MODALITIES = ["presencial", "remoto", "hibrido"] as const;
 
-export const AMENITY_TOGGLES = [
-  { field: "has_furniture" as const, label: "Tiene muebles" },
-  { field: "has_kitchen" as const, label: "Tiene cocina" },
-  { field: "has_bathroom" as const, label: "Tiene baño" },
-];
+export const AMENITY_TOGGLE_FIELDS = [
+  { field: "has_furniture" as const, labelKey: "hasFurniture" },
+  { field: "has_kitchen" as const, labelKey: "hasKitchen" },
+  { field: "has_bathroom" as const, labelKey: "hasBathroom" },
+] as const;
 
 export const ACCEPT_TOGGLE_FIELDS = [
   { field: "accepts_children" as const, labelKey: "acceptsChildren" },
