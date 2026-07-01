@@ -73,12 +73,15 @@
     "hasDestination": "Tem um destino?",
     "yes": "Sim",
     "no": "Não",
+    "originSection": "Localização de origem",
     "originState": "Estado de origem",
     "originMunicipality": "Município de origem",
     "originCity": "Cidade de origem",
+    "destinationSection": "Localização de destino",
     "destinationState": "Estado de destino",
     "destinationMunicipality": "Município de destino",
     "destinationCity": "Cidade de destino",
+    "tripDetailsSection": "Detalhes da viagem",
     "peopleToMove": "Pessoas para transportar",
     "peopleToHouse": "Pessoas para hospedar",
     "childrenCount": "Número de crianças",
@@ -102,19 +105,33 @@
   },
   "transportOffer": {
     "title": "Oferecer Transporte",
+    "description": "Publique sua oferta de transporte para ajudar os desabrigados a se deslocarem dentro da Venezuela.",
+    "heroCta": "Oferecer Agora",
     "vehicleType": "Tipo de veículo",
     "moto": "Moto",
     "carro": "Carro",
     "camioneta": "SUV/Caminhonete",
     "camion": "Caminhão",
     "capacity": "Capacidade (pessoas)",
+    "vehicleSection": "Detalhes do veículo",
+    "originSection": "Local de partida",
     "originState": "Estado de saída",
     "originMunicipality": "Município de saída",
     "originCity": "Cidade de saída",
+    "destinationSection": "Local de destino",
     "destinationState": "Estado de destino",
     "destinationMunicipality": "Município de destino",
     "destinationCity": "Cidade de destino",
+    "availabilitySection": "Disponibilidade",
+    "flexibleDate": "Data flexível",
+    "availableFrom": "Disponível a partir de",
+    "availableUntil": "Disponível até",
+    "preferencesSection": "Preferências da viagem",
     "needsGasDonation": "Precisa de doação de gasolina?",
+    "gasDonationAmount": "Valor estimado ($)",
+    "whatToTransport": "O que você pode transportar?",
+    "acceptsPassengers": "Passageiros",
+    "acceptsCargo": "Carga",
     "yes": "Sim",
     "no": "Não",
     "notes": "Notas adicionais",
@@ -123,20 +140,28 @@
   },
   "housingOffer": {
     "title": "Oferecer Hospedagem",
+    "description": "Ofereça um espaço temporário para desabrigados que precisam de um lugar para ficar.",
+    "heroCta": "Oferecer Agora",
+    "locationSection": "Localização do imóvel",
     "state": "Estado",
     "municipality": "Município",
     "city": "Cidade",
     "address": "Endereço",
+    "detailsSection": "Detalhes da hospedagem",
     "capacity": "Capacidade (pessoas)",
     "maxStayDays": "Dias máximos",
+    "acceptsSection": "Quem você aceita?",
     "acceptsChildren": "Aceita crianças",
     "acceptsAdults": "Aceita adultos",
     "acceptsFamilies": "Aceita famílias",
+    "amenitiesSection": "Comodidades",
+    "hasFurniture": "Mobiliado",
+    "hasKitchen": "Cozinha",
+    "hasBathroom": "Banheiro",
     "notes": "Notas adicionais",
     "submit": "Publicar hospedagem",
     "success": "Hospedagem publicada com sucesso"
   },
-
   "about": {
     "title": "Sobre nós",
     "subtitle": "Conectamos vontades para ajudar quem mais precisa após o terremoto na Venezuela",
@@ -157,7 +182,6 @@
     "offerTransport": "Oferecer transporte",
     "offerHousing": "Oferecer hospedagem"
   },
-
   "jobs": {
     "title": "Empregos",
     "subtitle": "Oportunidades de emprego para a reconstrução da Venezuela",
@@ -181,7 +205,6 @@
     "noDescription": "Sem descrição",
     "newJob": "Novo emprego"
   },
-
   "companies": {
     "register": "Registrar empresa",
     "registerDesc": "Registre sua empresa para publicar vagas de emprego na plataforma",
@@ -202,7 +225,6 @@
     "submit": "Registrar empresa",
     "success": "Empresa registrada com sucesso. Em breve será verificada."
   },
-
   "supplies": {
     "title": "Insumos e Doações Físicas",
     "subtitle": "Ofereça ou solicite insumos como camas, comida, roupas e mais",
@@ -265,10 +287,12 @@
     "manual": "Manual",
     "otro": "Outro"
   },
-
   "donate": {
     "title": "Doar",
+    "heroTitle": "Mude Vidas com sua Ajuda",
     "desc": "Sua contribuição ajuda a cobrir despesas de transporte, gasolina e hospedagem para as famílias afetadas.",
+    "heroCta": "Doar Agora",
+    "fundsSectionTitle": "Para Onde Vai sua Ajuda",
     "bankInfo": "Informações bancárias",
     "paypalInfo": "PayPal",
     "zelleInfo": "Zelle",
@@ -280,7 +304,33 @@
     "hospedajeDesc": "Apoia anfitriões que abrigam famílias.",
     "familia": "Família específica",
     "familiaDesc": "Ajuda direta a uma família sinistrada específica.",
+    "paymentSectionTitle": "Métodos de Pagamento",
     "contactUs": "Contate-nos para mais informações"
+  },
+  "contact": {
+    "title": "Olá!",
+    "subtitle": "Escreva para nós se tiver dúvidas, quiser colaborar ou precisar de ajuda com a plataforma.",
+    "phoneLabel": "Telefone",
+    "emailLabel": "E-mail"
+  },
+  "terms": {
+    "title": "Termos de Uso",
+    "intro": "Desde Cero é uma plataforma comunitária que conecta pessoas desabrigadas com motoristas, anfitriões e doadores dispostos a ajudar. Ao usar esta plataforma, você concorda com os seguintes termos.",
+    "sectionServiceTitle": "O que é a Desde Cero",
+    "sectionServiceBody": "A Desde Cero não possui veículos, moradias, dinheiro ou recursos próprios. Nosso único papel é atuar como intermediária, conectando quem precisa de ajuda com quem pode oferecê-la. Cada viagem, hospedagem ou doação é combinada e realizada diretamente entre os usuários da plataforma.",
+    "sectionLiabilityTitle": "Responsabilidade",
+    "sectionLiabilityBody": "Como não participamos diretamente do transporte, da hospedagem nem da gestão de recursos, a Desde Cero não garante nem se responsabiliza pela disponibilidade, qualidade, segurança ou cumprimento dos acordos feitos entre os usuários. Cada pessoa é responsável por verificar as informações de quem escolhe para coordenar ajuda.",
+    "sectionUserTitle": "Responsabilidades do Usuário",
+    "sectionUserBody": "Ao se cadastrar, você se compromete a fornecer informações verdadeiras, agir de boa-fé e tomar as precauções necessárias antes de combinar uma viagem, hospedagem ou entrega de insumos com outra pessoa. Recomendamos verificar identidades e compartilhar informações de contato apenas com pessoas de confiança.",
+    "sectionDonationsTitle": "Doações",
+    "sectionDonationsBody": "As doações feitas por meio desta plataforma são voluntárias e destinadas a cobrir os custos descritos na página de Doar (transporte, combustível, hospedagem ou ajuda direta a famílias). A Desde Cero não retém nem administra esses fundos como negócio; atua como canal de coordenação entre doadores e quem precisa de apoio.",
+    "sectionPrivacyTitle": "Privacidade",
+    "sectionPrivacyBody": "As informações que você compartilha são usadas apenas para facilitar as conexões dentro da plataforma. Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais.",
+    "sectionChangesTitle": "Alterações nestes Termos",
+    "sectionChangesBody": "Estes termos podem ser atualizados à medida que a plataforma evolui. Recomendamos revisá-los periodicamente.",
+    "sectionContactTitle": "Contato",
+    "sectionContactBody": "Se tiver dúvidas sobre estes termos, você pode nos contatar através da nossa página de contato.",
+    "contactLinkLabel": "Ir para a página de contato"
   },
   "explore": {
     "title": "Explorar",
@@ -308,6 +358,10 @@
     "search": "Buscar",
     "status": "Status",
     "date": "Data",
-    "actions": "Ações"
+    "actions": "Ações",
+    "themeToggle": "Alternar tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema"
   }
 }

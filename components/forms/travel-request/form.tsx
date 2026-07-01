@@ -3,10 +3,12 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { Users, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -18,6 +20,10 @@ import { toast } from "sonner";
 import { travelRequestSchema, TravelRequestValues } from "@/lib/schemas/travel-request";
 import { submitTravelRequest } from "@/lib/forms/submit";
 import { HOUSING_DESTRUCTION_OPTIONS } from "@/lib/forms/constants";
+import { FormSection } from "@/components/forms/shared/form-section";
+import { OptionCard } from "@/components/forms/shared/option-card";
+import { FIELD_CLASS, SELECT_TRIGGER_CLASS, TEXTAREA_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles";
+import { cn } from "@/lib/utils";
 import { TravelLocationSection } from "./location-section";
 
 export function TravelRequestForm() {
@@ -60,153 +66,154 @@ export function TravelRequestForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      {/* Registrant type */}
-      <div className="space-y-3">
-        <Label>{t("registrantType")}</Label>
-        <Controller
-          name="registrant_type"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant={field.value === "damnificado" ? "default" : "outline"}
-                onClick={() => field.onChange("damnificado")}
-              >
-                {t("registrantDamnificado")}
-              </Button>
-              <Button
-                type="button"
-                variant={field.value === "colaborador" ? "default" : "outline"}
-                onClick={() => field.onChange("colaborador")}
-              >
-                {t("registrantColaborador")}
-              </Button>
-            </div>
-          )}
-        />
-        {errors.registrant_type && (
-          <p className="text-sm text-destructive">{errors.registrant_type.message}</p>
-        )}
-      </div>
+    <Card>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="divide-y divide-border">
+            <FormSection title={t("registrantType")}>
+              <Controller
+                name="registrant_type"
+                control={control}
+                render={({ field }) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <OptionCard
+                      icon={Users}
+                      title={t("registrantDamnificado")}
+                      selected={field.value === "damnificado"}
+                      onClick={() => field.onChange("damnificado")}
+                    />
+                    <OptionCard
+                      icon={UserPlus}
+                      title={t("registrantColaborador")}
+                      selected={field.value === "colaborador"}
+                      onClick={() => field.onChange("colaborador")}
+                    />
+                  </div>
+                )}
+              />
+              {errors.registrant_type && (
+                <p className="text-sm text-destructive">{errors.registrant_type.message}</p>
+              )}
 
-      {registrantType === "colaborador" && (
-        <div className="space-y-2">
-          <Label>{t("registrantRelation")}</Label>
-          <Input
-            {...register("registrant_relation")}
-            placeholder={t("registrantRelation")}
-          />
-        </div>
-      )}
+              {registrantType === "colaborador" && (
+                <div className="space-y-2">
+                  <Label>{t("registrantRelation")}</Label>
+                  <Input
+                    className={FIELD_CLASS}
+                    {...register("registrant_relation")}
+                    placeholder={t("registrantRelation")}
+                  />
+                </div>
+              )}
+            </FormSection>
 
-      <TravelLocationSection
-        control={control}
-        setValue={setValue}
-        prefix="origin"
-        heading={t("originState")}
-        stateError={errors.origin_state?.message}
-      />
+            <FormSection title={t("originSection")}>
+              <TravelLocationSection
+                control={control}
+                setValue={setValue}
+                prefix="origin"
+                stateError={errors.origin_state?.message}
+              />
 
-      {/* Has destination */}
-      <div className="space-y-3">
-        <Label>{t("hasDestination")}</Label>
-        <Controller
-          name="has_destination"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant={field.value === true ? "default" : "outline"}
-                onClick={() => field.onChange(true)}
-              >
-                {t("yes")}
-              </Button>
-              <Button
-                type="button"
-                variant={field.value === false ? "default" : "outline"}
-                onClick={() => field.onChange(false)}
-              >
-                {t("no")}
-              </Button>
-            </div>
-          )}
-        />
-      </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <Label className="text-sm font-medium">{t("hasDestination")}</Label>
+                <Controller
+                  name="has_destination"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2">
+                      <OptionCard
+                        title={t("yes")}
+                        selected={field.value === true}
+                        onClick={() => field.onChange(true)}
+                      />
+                      <OptionCard
+                        title={t("no")}
+                        selected={field.value === false}
+                        onClick={() => field.onChange(false)}
+                      />
+                    </div>
+                  )}
+                />
+              </div>
+            </FormSection>
 
-      {hasDestination === true && (
-        <TravelLocationSection
-          control={control}
-          setValue={setValue}
-          prefix="destination"
-          heading={t("destinationState")}
-        />
-      )}
-
-      {/* People */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{t("peopleToMove")}</Label>
-            <Input type="number" min={1} {...register("people_to_move")} />
-            {errors.people_to_move && (
-              <p className="text-sm text-destructive">{errors.people_to_move.message}</p>
+            {hasDestination === true && (
+              <FormSection title={t("destinationSection")}>
+                <TravelLocationSection
+                  control={control}
+                  setValue={setValue}
+                  prefix="destination"
+                />
+              </FormSection>
             )}
-          </div>
-          <div className="space-y-2">
-            <Label>{t("peopleToHouse")}</Label>
-            <Input type="number" min={0} {...register("people_to_house")} />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{t("childrenCount")}</Label>
-            <Input type="number" min={0} {...register("children_count")} />
-          </div>
-          <div className="space-y-2">
-            <Label>{t("adultsCount")}</Label>
-            <Input type="number" min={0} {...register("adults_count")} />
-          </div>
-        </div>
-      </div>
 
-      {/* Housing destruction */}
-      <div className="space-y-2">
-        <Label>{t("housingDestruction")}</Label>
-        <Controller
-          name="housing_destruction"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value ?? ""} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("housingDestruction")} />
-              </SelectTrigger>
-              <SelectContent>
-                {HOUSING_DESTRUCTION_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {t(opt)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-        {errors.housing_destruction && (
-          <p className="text-sm text-destructive">{errors.housing_destruction.message}</p>
-        )}
-      </div>
+            <FormSection title={t("tripDetailsSection")}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t("peopleToMove")}</Label>
+                  <Input
+                    className={FIELD_CLASS}
+                    type="number"
+                    min={1}
+                    {...register("people_to_move")}
+                  />
+                  {errors.people_to_move && (
+                    <p className="text-sm text-destructive">{errors.people_to_move.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("peopleToHouse")}</Label>
+                  <Input className={FIELD_CLASS} type="number" min={0} {...register("people_to_house")} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("childrenCount")}</Label>
+                  <Input className={FIELD_CLASS} type="number" min={0} {...register("children_count")} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("adultsCount")}</Label>
+                  <Input className={FIELD_CLASS} type="number" min={0} {...register("adults_count")} />
+                </div>
+              </div>
 
-      {/* Notes */}
-      <div className="space-y-2">
-        <Label>{t("notes")}</Label>
-        <Textarea {...register("notes")} rows={4} />
-      </div>
+              <div className="space-y-2">
+                <Label>{t("housingDestruction")}</Label>
+                <Controller
+                  name="housing_destruction"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                      <SelectTrigger className={SELECT_TRIGGER_CLASS}>
+                        <SelectValue placeholder={t("housingDestruction")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {HOUSING_DESTRUCTION_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {t(opt)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.housing_destruction && (
+                  <p className="text-sm text-destructive">{errors.housing_destruction.message}</p>
+                )}
+              </div>
+            </FormSection>
 
-      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
-        {isSubmitting ? tc("loading") : t("submit")}
-      </Button>
-    </form>
+            <FormSection title={t("notes")}>
+              <Textarea className={TEXTAREA_CLASS} {...register("notes")} rows={4} />
+            </FormSection>
+          </div>
+
+          <div className="flex justify-end pt-6">
+            <Button type="submit" className={cn(BUTTON_HEIGHT_CLASS, "w-full md:w-auto")} disabled={isSubmitting}>
+              {isSubmitting ? tc("loading") : t("submit")}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

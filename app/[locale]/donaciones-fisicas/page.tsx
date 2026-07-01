@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +26,10 @@ import { toast } from "sonner"
 import { Search, Package, MapPin, Truck, ArrowDownUp } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { useEstados } from "@/lib/estados"
+import { SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
+import { cn } from "@/lib/utils"
+import { PageHero } from "@/components/shared/page-hero"
+import { CommunityStatsBar } from "@/components/shared/community-stats-bar"
 
 type Supply = {
   id: string
@@ -45,6 +50,8 @@ type Supply = {
 export default function DonacionesFisicasPage() {
   const t = useTranslations("supplies")
   const tc = useTranslations("common")
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
 
   const [items, setItems] = useState<Supply[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,122 +103,122 @@ export default function DonacionesFisicasPage() {
   })
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">{t("listTitle")}</h1>
-          <p className="text-muted-foreground">{t("listSubtitle")}</p>
-        </div>
-        <Link href="/ofrecer-insumos">
-          <Button>{t("addButton")}</Button>
-        </Link>
-      </div>
+    <div className="flex flex-col">
+      <PageHero
+        title={t("listTitle")}
+        description={t("listSubtitle")}
+        cta={{ label: t("addButton"), href: `/${locale}/ofrecer-insumos`, icon: Package }}
+        className="bg-accent text-accent-foreground"
+      />
+      <CommunityStatsBar />
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t("search")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+      <div className="container mx-auto px-4 py-16 max-w-6xl">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t("search")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-10 pl-9 pr-4"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={filterType === "all" ? "default" : "outline"}
+              className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
+              onClick={() => setFilterType("all")}
+            >
+              <ArrowDownUp className="h-3 w-3 mr-1" /> {t("all")}
+            </Button>
+            <Button
+              variant={filterType === "offer" ? "default" : "outline"}
+              className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
+              onClick={() => setFilterType("offer")}
+            >
+              {t("iOffer")}
+            </Button>
+            <Button
+              variant={filterType === "request" ? "default" : "outline"}
+              className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
+              onClick={() => setFilterType("request")}
+            >
+              {t("iNeed")}
+            </Button>
+          </div>
+          <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v ?? "")}>
+            <SelectTrigger className={cn(SELECT_TRIGGER_CLASS, "sm:w-36")}>
+              <SelectValue placeholder={t("category")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">{t("allCategories")}</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
+            <SelectTrigger className={cn(SELECT_TRIGGER_CLASS, "sm:w-40")}>
+              <SelectValue placeholder={t("state")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">{t("all")}</SelectItem>
+              {estadosLoading ? (
+                <SelectItem value="" disabled>{tc("loading")}</SelectItem>
+              ) : (
+                estados.map((e) => (
+                  <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={filterType === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilterType("all")}
-          >
-            <ArrowDownUp className="h-3 w-3 mr-1" /> {t("all")}
-          </Button>
-          <Button
-            variant={filterType === "offer" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilterType("offer")}
-          >
-            {t("iOffer")}
-          </Button>
-          <Button
-            variant={filterType === "request" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilterType("request")}
-          >
-            {t("iNeed")}
-          </Button>
-        </div>
-        <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v ?? "")}>
-          <SelectTrigger className="w-full sm:w-36">
-            <SelectValue placeholder={t("category")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">{t("allCategories")}</SelectItem>
-            {categories.map((c) => (
-              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder={t("state")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">{t("all")}</SelectItem>
-            {estadosLoading ? (
-              <SelectItem value="" disabled>{tc("loading")}</SelectItem>
-            ) : (
-              estados.map((e) => (
-                <SelectItem key={e.name} value={e.name}>{e.name}</SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
-      </div>
 
-      {loading && <SkeletonGrid cols={3} count={6} />}
-      {!loading && filtered.length === 0 && (
-        <p className="text-center text-muted-foreground">{t("noResults")}</p>
-      )}
+        {loading && <SkeletonGrid cols={3} count={6} />}
+        {!loading && filtered.length === 0 && (
+          <p className="text-center text-muted-foreground">{t("noResults")}</p>
+        )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((item) => (
-          <Link key={item.id} href={`/donaciones-fisicas/${item.id}`}>
-            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base">{item.title}</CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <Package className="h-3 w-3" />
-                      {t(item.category)}
-                    </CardDescription>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((item) => (
+            <Link key={item.id} href={`/donaciones-fisicas/${item.id}`}>
+              <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-base">{item.title}</CardTitle>
+                      <CardDescription className="flex items-center gap-1">
+                        <Package className="h-3 w-3" />
+                        {t(item.category)}
+                      </CardDescription>
+                    </div>
+                    <Badge
+                      variant={item.type === "offer" ? "default" : "secondary"}
+                      className="shrink-0"
+                    >
+                      {item.type === "offer" ? t("iOffer") : t("iNeed")}
+                    </Badge>
                   </div>
-                  <Badge
-                    variant={item.type === "offer" ? "default" : "secondary"}
-                    className="shrink-0"
-                  >
-                    {item.type === "offer" ? t("iOffer") : t("iNeed")}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {item.city && `${item.city}, `}{item.state}
-                  </span>
-                  {item.quantity > 0 && <span>{t("qty")}: {item.quantity}</span>}
-                  {item.needs_transport && (
-                    <span className="flex items-center gap-1 text-primary">
-                      <Truck className="h-3 w-3" />
-                      {t("needsTransport")}
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {item.city && `${item.city}, `}{item.state}
                     </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                    {item.quantity > 0 && <span>{t("qty")}: {item.quantity}</span>}
+                    {item.needs_transport && (
+                      <span className="flex items-center gap-1 text-primary">
+                        <Truck className="h-3 w-3" />
+                        {t("needsTransport")}
+                      </span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useEstados } from "@/lib/estados";
 import { HousingOfferValues } from "@/lib/schemas/housing-offer";
+import { FIELD_CLASS, SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles";
 
 interface LocationFieldsProps {
   control: Control<HousingOfferValues>;
@@ -51,7 +52,7 @@ export function HousingOfferLocationFields({
                   setValue("city", "");
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className={SELECT_TRIGGER_CLASS}>
                   <SelectValue placeholder={t("state")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -88,7 +89,7 @@ export function HousingOfferLocationFields({
                 }}
                 disabled={!selectedEstado}
               >
-                <SelectTrigger>
+                <SelectTrigger className={SELECT_TRIGGER_CLASS}>
                   <SelectValue placeholder={t("municipality")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -113,7 +114,7 @@ export function HousingOfferLocationFields({
                 onValueChange={field.onChange}
                 disabled={!selectedEstado || !municipality}
               >
-                <SelectTrigger>
+                <SelectTrigger className={SELECT_TRIGGER_CLASS}>
                   <SelectValue placeholder={t("city")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -136,7 +137,7 @@ export function HousingOfferLocationFields({
           name="address"
           control={control}
           render={({ field }) => (
-            <Input {...field} placeholder={t("address")} />
+            <Input {...field} className={FIELD_CLASS} placeholder={t("address")} />
           )}
         />
       </div>

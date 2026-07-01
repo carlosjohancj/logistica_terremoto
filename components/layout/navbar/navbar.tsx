@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { cn } from "@/lib/utils";
 import { getSupabase } from "@/lib/supabase";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
@@ -48,6 +49,7 @@ export function Navbar() {
     `/${locale}/donaciones-fisicas`,
   ];
   const masPaths = [
+    `/${locale}/explorar`,
     `/${locale}/empleos`,
     `/${locale}/recursos`,
     `/${locale}/sobre-nosotros`,
@@ -62,15 +64,6 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href={`/${locale}`}
-            className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
-              isActive(`/${locale}`) ? "text-primary" : "text-muted-foreground"
-            )}
-          >
-            {t("inicio")}
-          </Link>
           <Link
             href={`/${locale}/solicitar-viaje`}
             className={cn(
@@ -106,17 +99,6 @@ export function Navbar() {
             </DropdownLink>
           </NavDropdown>
           <Link
-            href={`/${locale}/explorar`}
-            className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
-              isActive(`/${locale}/explorar`)
-                ? "text-primary"
-                : "text-muted-foreground"
-            )}
-          >
-            {t("explorar")}
-          </Link>
-          <Link
             href={`/${locale}/donar`}
             className={cn(
               "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
@@ -128,6 +110,12 @@ export function Navbar() {
             {t("donar")}
           </Link>
           <NavDropdown label="Más" active={masPaths.some(isActive)}>
+            <DropdownLink
+              href={`/${locale}/explorar`}
+              active={isActive(`/${locale}/explorar`)}
+            >
+              {t("explorar")}
+            </DropdownLink>
             <DropdownLink
               href={`/${locale}/empleos`}
               active={isActive(`/${locale}/empleos`)}
@@ -150,6 +138,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LanguageSwitcher />
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (

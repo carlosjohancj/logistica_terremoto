@@ -2,13 +2,13 @@
 
 import { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { OptionCard } from "@/components/forms/shared/option-card";
 import { BooleanToggleField, HousingOfferValues } from "@/lib/schemas/housing-offer";
 
 interface BooleanToggleGroupProps {
   control: Control<HousingOfferValues>;
-  label: string;
+  label?: string;
   fields: Array<{ field: BooleanToggleField; label: string }>;
 }
 
@@ -19,7 +19,7 @@ export function HousingOfferBooleanToggleGroup({
 }: BooleanToggleGroupProps) {
   return (
     <div className="space-y-3">
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <div className="flex flex-wrap gap-2">
         {fields.map(({ field, label: fieldLabel }) => (
           <Controller
@@ -27,13 +27,11 @@ export function HousingOfferBooleanToggleGroup({
             name={field}
             control={control}
             render={({ field: f }) => (
-              <Button
-                type="button"
-                variant={(f.value as boolean) ? "default" : "outline"}
+              <OptionCard
+                title={fieldLabel}
+                selected={f.value as boolean}
                 onClick={() => f.onChange(!(f.value as boolean))}
-              >
-                {fieldLabel}
-              </Button>
+              />
             )}
           />
         ))}

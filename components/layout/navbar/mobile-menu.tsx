@@ -17,7 +17,6 @@ export function NavMobileMenu({
   const t = useTranslations("nav");
 
   const links = [
-    { href: `/${locale}`, label: t("inicio") },
     { href: `/${locale}/solicitar-viaje`, label: t("solicitarViaje") },
     { href: `/${locale}/ofrecer-transporte`, label: t("ofrecerTransporte") },
     { href: `/${locale}/ofrecer-hospedaje`, label: t("ofrecerHospedaje") },
@@ -37,7 +36,7 @@ export function NavMobileMenu({
             key={link.href}
             href={link.href}
             className={cn(
-              "block py-2 text-sm font-medium transition-colors hover:text-primary",
+              "block py-2 text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(link.href) ? "text-primary" : "text-muted-foreground"
             )}
           >
