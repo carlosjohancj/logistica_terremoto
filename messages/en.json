@@ -74,12 +74,15 @@
     "hasDestination": "Do you have somewhere to go?",
     "yes": "Yes",
     "no": "No",
+    "originSection": "Origin location",
     "originState": "Origin state",
     "originMunicipality": "Origin municipality",
     "originCity": "Origin city",
+    "destinationSection": "Destination location",
     "destinationState": "Destination state",
     "destinationMunicipality": "Destination municipality",
     "destinationCity": "Destination city",
+    "tripDetailsSection": "Trip details",
     "peopleToMove": "People to move",
     "peopleToHouse": "People to house",
     "childrenCount": "Number of children",
@@ -304,6 +307,10 @@
     "search": "Search",
     "status": "Status",
     "date": "Date",
-    "actions": "Actions"
+    "actions": "Actions",
+    "themeToggle": "Toggle theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   }
 }

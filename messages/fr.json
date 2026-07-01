@@ -73,12 +73,15 @@
     "hasDestination": "Avez-vous une destination ?",
     "yes": "Oui",
     "no": "Non",
+    "originSection": "Lieu d'origine",
     "originState": "État d'origine",
     "originMunicipality": "Municipalité d'origine",
     "originCity": "Ville d'origine",
+    "destinationSection": "Lieu de destination",
     "destinationState": "État de destination",
     "destinationMunicipality": "Municipalité de destination",
     "destinationCity": "Ville de destination",
+    "tripDetailsSection": "Détails du voyage",
     "peopleToMove": "Personnes à déplacer",
     "peopleToHouse": "Personnes à héberger",
     "childrenCount": "Nombre d'enfants",
@@ -136,7 +139,6 @@
     "submit": "Publier l'hébergement",
     "success": "Hébergement publié avec succès"
   },
-
   "about": {
     "title": "À propos de nous",
     "subtitle": "Nous connectons les volontés pour aider ceux qui en ont le plus besoin après le tremblement de terre au Venezuela",
@@ -157,7 +159,6 @@
     "offerTransport": "Offrir un transport",
     "offerHousing": "Offrir un hébergement"
   },
-
   "jobs": {
     "title": "Emplois",
     "subtitle": "Opportunités d'emploi pour la reconstruction du Venezuela",
@@ -181,7 +182,6 @@
     "noDescription": "Aucune description",
     "newJob": "Nouvel emploi"
   },
-
   "companies": {
     "register": "Enregistrer une entreprise",
     "registerDesc": "Enregistrez votre entreprise pour publier des offres d'emploi sur la plateforme",
@@ -202,7 +202,6 @@
     "submit": "Enregistrer l'entreprise",
     "success": "Entreprise enregistrée avec succès. Elle sera bientôt vérifiée."
   },
-
   "supplies": {
     "title": "Dons physiques",
     "subtitle": "Offrez ou demandez des fournitures comme des lits, de la nourriture, des vêtements et plus",
@@ -265,7 +264,6 @@
     "manual": "Manuel",
     "otro": "Autre"
   },
-
   "donate": {
     "title": "Faire un Don",
     "desc": "Votre contribution aide à couvrir les frais de transport, d'essence et d'hébergement pour les familles sinistrées.",
@@ -308,6 +306,10 @@
     "search": "Rechercher",
     "status": "Statut",
     "date": "Date",
-    "actions": "Actions"
+    "actions": "Actions",
+    "themeToggle": "Changer de thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système"
   }
 }

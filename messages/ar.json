@@ -73,12 +73,15 @@
     "hasDestination": "هل لديك وجهة؟",
     "yes": "نعم",
     "no": "لا",
+    "originSection": "موقع المنشأ",
     "originState": "ولاية المنشأ",
     "originMunicipality": "بلدية المنشأ",
     "originCity": "مدينة المنشأ",
+    "destinationSection": "موقع الوجهة",
     "destinationState": "ولاية الوجهة",
     "destinationMunicipality": "بلدية الوجهة",
     "destinationCity": "مدينة الوجهة",
+    "tripDetailsSection": "تفاصيل الرحلة",
     "peopleToMove": "الأشخاص للنقل",
     "peopleToHouse": "الأشخاص للإقامة",
     "childrenCount": "عدد الأطفال",
@@ -136,7 +139,6 @@
     "submit": "نشر الإقامة",
     "success": "تم نشر الإقامة بنجاح"
   },
-
   "about": {
     "title": "معلومات عنا",
     "subtitle": "نربط الجهود لمساعدة الأكثر تضرراً بعد الزلزال في فنزويلا",
@@ -157,7 +159,6 @@
     "offerTransport": "تقديم نقل",
     "offerHousing": "تقديم إقامة"
   },
-
   "jobs": {
     "title": "وظائف",
     "subtitle": "فرص عمل لإعادة بناء فنزويلا",
@@ -181,7 +182,6 @@
     "noDescription": "لا يوجد وصف",
     "newJob": "وظيفة جديدة"
   },
-
   "companies": {
     "register": "تسجيل شركة",
     "registerDesc": "سجل شركتك لنشر فرص العمل على المنصة",
@@ -202,7 +202,6 @@
     "submit": "تسجيل الشركة",
     "success": "تم تسجيل الشركة بنجاح. سيتم التحقق منها قريباً."
   },
-
   "supplies": {
     "title": "الإمدادات والتبرعات العينية",
     "subtitle": "اعرض أو اطلب إمدادات مثل الأسرة والطعام والملابس والمزيد",
@@ -265,7 +264,6 @@
     "manual": "دليل",
     "otro": "أخرى"
   },
-
   "donate": {
     "title": "تبرع",
     "desc": "مساهمتك تساعد في تغطية نفقات النقل والبنزين والإقامة للعائلات المتضررة.",
@@ -308,6 +306,10 @@
     "search": "بحث",
     "status": "الحالة",
     "date": "التاريخ",
-    "actions": "إجراءات"
+    "actions": "إجراءات",
+    "themeToggle": "تبديل المظهر",
+    "themeLight": "فاتح",
+    "themeDark": "داكن",
+    "themeSystem": "النظام"
   }
 }

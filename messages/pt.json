@@ -73,12 +73,15 @@
     "hasDestination": "Tem um destino?",
     "yes": "Sim",
     "no": "Não",
+    "originSection": "Localização de origem",
     "originState": "Estado de origem",
     "originMunicipality": "Município de origem",
     "originCity": "Cidade de origem",
+    "destinationSection": "Localização de destino",
     "destinationState": "Estado de destino",
     "destinationMunicipality": "Município de destino",
     "destinationCity": "Cidade de destino",
+    "tripDetailsSection": "Detalhes da viagem",
     "peopleToMove": "Pessoas para transportar",
     "peopleToHouse": "Pessoas para hospedar",
     "childrenCount": "Número de crianças",
@@ -136,7 +139,6 @@
     "submit": "Publicar hospedagem",
     "success": "Hospedagem publicada com sucesso"
   },
-
   "about": {
     "title": "Sobre nós",
     "subtitle": "Conectamos vontades para ajudar quem mais precisa após o terremoto na Venezuela",
@@ -157,7 +159,6 @@
     "offerTransport": "Oferecer transporte",
     "offerHousing": "Oferecer hospedagem"
   },
-
   "jobs": {
     "title": "Empregos",
     "subtitle": "Oportunidades de emprego para a reconstrução da Venezuela",
@@ -181,7 +182,6 @@
     "noDescription": "Sem descrição",
     "newJob": "Novo emprego"
   },
-
   "companies": {
     "register": "Registrar empresa",
     "registerDesc": "Registre sua empresa para publicar vagas de emprego na plataforma",
@@ -202,7 +202,6 @@
     "submit": "Registrar empresa",
     "success": "Empresa registrada com sucesso. Em breve será verificada."
   },
-
   "supplies": {
     "title": "Insumos e Doações Físicas",
     "subtitle": "Ofereça ou solicite insumos como camas, comida, roupas e mais",
@@ -265,7 +264,6 @@
     "manual": "Manual",
     "otro": "Outro"
   },
-
   "donate": {
     "title": "Doar",
     "desc": "Sua contribuição ajuda a cobrir despesas de transporte, gasolina e hospedagem para as famílias afetadas.",
@@ -308,6 +306,10 @@
     "search": "Buscar",
     "status": "Status",
     "date": "Data",
-    "actions": "Ações"
+    "actions": "Ações",
+    "themeToggle": "Alternar tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema"
   }
 }

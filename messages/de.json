@@ -73,12 +73,15 @@
     "hasDestination": "Hast du ein Ziel?",
     "yes": "Ja",
     "no": "Nein",
+    "originSection": "Herkunftsort",
     "originState": "Herkunftsstaat",
     "originMunicipality": "Herkunftsgemeinde",
     "originCity": "Herkunftsstadt",
+    "destinationSection": "Zielort",
     "destinationState": "Zielstaat",
     "destinationMunicipality": "Zielgemeinde",
     "destinationCity": "Zielstadt",
+    "tripDetailsSection": "Reisedetails",
     "peopleToMove": "Zu befördernde Personen",
     "peopleToHouse": "Zu beherbergende Personen",
     "childrenCount": "Anzahl Kinder",
@@ -136,7 +139,6 @@
     "submit": "Unterkunft veröffentlichen",
     "success": "Unterkunft erfolgreich veröffentlicht"
   },
-
   "about": {
     "title": "Über uns",
     "subtitle": "Wir verbinden Menschen, um denen zu helfen, die nach dem Erdbeben in Venezuela am meisten Hilfe benötigen",
@@ -157,7 +159,6 @@
     "offerTransport": "Transport anbieten",
     "offerHousing": "Unterkunft anbieten"
   },
-
   "jobs": {
     "title": "Jobs",
     "subtitle": "Beschäftigungsmöglichkeiten für den Wiederaufbau Venezuelas",
@@ -181,7 +182,6 @@
     "noDescription": "Keine Beschreibung",
     "newJob": "Neuer Job"
   },
-
   "companies": {
     "register": "Unternehmen registrieren",
     "registerDesc": "Registrieren Sie Ihr Unternehmen, um Stellenangebote auf der Plattform zu veröffentlichen",
@@ -202,7 +202,6 @@
     "submit": "Unternehmen registrieren",
     "success": "Unternehmen erfolgreich registriert. Es wird bald überprüft."
   },
-
   "supplies": {
     "title": "Sachspenden",
     "subtitle": "Biete oder suche Hilfsgüter wie Betten, Lebensmittel, Kleidung und mehr",
@@ -265,7 +264,6 @@
     "manual": "Handbuch",
     "otro": "Sonstiges"
   },
-
   "donate": {
     "title": "Spenden",
     "desc": "Dein Beitrag hilft, Transport-, Benzin- und Unterkunftskosten für betroffene Familien zu decken.",
@@ -308,6 +306,10 @@
     "search": "Suchen",
     "status": "Status",
     "date": "Datum",
-    "actions": "Aktionen"
+    "actions": "Aktionen",
+    "themeToggle": "Design wechseln",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "themeSystem": "System"
   }
 }

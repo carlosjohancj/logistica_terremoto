@@ -74,12 +74,15 @@
     "hasDestination": "¿Tienes a dónde ir?",
     "yes": "Sí",
     "no": "No",
+    "originSection": "Ubicación de origen",
     "originState": "Estado de origen",
     "originMunicipality": "Municipio de origen",
     "originCity": "Ciudad de origen",
+    "destinationSection": "Ubicación de destino",
     "destinationState": "Estado de destino",
     "destinationMunicipality": "Municipio de destino",
     "destinationCity": "Ciudad de destino",
+    "tripDetailsSection": "Detalles del viaje",
     "peopleToMove": "Personas a movilizar",
     "peopleToHouse": "Personas a hospedar",
     "childrenCount": "Cantidad de niños",
@@ -304,6 +307,10 @@
     "search": "Buscar",
     "status": "Estado",
     "date": "Fecha",
-    "actions": "Acciones"
+    "actions": "Acciones",
+    "themeToggle": "Cambiar tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Sistema"
   }
 }

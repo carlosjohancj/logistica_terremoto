@@ -73,12 +73,15 @@
     "hasDestination": "Hai una destinazione?",
     "yes": "Sì",
     "no": "No",
+    "originSection": "Luogo di origine",
     "originState": "Stato di origine",
     "originMunicipality": "Comune di origine",
     "originCity": "Città di origine",
+    "destinationSection": "Luogo di destinazione",
     "destinationState": "Stato di destinazione",
     "destinationMunicipality": "Comune di destinazione",
     "destinationCity": "Città di destinazione",
+    "tripDetailsSection": "Dettagli del viaggio",
     "peopleToMove": "Persone da trasportare",
     "peopleToHouse": "Persone da ospitare",
     "childrenCount": "Numero di bambini",
@@ -136,7 +139,6 @@
     "submit": "Pubblica alloggio",
     "success": "Alloggio pubblicato con successo"
   },
-
   "about": {
     "title": "Chi siamo",
     "subtitle": "Colleghiamo le volontà per aiutare chi è più nel bisogno dopo il terremoto in Venezuela",
@@ -157,7 +159,6 @@
     "offerTransport": "Offri trasporto",
     "offerHousing": "Offri alloggio"
   },
-
   "jobs": {
     "title": "Lavori",
     "subtitle": "Opportunità di lavoro per la ricostruzione del Venezuela",
@@ -181,7 +182,6 @@
     "noDescription": "Nessuna descrizione",
     "newJob": "Nuovo lavoro"
   },
-
   "companies": {
     "register": "Registra azienda",
     "registerDesc": "Registra la tua azienda per pubblicare offerte di lavoro sulla piattaforma",
@@ -202,7 +202,6 @@
     "submit": "Registra azienda",
     "success": "Azienda registrata con successo. Sarà verificata a breve."
   },
-
   "supplies": {
     "title": "Forniture e Donazioni Fisiche",
     "subtitle": "Offri o richiedi forniture come letti, cibo, vestiti e altro",
@@ -265,7 +264,6 @@
     "manual": "Manuale",
     "otro": "Altro"
   },
-
   "donate": {
     "title": "Dona",
     "desc": "Il tuo contributo aiuta a coprire le spese di trasporto, benzina e alloggio per le famiglie colpite.",
@@ -308,6 +306,10 @@
     "search": "Cerca",
     "status": "Stato",
     "date": "Data",
-    "actions": "Azioni"
+    "actions": "Azioni",
+    "themeToggle": "Cambia tema",
+    "themeLight": "Chiaro",
+    "themeDark": "Scuro",
+    "themeSystem": "Sistema"
   }
 }
