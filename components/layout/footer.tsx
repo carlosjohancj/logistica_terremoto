@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact-info";
 
 export function Footer() {
   const t = useTranslations("home");
@@ -32,15 +33,15 @@ export function Footer() {
             <h4 className="font-semibold mb-3">Ayuda</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><span className="cursor-default">Preguntas frecuentes</span></li>
-              <li><span className="cursor-default">Contacto</span></li>
+              <li><Link href={`/${locale}/contacto`} className="hover:text-primary">Contacto</Link></li>
               <li><span className="cursor-default">Términos de uso</span></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-3">Contacto</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>WhatsApp: +58 XXX-XXX-XXXX</li>
-              <li>Email: contacto@desdecero.org</li>
+              <li>WhatsApp: {WHATSAPP_NUMBER}</li>
+              <li>Email: {CONTACT_EMAIL}</li>
             </ul>
           </div>
         </div>

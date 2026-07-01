@@ -309,6 +309,12 @@
     "paymentSectionTitle": "Payment Methods",
     "contactUs": "Contact us for more information"
   },
+  "contact": {
+    "title": "Hello!",
+    "subtitle": "Write to us if you have questions, want to collaborate, or need help with the platform.",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email"
+  },
   "explore": {
     "title": "Explore",
     "search": "Search...",
