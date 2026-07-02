@@ -5,6 +5,9 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Card,
   CardContent,
@@ -548,17 +551,173 @@ export default function PerfilPage() {
   }
 
   function renderOrganizacionTab() {
+    const [org, setOrg] = useState<Record<string, unknown> | null>(null)
+    const [members, setMembers] = useState<Record<string, unknown>[]>([])
+    const [loadingOrg, setLoadingOrg] = useState(true)
+    const [showCreate, setShowCreate] = useState(false)
+    const [orgName, setOrgName] = useState("")
+    const [orgDesc, setOrgDesc] = useState("")
+    const [orgEmail, setOrgEmail] = useState("")
+    const [orgPhone, setOrgPhone] = useState("")
+    const [inviteEmail, setInviteEmail] = useState("")
+    const [creating, setCreating] = useState(false)
+    const [inviting, setInviting] = useState(false)
+
+    useEffect(() => {
+      fetchOrg()
+    }, [])
+
+    async function fetchOrg() {
+      try {
+        const res = await fetch("/api/organizations")
+        const json = await res.json()
+        if (json.organization) {
+          setOrg(json.organization)
+          setMembers(json.members || [])
+        }
+      } catch {
+        // sin org
+      } finally {
+        setLoadingOrg(false)
+      }
+    }
+
+    async function handleCreateOrg() {
+      if (!orgName.trim()) return
+      setCreating(true)
+      try {
+        const res = await fetch("/api/organizations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: orgName,
+            description: orgDesc,
+            contact_email: orgEmail,
+            contact_phone: orgPhone,
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error)
+        toast.success("Organización creada exitosamente")
+        setShowCreate(false)
+        setOrgName("")
+        setOrgDesc("")
+        setOrgEmail("")
+        setOrgPhone("")
+        fetchOrg()
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : tc("error"))
+      } finally {
+        setCreating(false)
+      }
+    }
+
+    async function handleInvite() {
+      if (!inviteEmail.trim() || !org) return
+      setInviting(true)
+      try {
+        const res = await fetch("/api/organizations/members", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            organization_id: org.id,
+            member_email: inviteEmail,
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error)
+        toast.success("Miembro agregado exitosamente")
+        setInviteEmail("")
+        fetchOrg()
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : tc("error"))
+      } finally {
+        setInviting(false)
+      }
+    }
+
+    if (loadingOrg) {
+      return <div className="h-24 bg-muted animate-pulse rounded-xl" />
+    }
+
+    if (!org && !showCreate) {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <h3 className="text-lg font-semibold mb-2">No tienes una organización</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Crea una organización para gestionar miembros y dar seguimiento a tus ayudas.
+              </p>
+              <Button onClick={() => setShowCreate(true)} className="rounded-full">
+                Crear Organización
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (showCreate) {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Crear Organización</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Nombre de la organización</Label>
+                  <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Ej: Fundación Ayuda Venezuela" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Descripción</Label>
+                  <Textarea value={orgDesc} onChange={(e) => setOrgDesc(e.target.value)} rows={3} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Email de contacto</Label>
+                    <Input value={orgEmail} onChange={(e) => setOrgEmail(e.target.value)} type="email" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Teléfono</Label>
+                    <Input value={orgPhone} onChange={(e) => setOrgPhone(e.target.value)} />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setShowCreate(false)} className="rounded-full">Cancelar</Button>
+                  <Button onClick={handleCreateOrg} disabled={creating || !orgName.trim()} className="rounded-full">
+                    {creating ? "Creando..." : "Crear Organización"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
     return (
       <div className="space-y-4">
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Panel de Organización</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Administra los miembros de tu organización y da seguimiento a las ayudas.
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">{org?.name as string}</h3>
+                {(org?.description as string) && (
+                  <p className="text-sm text-muted-foreground mt-1">{org?.description as string}</p>
+                )}
+              </div>
+              <Badge>{org?.status as string}</Badge>
+            </div>
+            {((org?.contact_email as string) || (org?.contact_phone as string)) && (
+              <div className="text-sm text-muted-foreground mb-4">
+                {(org?.contact_email as string) && <p>Email: {org?.contact_email as string}</p>}
+                {(org?.contact_phone as string) && <p>Tel: {org?.contact_phone as string}</p>}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-muted rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-primary">--</p>
+                <p className="text-2xl font-bold text-primary">{members.length}</p>
                 <p className="text-sm text-muted-foreground">Miembros</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
@@ -568,6 +727,45 @@ export default function PerfilPage() {
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-primary">--</p>
                 <p className="text-sm text-muted-foreground">Solicitudes</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <h4 className="font-semibold mb-3">Miembros</h4>
+            {members.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin miembros aún</p>
+            ) : (
+              <div className="space-y-2">
+                {members.map((m) => {
+                  const profile = m.profiles as Record<string, string> | undefined
+                  return (
+                    <div key={m.id as string} className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                      <div>
+                        <p className="text-sm font-medium">{profile?.name || "Sin nombre"}</p>
+                        <p className="text-xs text-muted-foreground">{profile?.email || ""}</p>
+                      </div>
+                      <Badge variant="outline">{m.role as string}</Badge>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <div className="mt-4 border-t border-border pt-4">
+              <h5 className="text-sm font-medium mb-2">Agregar miembro</h5>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Email del miembro..."
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="flex-1"
+                />
+                <Button size="sm" onClick={handleInvite} disabled={inviting || !inviteEmail.trim()}>
+                  {inviting ? "Agregando..." : "Agregar"}
+                </Button>
               </div>
             </div>
           </CardContent>
