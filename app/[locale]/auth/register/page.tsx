@@ -32,6 +32,7 @@ export default function RegisterPage() {
     transportista: t("roleTransportista"),
     anfitrion: t("roleAnfitrion"),
     donante: t("roleDonante"),
+    voluntario: t("roleVoluntario"),
   }
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterFormValues>({
@@ -106,6 +107,7 @@ export default function RegisterPage() {
                       <SelectItem value="transportista">{t("roleTransportista")}</SelectItem>
                       <SelectItem value="anfitrion">{t("roleAnfitrion")}</SelectItem>
                       <SelectItem value="donante">{t("roleDonante")}</SelectItem>
+                      <SelectItem value="voluntario">{t("roleVoluntario")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

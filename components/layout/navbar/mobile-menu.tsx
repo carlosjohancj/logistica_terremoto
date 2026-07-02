@@ -23,7 +23,9 @@ export function NavMobileMenu({
     { href: `/${locale}/explorar`, label: t("explorar") },
     { href: `/${locale}/donar`, label: t("donar") },
     { href: `/${locale}/donaciones-fisicas`, label: t("donacionesFisicas") },
+    { href: `/${locale}/ofrecer-insumos`, label: t("ofrecerInsumos") },
     { href: `/${locale}/empleos`, label: t("empleos") },
+    { href: `/${locale}/empresas/registro`, label: t("registroEmpresa") },
     { href: `/${locale}/recursos`, label: t("recursos") },
     { href: `/${locale}/sobre-nosotros`, label: t("sobreNosotros") },
   ];

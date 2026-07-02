@@ -15,7 +15,9 @@
     "recursos": "موارد رسومية",
     "iniciarSesion": "تسجيل الدخول",
     "registrarse": "التسجيل",
-    "cerrarSesion": "تسجيل الخروج"
+    "cerrarSesion": "تسجيل الخروج",
+    "ofrecerInsumos": "تقديم الإمدادات",
+    "registroEmpresa": "تسجيل شركة"
   },
   "home": {
     "title": "من الصفر",
@@ -57,6 +59,7 @@
     "roleTransportista": "ناقل",
     "roleAnfitrion": "مضيف",
     "roleDonante": "متبرع",
+    "roleVoluntario": "متطوع",
     "submit": "إرسال",
     "noAccount": "ليس لديك حساب؟",
     "hasAccount": "لديك حساب بالفعل؟",

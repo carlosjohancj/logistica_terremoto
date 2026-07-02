@@ -50,7 +50,9 @@ type TravelRequest = {
   user_id: string
   origin_state: string
   origin_city: string
+  destination_state: string
   destination_city: string
+  has_destination: boolean
   people_to_move: number
   status: string
   notes: string
@@ -99,7 +101,7 @@ export default function PerfilPage() {
   const [availableReqs, setAvailableReqs] = useState<TravelRequest[]>([])
   const [availableProfiles, setAvailableProfiles] = useState<Record<string, Profile>>({})
 
-  const [ayudaData, setAyudaData] = useState<(TravelRequest & { match?: Match; transporter?: Profile })[]>([])
+  const [ayudaData, setAyudaData] = useState<(TravelRequest & { match?: Match; transporter?: Profile; segments: Segment[] })[]>([])
 
   const [matches, setMatches] = useState<Match[]>([])
 
@@ -195,15 +197,46 @@ export default function PerfilPage() {
     }
   }
 
+  type Segment = {
+    id: string
+    travel_request_id: string
+    transportista_id: string
+    origin_city: string
+    origin_state: string
+    destination_city: string
+    destination_state: string
+    order: number
+    distance_km: number
+    is_full_route: boolean
+    status: string
+    profiles?: { name: string; phone: string }
+  }
+
   async function loadAyudaData(myReqs: TravelRequest[], supabase: ReturnType<typeof getSupabase>) {
     if (myReqs.length === 0) return
     const reqIds = myReqs.map((r) => r.id)
-    const { data: matchData } = await (supabase
-      .from("matches")
-      .select("*, profiles:user_id(name, phone)")
-      .in("travel_request_id", reqIds) as never as { data: Match[] | null })
+    const [matchResult, segmentResult] = await Promise.all([
+      supabase
+        .from("matches")
+        .select("*, profiles:user_id(name, phone)")
+        .in("travel_request_id", reqIds) as never as { data: Match[] | null },
+      supabase
+        .from("route_segments")
+        .select("*, profiles:transportista_id(name, phone)")
+        .in("travel_request_id", reqIds)
+        .order("order", { ascending: true }) as never as { data: Segment[] | null },
+    ])
+
+    const matchData = matchResult.data
+    const segmentData = segmentResult.data
 
     if (!matchData || matchData.length === 0) return
+
+    const segmentsByReqId: Record<string, Segment[]> = {}
+    for (const seg of segmentData ?? []) {
+      if (!segmentsByReqId[seg.travel_request_id]) segmentsByReqId[seg.travel_request_id] = []
+      segmentsByReqId[seg.travel_request_id].push(seg)
+    }
 
     const matchByReqId: Record<string, Match> = {}
     for (const m of matchData) matchByReqId[m.travel_request_id] = m
@@ -214,7 +247,8 @@ export default function PerfilPage() {
         ...r,
         match: matchByReqId[r.id],
         transporter: matchByReqId[r.id]?.profiles,
-      }))
+        segments: segmentsByReqId[r.id] || [],
+      })) as (TravelRequest & { match?: Match; transporter?: Profile; segments: Segment[] })[]
     setAyudaData(enriched)
   }
 
@@ -418,7 +452,42 @@ export default function PerfilPage() {
                 </div>
                 <Badge>{item.match?.status || "matched"}</Badge>
               </div>
-              {item.transporter && (
+
+              {item.segments.length > 1 && (
+                <div className="bg-muted/50 rounded-lg p-3 mt-2 space-y-2">
+                  <p className="text-sm font-medium mb-1">Tramos de la ruta:</p>
+                  {item.segments.map((seg) => (
+                    <div key={seg.id} className="bg-background rounded p-2 border text-sm">
+                      <p className="font-medium">
+                        Tramo {seg.order}: {seg.origin_city} → {seg.destination_city}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {seg.distance_km.toFixed(1)} km · {seg.profiles?.name || "Transportista"}
+                      </p>
+                      {seg.profiles?.phone && (
+                        <p className="text-muted-foreground">Tel: {seg.profiles.phone}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {item.segments.length === 1 && item.transporter && (
+                <div className="bg-muted rounded-lg p-3 mt-2">
+                  <p className="text-sm font-medium">Transportista asignado:</p>
+                  <p className="text-sm">{item.transporter.name}</p>
+                  {item.transporter.phone && (
+                    <p className="text-sm">Tel: {item.transporter.phone}</p>
+                  )}
+                  {item.segments[0]?.distance_km > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Distancia estimada: {item.segments[0].distance_km.toFixed(1)} km
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {item.segments.length === 0 && item.transporter && (
                 <div className="bg-muted rounded-lg p-3 mt-2">
                   <p className="text-sm font-medium">Transportista asignado:</p>
                   <p className="text-sm">{item.transporter.name}</p>

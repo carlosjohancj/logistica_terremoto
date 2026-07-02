@@ -1,0 +1,111 @@
+import { NextResponse } from "next/server"
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getCityCoord } from "@/lib/estados"
+import { distance } from "@turf/turf"
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { travel_request_id, transportista_id, origin_city, origin_state, destination_city, destination_state, is_full_route } = body
+
+    if (!travel_request_id || !transportista_id || !origin_city || !origin_state || !destination_city || !destination_state) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    const supabase = getServiceSupabase()
+
+    const originCoord = await getCityCoord(origin_state, origin_city)
+    const destCoord = await getCityCoord(destination_state, destination_city)
+
+    if (!originCoord || !destCoord) {
+      return NextResponse.json({ error: "Could not resolve coordinates for cities" }, { status: 400 })
+    }
+
+    const from = [originCoord.lng, originCoord.lat]
+    const to = [destCoord.lng, destCoord.lat]
+    const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) / 10
+
+    // Check existing segments for this travel request
+    const { data: existingSegments } = await supabase
+      .from("route_segments")
+      .select("id, \"order\"")
+      .eq("travel_request_id", travel_request_id)
+      .order("order", { ascending: false }) as never as { data: { id: string; order: number }[] | null }
+
+    const nextOrder = (existingSegments?.[0]?.order ?? 0) + 1
+
+    // Check if this segment completes the route
+    const { data: travelReq } = await supabase
+      .from(TABLES.TRAVEL_REQUESTS)
+      .select("destination_state, destination_city")
+      .eq("id", travel_request_id)
+      .single() as never as { data: { destination_state: string; destination_city: string } | null }
+
+    const reachedFinalDest = travelReq && destination_state === travelReq.destination_state &&
+      (!travelReq.destination_city || destination_city === travelReq.destination_city)
+
+    const allCovered = is_full_route || reachedFinalDest
+
+    // Create match if one doesn't exist
+    let matchId: string | null = null
+    if (!allCovered) {
+      const { data: existingMatch } = await supabase
+        .from(TABLES.MATCHES)
+        .select("id")
+        .eq("travel_request_id", travel_request_id)
+        .single() as never as { data: { id: string } | null }
+
+      if (existingMatch) {
+        matchId = existingMatch.id
+      }
+    }
+
+    if (!matchId) {
+      const { data: newMatch } = await supabase
+        .from(TABLES.MATCHES)
+        .insert({ travel_request_id, user_id: transportista_id, status: allCovered ? "confirmed" : "pending" } as never)
+        .select()
+        .single() as never as { data: { id: string } | null }
+      matchId = newMatch?.id ?? null
+    }
+
+    // Insert segment
+    const { data: segment, error: segError } = await supabase
+      .from("route_segments")
+      .insert({
+        match_id: matchId,
+        transportista_id,
+        travel_request_id,
+        origin_city,
+        origin_state,
+        origin_lat: originCoord.lat,
+        origin_lng: originCoord.lng,
+        destination_city,
+        destination_state,
+        destination_lat: destCoord.lat,
+        destination_lng: destCoord.lng,
+        distance_km: distanceKm,
+        order: nextOrder,
+        is_full_route: !!is_full_route,
+        status: allCovered ? "confirmed" : "pending",
+      } as never)
+      .select()
+      .single()
+
+    if (segError) {
+      return NextResponse.json({ error: segError.message }, { status: 500 })
+    }
+
+    // If full route or final destination reached, mark travel request as matched
+    if (allCovered) {
+      await supabase
+        .from(TABLES.TRAVEL_REQUESTS)
+        .update({ status: "matched" } as never)
+        .eq("id", travel_request_id)
+    }
+
+    return NextResponse.json({ success: true, segment, match_id: matchId, all_covered: allCovered, distance_km: distanceKm })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

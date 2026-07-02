@@ -47,6 +47,7 @@ export function Navbar() {
     `/${locale}/ofrecer-transporte`,
     `/${locale}/ofrecer-hospedaje`,
     `/${locale}/donaciones-fisicas`,
+    `/${locale}/ofrecer-insumos`,
   ];
   const masPaths = [
     `/${locale}/explorar`,
@@ -97,6 +98,12 @@ export function Navbar() {
             >
               {t("donacionesFisicas")}
             </DropdownLink>
+            <DropdownLink
+              href={`/${locale}/ofrecer-insumos`}
+              active={isActive(`/${locale}/ofrecer-insumos`)}
+            >
+              {t("ofrecerInsumos")}
+            </DropdownLink>
           </NavDropdown>
           <Link
             href={`/${locale}/donar`}
@@ -121,6 +128,12 @@ export function Navbar() {
               active={isActive(`/${locale}/empleos`)}
             >
               {t("empleos")}
+            </DropdownLink>
+            <DropdownLink
+              href={`/${locale}/empresas/registro`}
+              active={isActive(`/${locale}/empresas/registro`)}
+            >
+              {t("registroEmpresa")}
             </DropdownLink>
             <DropdownLink
               href={`/${locale}/recursos`}

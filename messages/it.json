@@ -15,7 +15,9 @@
     "recursos": "Risorse Grafiche",
     "iniciarSesion": "Accedi",
     "registrarse": "Registrati",
-    "cerrarSesion": "Esci"
+    "cerrarSesion": "Esci",
+    "ofrecerInsumos": "Offrire Forniture",
+    "registroEmpresa": "Registra Azienda"
   },
   "home": {
     "title": "Desde Cero",
@@ -57,6 +59,7 @@
     "roleTransportista": "Trasportatore",
     "roleAnfitrion": "Ospite",
     "roleDonante": "Donatore",
+    "roleVoluntario": "Volontario",
     "submit": "Invia",
     "noAccount": "Non hai un account?",
     "hasAccount": "Hai già un account?",

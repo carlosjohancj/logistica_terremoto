@@ -15,7 +15,9 @@
     "recursos": "Grafische Ressourcen",
     "iniciarSesion": "Anmelden",
     "registrarse": "Registrieren",
-    "cerrarSesion": "Abmelden"
+    "cerrarSesion": "Abmelden",
+    "ofrecerInsumos": "Hilfsgüter anbieten",
+    "registroEmpresa": "Unternehmen registrieren"
   },
   "home": {
     "title": "Desde Cero",
@@ -57,6 +59,7 @@
     "roleTransportista": "Transporteur",
     "roleAnfitrion": "Gastgeber",
     "roleDonante": "Spender",
+    "roleVoluntario": "Freiwilliger",
     "submit": "Absenden",
     "noAccount": "Kein Konto?",
     "hasAccount": "Bereits ein Konto?",

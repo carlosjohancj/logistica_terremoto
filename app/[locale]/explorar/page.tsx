@@ -18,7 +18,7 @@ import { MapIcon, ListIcon } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
-import { getEstados, getCoords } from "@/lib/estados"
+import { getEstados, getCoords, getCityCoord } from "@/lib/estados"
 import type { Estado } from "@/lib/estados"
 
 const MapView = dynamic(
@@ -53,20 +53,42 @@ export default function ExplorarPage() {
       const estados = await getCoords()
       setEstados(estadosData.map((e) => e.name))
 
+      async function resolveCoord(state: string, city?: string) {
+        if (city) {
+          const c = await getCityCoord(state, city)
+          if (c) return c
+        }
+        const stateC = estados[state]
+        return stateC ? { lat: stateC[0], lng: stateC[1] } : null
+      }
+
+      function jitter() { return (Math.random() - 0.5) * 0.3 }
+
+      async function destCoord(state: string, city?: string) {
+        const c = await resolveCoord(state, city)
+        if (!c) return null
+        return { lat: c.lat + jitter(), lng: c.lng + jitter() }
+      }
+
       try {
         const { data: travelReqs } = await supabase.from(TABLES.TRAVEL_REQUESTS).select("*").eq("status", "open").range(0, 49)
         for (const req of (travelReqs ?? [])) {
-          const stateCoords = estados[req.origin_state]
-          if (stateCoords) {
-            allItems.push({
-              id: `travel-${req.id}`,
-              type: "travel",
-              title: tr("title"),
-              lat: stateCoords[0] + (Math.random() - 0.5) * 0.3,
-              lng: stateCoords[1] + (Math.random() - 0.5) * 0.3,
-              description: `${req.origin_city}, ${req.origin_state} → ${req.destination_city || "?"} (${req.people_to_move} pers.)`,
-            })
+          const origin = await resolveCoord(req.origin_state, req.origin_city)
+          if (!origin) continue
+          const dest = req.has_destination && req.destination_state ? await destCoord(req.destination_state, req.destination_city) : null
+          const item: ListItem = {
+            id: `travel-${req.id}`,
+            type: "travel",
+            title: tr("title"),
+            lat: origin.lat + jitter(),
+            lng: origin.lng + jitter(),
+            description: `${req.origin_city || req.origin_state} → ${req.destination_city || req.destination_state || "?"} (${req.people_to_move} pers.)`,
           }
+          if (dest) {
+            item.destLat = dest.lat
+            item.destLng = dest.lng
+          }
+          allItems.push(item)
         }
       } catch {
         toast.error(tc("error"), { description: "No se pudieron cargar las solicitudes de viaje" })
@@ -75,17 +97,22 @@ export default function ExplorarPage() {
       try {
         const { data: transportOffers } = await supabase.from(TABLES.TRANSPORT_OFFERS).select("*").eq("status", "open").range(0, 49)
         for (const offer of (transportOffers ?? [])) {
-          const stateCoords = estados[offer.origin_state]
-          if (stateCoords) {
-            allItems.push({
-              id: `transport-${offer.id}`,
-              type: "transport",
-              title: tt("title"),
-              lat: stateCoords[0] + (Math.random() - 0.5) * 0.3,
-              lng: stateCoords[1] + (Math.random() - 0.5) * 0.3,
-              description: `${offer.origin_city}, ${offer.origin_state} → ${offer.destination_city}, ${offer.destination_state}`,
-            })
+          const origin = await resolveCoord(offer.origin_state, offer.origin_city)
+          if (!origin) continue
+          const dest = offer.destination_state ? await destCoord(offer.destination_state, offer.destination_city) : null
+          const item: ListItem = {
+            id: `transport-${offer.id}`,
+            type: "transport",
+            title: tt("title"),
+            lat: origin.lat + jitter(),
+            lng: origin.lng + jitter(),
+            description: `${offer.origin_city || offer.origin_state} → ${offer.destination_city || offer.destination_state || "?"}`,
           }
+          if (dest) {
+            item.destLat = dest.lat
+            item.destLng = dest.lng
+          }
+          allItems.push(item)
         }
       } catch {
         toast.error(tc("error"), { description: "No se pudieron cargar las ofertas de transporte" })
