@@ -26,8 +26,11 @@ Logística Terremoto — plataforma de **logística civil** (Next.js 16, Tailwin
 - **Organizaciones**: SQL + API (crear, listar, miembros) + panel en perfil (crear org, invitar miembros)
 - **Perfil**: tab Organización con dashboard de miembros/ayudas
 - **Dashboard unificado** `/perfil` con 8 tabs: Perfil, Mis Publicaciones, Solicitudes Disponibles, Ayuda Asignada, Conexiones, Empresa, **Organización**, Mensajes
+  - Fix: tab activo con estado local (feedback visual inmediato)
+  - Voluntarios gestión: tareas de validación, mensajes y logística
 - **Route Segments API**: POST `/api/route-segments` con @turf/turf (named import `{ distance }`)
 - **Mapa** (`/explorar`): marcadores origen/destino, Polyline, city coords via `getCityCoord()`
+- **Admin**: tabs de viajes, transporte, hospedaje, empresas, insumos, empleos + stats
 - **SQL**: `city-coords.sql`, `route-segments.sql`, `messages.sql`, `organizations.sql`, `volunteer-types.sql`
 - **Geocoding**: `scripts/geocode-cities.mjs` (Nominatim)
 - **Build**: 33 rutas, compila limpio
