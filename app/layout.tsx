@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import "./globals.css";
 
@@ -18,14 +19,17 @@ export const metadata: Metadata = {
   description: "Conectando damnificados con transportistas y anfitriones en Venezuela",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let locale = "es";
+  try { locale = await getLocale(); } catch { /* fallback */ }
+
   return (
     <html
-      lang="es"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       suppressHydrationWarning
     >
