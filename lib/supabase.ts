@@ -38,13 +38,12 @@ export const TABLES = {
   HOUSING_OFFERS: "housing_offers",
   DONATIONS: "donations",
   MATCHES: "matches",
-  REVIEWS: "reviews",
   COMPANIES: "companies",
   JOBS: "jobs",
   SUPPLIES: "supplies",
   GRAPHICS: "graphics",
   ESTADOS: "estados",
-  DONATION_SETTINGS: "donation_settings",
+
 } as const
 
 export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "organizacion" | "admin"

@@ -17,22 +17,12 @@
     "registrarse": "Registrati",
     "cerrarSesion": "Esci",
     "ofrecerInsumos": "Offrire Forniture",
-    "registroEmpresa": "Registra Azienda",
-    "roleOrganizacion": "Organizzazione",
-    "voluntarioTipo": "Tipo di volontario",
-    "voluntarioHospedaje": "Volontario alloggio",
-    "voluntarioGestion": "Volontario gestione",
-    "statsVoluntarios": "Volontari",
-    "statsOrganizaciones": "Organizzazioni",
-    "ctaEmpiezo": "Ricominciare da Zero",
-    "donarPlataforma": "Dona alla piattaforma",
-    "heroDesc": "Piattaforma logistica civile che collega volontari, organizzazioni e vittime per coordinare aiuti efficaci.",
-    "voluntarioAmbos": "Entrambi"
+    "registroEmpresa": "Registra Azienda"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Collegare le vittime del terremoto con trasportatori e ospiti in Venezuela",
-    "heroDesc": "Una piattaforma solidale per aiutare le famiglie colpite dal terremoto a riunirsi con i loro cari.",
+    "heroDesc": "Piattaforma logistica civile che collega volontari, organizzazioni e vittime per coordinare aiuti efficaci.",
     "ctaSolicitar": "Ho Bisogno di Viaggiare",
     "ctaTransporte": "Offro Trasporto",
     "ctaHospedaje": "Offro Alloggio",
@@ -52,7 +42,11 @@
     "paso2Desc": "Pubblica la tua richiesta di viaggio, offerta di trasporto o alloggio.",
     "paso3": "Connetti",
     "paso3Desc": "Trova corrispondenze e coordina il viaggio o il soggiorno.",
-    "footer": "Fatto con ❤️ per il Venezuela"
+    "footer": "Fatto con ❤️ per il Venezuela",
+    "statsVoluntarios": "Volontari",
+    "statsOrganizaciones": "Organizzazioni",
+    "ctaEmpiezo": "Ricominciare da Zero",
+    "donarPlataforma": "Dona alla piattaforma"
   },
   "auth": {
     "login": "Accedi",
@@ -79,7 +73,12 @@
     "errorEmail": "Email non valida",
     "errorPasswordLength": "Minimo 6 caratteri",
     "errorLogin": "Email o password errati",
-    "errorPasswordMatch": "Le password non corrispondono"
+    "errorPasswordMatch": "Le password non corrispondono",
+    "roleOrganizacion": "Organizzazione",
+    "voluntarioTipo": "Tipo di volontario",
+    "voluntarioHospedaje": "Volontario alloggio",
+    "voluntarioGestion": "Volontario gestione",
+    "voluntarioAmbos": "Entrambi"
   },
   "travelRequest": {
     "title": "Richiedi Viaggio",

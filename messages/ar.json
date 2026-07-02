@@ -17,22 +17,12 @@
     "registrarse": "التسجيل",
     "cerrarSesion": "تسجيل الخروج",
     "ofrecerInsumos": "تقديم الإمدادات",
-    "registroEmpresa": "تسجيل شركة",
-    "roleOrganizacion": "منظمة",
-    "voluntarioTipo": "نوع المتطوع",
-    "voluntarioHospedaje": "متطوع إيواء",
-    "voluntarioGestion": "متطوع إدارة",
-    "statsVoluntarios": "متطوعون",
-    "statsOrganizaciones": "منظمات",
-    "ctaEmpiezo": "ابدأ من الصفر",
-    "donarPlataforma": "التبرع للمنصة",
-    "heroDesc": "منصة لوجستية مدنية تربط المتطوعين والمنظمات والضحايا لتنسيق المساعدة الفعالة.",
-    "voluntarioAmbos": "كلاهما"
+    "registroEmpresa": "تسجيل شركة"
   },
   "home": {
     "title": "من الصفر",
     "subtitle": "ربط المتضررين من الزلزال بالناقلين والمضيفين في فنزويلا",
-    "heroDesc": "منصة تضامن لمساعدة العائلات المتضررة من الزلزال على لم شملهم مع أحبائهم.",
+    "heroDesc": "منصة لوجستية مدنية تربط المتطوعين والمنظمات والضحايا لتنسيق المساعدة الفعالة.",
     "ctaSolicitar": "أحتاج للسفر",
     "ctaTransporte": "أعرض نقلاً",
     "ctaHospedaje": "أعرض إقامة",
@@ -52,7 +42,11 @@
     "paso2Desc": "انشر طلب رحلتك أو عرض النقل أو الإقامة.",
     "paso3": "تواصل",
     "paso3Desc": "ابحث عن التطابقات ونسق الرحلة أو الإقامة.",
-    "footer": "صنع بحب ❤️ لفنزويلا"
+    "footer": "صنع بحب ❤️ لفنزويلا",
+    "statsVoluntarios": "متطوعون",
+    "statsOrganizaciones": "منظمات",
+    "ctaEmpiezo": "ابدأ من الصفر",
+    "donarPlataforma": "التبرع للمنصة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -79,7 +73,12 @@
     "errorEmail": "بريد إلكتروني غير صالح",
     "errorPasswordLength": "6 أحرف على الأقل",
     "errorLogin": "بريد إلكتروني أو كلمة مرور غير صحيحة",
-    "errorPasswordMatch": "كلمتا المرور غير متطابقتين"
+    "errorPasswordMatch": "كلمتا المرور غير متطابقتين",
+    "roleOrganizacion": "منظمة",
+    "voluntarioTipo": "نوع المتطوع",
+    "voluntarioHospedaje": "متطوع إيواء",
+    "voluntarioGestion": "متطوع إدارة",
+    "voluntarioAmbos": "كلاهما"
   },
   "travelRequest": {
     "title": "طلب رحلة",

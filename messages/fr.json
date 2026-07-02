@@ -17,22 +17,12 @@
     "registrarse": "S'inscrire",
     "cerrarSesion": "Déconnexion",
     "ofrecerInsumos": "Offrir Fournitures",
-    "registroEmpresa": "Enregistrer une Entreprise",
-    "roleOrganizacion": "Organisation",
-    "voluntarioTipo": "Type de bénévole",
-    "voluntarioHospedaje": "Bénévole d'hébergement",
-    "voluntarioGestion": "Bénévole de gestion",
-    "statsVoluntarios": "Bénévoles",
-    "statsOrganizaciones": "Organisations",
-    "ctaEmpiezo": "Commencer de Zéro",
-    "donarPlataforma": "Faire un don à la plateforme",
-    "heroDesc": "Plateforme logistique civile connectant bénévoles, organisations et victimes pour coordonner l'aide.",
-    "voluntarioAmbos": "Les deux"
+    "registroEmpresa": "Enregistrer une Entreprise"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Connecter les sinistrés avec des transporteurs et des hôtes au Venezuela",
-    "heroDesc": "Une plateforme solidaire pour aider les familles touchées par le séisme à retrouver leurs proches.",
+    "heroDesc": "Plateforme logistique civile connectant bénévoles, organisations et victimes pour coordonner l'aide.",
     "ctaSolicitar": "J'ai Besoin de Voyager",
     "ctaTransporte": "J'offre un Transport",
     "ctaHospedaje": "J'offre un Hébergement",
@@ -52,7 +42,11 @@
     "paso2Desc": "Publiez votre demande de trajet, offre de transport ou d'hébergement.",
     "paso3": "Connectez",
     "paso3Desc": "Trouvez des correspondances et coordonnez le voyage ou le séjour.",
-    "footer": "Fait avec ❤️ pour le Venezuela"
+    "footer": "Fait avec ❤️ pour le Venezuela",
+    "statsVoluntarios": "Bénévoles",
+    "statsOrganizaciones": "Organisations",
+    "ctaEmpiezo": "Commencer de Zéro",
+    "donarPlataforma": "Faire un don à la plateforme"
   },
   "auth": {
     "login": "Connexion",
@@ -79,7 +73,12 @@
     "errorEmail": "Email invalide",
     "errorPasswordLength": "Minimum 6 caractères",
     "errorLogin": "Email ou mot de passe incorrect",
-    "errorPasswordMatch": "Les mots de passe ne correspondent pas"
+    "errorPasswordMatch": "Les mots de passe ne correspondent pas",
+    "roleOrganizacion": "Organisation",
+    "voluntarioTipo": "Type de bénévole",
+    "voluntarioHospedaje": "Bénévole d'hébergement",
+    "voluntarioGestion": "Bénévole de gestion",
+    "voluntarioAmbos": "Les deux"
   },
   "travelRequest": {
     "title": "Demander un Trajet",

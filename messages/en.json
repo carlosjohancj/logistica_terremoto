@@ -17,22 +17,12 @@
     "registrarse": "Register",
     "cerrarSesion": "Logout",
     "ofrecerInsumos": "Offer Supplies",
-    "registroEmpresa": "Register Company",
-    "roleOrganizacion": "Organization",
-    "voluntarioTipo": "Volunteer Type",
-    "voluntarioHospedaje": "Housing Volunteer",
-    "voluntarioGestion": "Management Volunteer",
-    "statsVoluntarios": "Volunteers",
-    "statsOrganizaciones": "Organizations",
-    "ctaEmpiezo": "Start From Zero",
-    "donarPlataforma": "Donate to platform",
-    "heroDesc": "Civil logistics platform connecting volunteers, organizations and victims to coordinate effective aid.",
-    "voluntarioAmbos": "Both"
+    "registroEmpresa": "Register Company"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Connecting earthquake victims with transporters and hosts in Venezuela",
-    "heroDesc": "A solidarity platform to help affected families reunite with their loved ones after the earthquake.",
+    "heroDesc": "Civil logistics platform connecting volunteers, organizations and victims to coordinate effective aid.",
     "ctaSolicitar": "I Need to Travel",
     "ctaSolicitarDesc": "Post your travel request",
     "ctaTransporte": "I Offer Transport",
@@ -52,7 +42,11 @@
     "paso2Desc": "Post your travel request, transport or housing offer.",
     "paso3": "Connect",
     "paso3Desc": "Find matches and coordinate the trip or stay.",
-    "footer": "Made with ❤️ for Venezuela"
+    "footer": "Made with ❤️ for Venezuela",
+    "statsVoluntarios": "Volunteers",
+    "statsOrganizaciones": "Organizations",
+    "ctaEmpiezo": "Start From Zero",
+    "donarPlataforma": "Donate to platform"
   },
   "auth": {
     "login": "Login",
@@ -79,7 +73,12 @@
     "errorEmail": "Invalid email",
     "errorPasswordLength": "Minimum 6 characters",
     "errorLogin": "Invalid email or password",
-    "errorPasswordMatch": "Passwords do not match"
+    "errorPasswordMatch": "Passwords do not match",
+    "roleOrganizacion": "Organization",
+    "voluntarioTipo": "Volunteer Type",
+    "voluntarioHospedaje": "Housing Volunteer",
+    "voluntarioGestion": "Management Volunteer",
+    "voluntarioAmbos": "Both"
   },
   "travelRequest": {
     "title": "Request Trip",

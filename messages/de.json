@@ -17,22 +17,12 @@
     "registrarse": "Registrieren",
     "cerrarSesion": "Abmelden",
     "ofrecerInsumos": "Hilfsgüter anbieten",
-    "registroEmpresa": "Unternehmen registrieren",
-    "roleOrganizacion": "Organisation",
-    "voluntarioTipo": "Freiwilligentyp",
-    "voluntarioHospedaje": "Unterkunftsfreiwilliger",
-    "voluntarioGestion": "Verwaltungsfreiwilliger",
-    "statsVoluntarios": "Freiwillige",
-    "statsOrganizaciones": "Organisationen",
-    "ctaEmpiezo": "Von Null Starten",
-    "donarPlataforma": "Für die Plattform spenden",
-    "heroDesc": "Zivile Logistikplattform, die Freiwillige, Organisationen und Opfer verbindet, um effektive Hilfe zu koordinieren.",
-    "voluntarioAmbos": "Beides"
+    "registroEmpresa": "Unternehmen registrieren"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Erdbebenopfer mit Transporteuren und Gastgebern in Venezuela verbinden",
-    "heroDesc": "Eine Solidaritätsplattform, um betroffenen Familien zu helfen, sich mit ihren Lieben zu vereinen.",
+    "heroDesc": "Zivile Logistikplattform, die Freiwillige, Organisationen und Opfer verbindet, um effektive Hilfe zu koordinieren.",
     "ctaSolicitar": "Ich Muss Reisen",
     "ctaTransporte": "Ich Biete Transport",
     "ctaHospedaje": "Ich Biete Unterkunft",
@@ -52,7 +42,11 @@
     "paso2Desc": "Veröffentliche deine Reiseanfrage, Transport- oder Unterkunftsangebot.",
     "paso3": "Verbinde",
     "paso3Desc": "Finde Übereinstimmungen und koordiniere die Reise oder den Aufenthalt.",
-    "footer": "Gemacht mit ❤️ für Venezuela"
+    "footer": "Gemacht mit ❤️ für Venezuela",
+    "statsVoluntarios": "Freiwillige",
+    "statsOrganizaciones": "Organisationen",
+    "ctaEmpiezo": "Von Null Starten",
+    "donarPlataforma": "Für die Plattform spenden"
   },
   "auth": {
     "login": "Anmelden",
@@ -79,7 +73,12 @@
     "errorEmail": "Ungültige E-Mail",
     "errorPasswordLength": "Mindestens 6 Zeichen",
     "errorLogin": "Falsche E-Mail oder falsches Passwort",
-    "errorPasswordMatch": "Passwörter stimmen nicht überein"
+    "errorPasswordMatch": "Passwörter stimmen nicht überein",
+    "roleOrganizacion": "Organisation",
+    "voluntarioTipo": "Freiwilligentyp",
+    "voluntarioHospedaje": "Unterkunftsfreiwilliger",
+    "voluntarioGestion": "Verwaltungsfreiwilliger",
+    "voluntarioAmbos": "Beides"
   },
   "travelRequest": {
     "title": "Reise Anfragen",

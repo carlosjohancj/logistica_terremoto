@@ -17,22 +17,12 @@
     "registrarse": "Registrarse",
     "cerrarSesion": "Cerrar Sesión",
     "ofrecerInsumos": "Ofrecer Insumos",
-    "registroEmpresa": "Registrar Empresa",
-    "roleOrganizacion": "Organización",
-    "voluntarioTipo": "Tipo de voluntario",
-    "voluntarioHospedaje": "Voluntario de hospedaje",
-    "voluntarioGestion": "Voluntario de gestión",
-    "statsVoluntarios": "Voluntarios",
-    "statsOrganizaciones": "Organizaciones",
-    "ctaEmpiezo": "Empiezo Desde Cero",
-    "donarPlataforma": "Donar para la plataforma",
-    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva.",
-    "voluntarioAmbos": "Ambos"
+    "registroEmpresa": "Registrar Empresa"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Conectando damnificados con transportistas y anfitriones en Venezuela",
-    "heroDesc": "Una plataforma solidaria para ayudar a las familias afectadas por el terremoto a reunirse con sus seres queridos.",
+    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva.",
     "ctaSolicitar": "Necesito Viajar",
     "ctaSolicitarDesc": "Publica tu solicitud de traslado",
     "ctaTransporte": "Ofrezco Transporte",
@@ -52,7 +42,11 @@
     "paso2Desc": "Publica tu solicitud de viaje, oferta de transporte u hospedaje.",
     "paso3": "Conecta",
     "paso3Desc": "Encuentra matches y coordina el traslado o la estadía.",
-    "footer": "Hecho con ❤️ para Venezuela"
+    "footer": "Hecho con ❤️ para Venezuela",
+    "statsVoluntarios": "Voluntarios",
+    "statsOrganizaciones": "Organizaciones",
+    "ctaEmpiezo": "Empiezo Desde Cero",
+    "donarPlataforma": "Donar para la plataforma"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -79,7 +73,12 @@
     "errorEmail": "Correo inválido",
     "errorPasswordLength": "Mínimo 6 caracteres",
     "errorLogin": "Correo o contraseña incorrectos",
-    "errorPasswordMatch": "Las contraseñas no coinciden"
+    "errorPasswordMatch": "Las contraseñas no coinciden",
+    "roleOrganizacion": "Organización",
+    "voluntarioTipo": "Tipo de voluntario",
+    "voluntarioHospedaje": "Voluntario de hospedaje",
+    "voluntarioGestion": "Voluntario de gestión",
+    "voluntarioAmbos": "Ambos"
   },
   "travelRequest": {
     "title": "Solicitar Viaje",

@@ -68,11 +68,6 @@ export async function getCoords(): Promise<Record<string, number[]>> {
   return result
 }
 
-export async function getEstadosList(): Promise<string[]> {
-  const estados = await fetchEstados()
-  return estados.map((e) => e.name)
-}
-
 export async function getCityCoord(state: string, city: string): Promise<{ lat: number; lng: number } | null> {
   const coords = await fetchCityCoords()
   const key = `${city}|${state}`
@@ -96,24 +91,6 @@ export async function getCitiesByState(state: string): Promise<string[]> {
     }
   }
   return [...cities].sort()
-}
-
-export async function getAllCities(): Promise<{ city: string; state: string }[]> {
-  const estados = await fetchEstados()
-  const result: { city: string; state: string }[] = []
-  for (const e of estados) {
-    const seen = new Set<string>()
-    for (const m of e.municipios) {
-      for (const c of m.ciudades) {
-        const key = `${c}|${e.name}`
-        if (!seen.has(key)) {
-          seen.add(key)
-          result.push({ city: c, state: e.name })
-        }
-      }
-    }
-  }
-  return result
 }
 
 export function useEstados() {
