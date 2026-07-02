@@ -3,9 +3,8 @@ import { HousingOfferValues } from "@/lib/schemas/housing-offer";
 import { TransportOfferValues } from "@/lib/schemas/transport-offer";
 import { TravelRequestValues } from "@/lib/schemas/travel-request";
 
-async function submitWithAuthFallback(
+async function submitAsUser(
   table: string,
-  formType: string,
   data: Record<string, unknown>
 ) {
   const supabase = getSupabase();
@@ -13,21 +12,11 @@ async function submitWithAuthFallback(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) {
-    data.user = user.id;
-    const { error } = await supabase.from(table).insert(data).select().single();
-    if (error) throw error;
-  } else {
-    const res = await fetch("/api/forms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ formType, data }),
-    });
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || "Error al enviar el formulario");
-    }
-  }
+  if (!user) throw new Error("Debes iniciar sesión para publicar");
+
+  data.user = user.id;
+  const { error } = await supabase.from(table).insert(data).select().single();
+  if (error) throw error;
 }
 
 export async function submitHousingOffer(values: HousingOfferValues) {
@@ -47,7 +36,7 @@ export async function submitHousingOffer(values: HousingOfferValues) {
   };
   if (values.address) data.address = values.address;
   if (values.notes) data.notes = values.notes;
-  await submitWithAuthFallback("housing_offers", "housing_offer", data);
+  await submitAsUser("housing_offers", data);
 }
 
 export async function submitTransportOffer(values: TransportOfferValues) {
@@ -73,7 +62,7 @@ export async function submitTransportOffer(values: TransportOfferValues) {
   if (values.gas_donation_amount)
     data.gas_donation_amount = values.gas_donation_amount;
   if (values.notes) data.notes = values.notes;
-  await submitWithAuthFallback("transport_offers", "transport_offer", data);
+  await submitAsUser("transport_offers", data);
 }
 
 export async function submitTravelRequest(values: TravelRequestValues) {
@@ -97,5 +86,5 @@ export async function submitTravelRequest(values: TravelRequestValues) {
   if (values.adults_count) data.adults_count = values.adults_count;
   if (values.registrant_relation) data.registrant_relation = values.registrant_relation;
   if (values.notes) data.notes = values.notes;
-  await submitWithAuthFallback("travel_requests", "travel_request", data);
+  await submitAsUser("travel_requests", data);
 }

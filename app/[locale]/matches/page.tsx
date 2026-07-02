@@ -15,13 +15,17 @@ import { ArrowRight } from "lucide-react"
 
 type Match = {
   id: string
-  travel_request?: string
-  transport_offer?: string
-  housing_offer?: string
+  travel_request_id: string
+  user_id: string
   status: string
   notes?: string
-  expand?: Record<string, unknown>
-  created: string
+  created_at: string
+  travel_requests?: {
+    origin_city: string
+    origin_state: string
+    destination_city: string
+    people_to_move: number
+  }
 }
 
 export default function MatchesPage() {
@@ -42,8 +46,12 @@ export default function MatchesPage() {
 
       setLoading(true)
       try {
-        const { data } = await supabase.from(TABLES.MATCHES).select("*").order("created_at", { ascending: false })
-        setMatches((data || []) as unknown as Match[])
+        const { data } = await (supabase
+          .from(TABLES.MATCHES)
+          .select("*, travel_requests:travel_request_id(*)")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }) as never as { data: Match[] | null })
+        setMatches(data ?? [])
       } catch {
         toast.error(tc("error"))
       } finally {
@@ -61,6 +69,14 @@ export default function MatchesPage() {
     cancelled: "destructive",
   }
 
+  const statusLabels: Record<string, string> = {
+    pending: "Pendiente",
+    confirmed: "Confirmado",
+    in_progress: "En progreso",
+    completed: "Completado",
+    cancelled: "Cancelado",
+  }
+
   if (loading) return <SkeletonGrid cols={1} count={5} />
 
   return (
@@ -75,17 +91,24 @@ export default function MatchesPage() {
         {matches.map((match) => (
           <Card key={match.id}>
             <CardContent className="p-4">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(match.created).toLocaleDateString()}
+                    {match.created_at ? new Date(match.created_at).toLocaleDateString() : ""}
                   </p>
+                  {match.travel_requests && (
+                    <p className="font-medium mt-1">
+                      {match.travel_requests.origin_city || match.travel_requests.origin_state}
+                      <ArrowRight className="inline h-4 w-4 mx-1" />
+                      {match.travel_requests.destination_city || "Sin destino"}
+                    </p>
+                  )}
                   {match.notes && (
                     <p className="text-sm mt-1">{match.notes}</p>
                   )}
                 </div>
                 <Badge variant={statusVariant[match.status] ?? "outline"}>
-                  {match.status}
+                  {statusLabels[match.status] || match.status}
                 </Badge>
               </div>
             </CardContent>
