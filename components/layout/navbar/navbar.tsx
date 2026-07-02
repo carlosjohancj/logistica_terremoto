@@ -143,7 +143,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
               <>
-                <Link href={`/${locale}/matches`}>
+                <Link href={`/${locale}/perfil?tab=conexiones`}>
                   <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
                     {t("matches")}
                   </Button>

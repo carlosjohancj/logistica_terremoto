@@ -46,7 +46,7 @@ export function NavMobileMenu({
         <hr className="my-2 border-border" />
         {isLoggedIn ? (
           <>
-            <Link href={`/${locale}/matches`} className="block py-2 text-sm font-medium text-muted-foreground">
+            <Link href={`/${locale}/perfil?tab=conexiones`} className="block py-2 text-sm font-medium text-muted-foreground">
               {t("matches")}
             </Link>
             <Link href={`/${locale}/perfil`} className="block py-2 text-sm font-medium text-muted-foreground">
