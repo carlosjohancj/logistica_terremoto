@@ -66,6 +66,17 @@ export function Navbar() {
 
         <nav className="hidden md:flex items-center gap-6">
           <Link
+            href={`/${locale}/empiezo-desde-cero`}
+            className={cn(
+              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
+              isActive(`/${locale}/empiezo-desde-cero`)
+                ? "text-primary"
+                : "text-muted-foreground"
+            )}
+          >
+            {t("ctaEmpiezo")}
+          </Link>
+          <Link
             href={`/${locale}/solicitar-viaje`}
             className={cn(
               "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",

@@ -25,15 +25,15 @@ export default function HomePage() {
   const [stats, setStats] = useState([
     { value: "-", label: t("statsViajes") },
     { value: "-", label: t("statsTransportistas") },
-    { value: "-", label: t("statsAnfitriones") },
-    { value: "-", label: t("statsDonaciones") },
+    { value: "-", label: t("statsVoluntarios") },
+    { value: "-", label: t("statsOrganizaciones") },
   ]);
 
   useEffect(() => {
     async function fetchStats() {
       try {
         const supabase = getSupabase();
-        const [travelCount, transportCount, housingCount, donations] =
+        const [travelCount, transportCount, volCount, orgCount] =
           await Promise.all([
             supabase
               .from(TABLES.TRAVEL_REQUESTS)
@@ -44,12 +44,13 @@ export default function HomePage() {
               .select("*", { count: "exact", head: true })
               .eq("status", "open"),
             supabase
-              .from(TABLES.HOUSING_OFFERS)
+              .from(TABLES.PROFILES)
               .select("*", { count: "exact", head: true })
-              .eq("status", "open"),
+              .eq("role", "voluntario"),
             supabase
-              .from(TABLES.DONATIONS)
-              .select("*", { count: "exact", head: true }),
+              .from(TABLES.PROFILES)
+              .select("*", { count: "exact", head: true })
+              .eq("role", "organizacion"),
           ]);
         setStats([
           { value: String(travelCount.count), label: t("statsViajes") },
@@ -57,15 +58,15 @@ export default function HomePage() {
             value: String(transportCount.count),
             label: t("statsTransportistas"),
           },
-          { value: String(housingCount.count), label: t("statsAnfitriones") },
-          { value: `${donations.count}`, label: t("statsDonaciones") },
+          { value: String(volCount.count), label: t("statsVoluntarios") },
+          { value: String(orgCount.count), label: t("statsOrganizaciones") },
         ]);
       } catch {
         setStats([
           { value: "0", label: t("statsViajes") },
           { value: "0", label: t("statsTransportistas") },
-          { value: "0", label: t("statsAnfitriones") },
-          { value: "0", label: t("statsDonaciones") },
+          { value: "0", label: t("statsVoluntarios") },
+          { value: "0", label: t("statsOrganizaciones") },
         ]);
       }
     }
@@ -89,19 +90,19 @@ export default function HomePage() {
           className="w-full max-w-3xl h-auto"
         />
 
-        <p className="mt-8 text-base md:text-lg text-muted-foreground text-center max-w-md">
-          {t("subtitle")}
+        <p className="mt-8 text-base md:text-lg text-muted-foreground text-center max-w-2xl">
+          {t("heroDesc")}
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 mt-8">
-          <Link href={`/${locale}/solicitar-viaje`}>
+          <Link href={`/${locale}/empiezo-desde-cero`}>
             <Button size="lg" className="rounded-full px-10">
-              {t("ctaSolicitar")}
+              {t("ctaEmpiezo")}
             </Button>
           </Link>
-          <Link href={`/${locale}/donar`}>
+          <Link href={`/${locale}/solicitar-viaje`}>
             <Button size="lg" variant="outline" className="rounded-full px-10">
-              {t("ctaDonar")}
+              {t("ctaSolicitar")}
             </Button>
           </Link>
         </div>

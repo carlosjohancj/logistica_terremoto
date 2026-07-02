@@ -26,6 +26,7 @@ const roleLabels: Record<Role, string> = {
   anfitrion: "Anfitrión",
   donante: "Donante",
   voluntario: "Voluntario",
+  organizacion: "Organización",
   admin: "Admin",
 }
 
@@ -42,6 +43,7 @@ const ALL_TABS: TabDef[] = [
   { id: "ayuda", label: "Ayuda Asignada", roles: ["damnificado"] },
   { id: "conexiones", label: "Conexiones", roles: ["*"] },
   { id: "empresa", label: "Empresa", roles: ["empresa"] },
+  { id: "organizacion", label: "Organización", roles: ["organizacion"] },
   { id: "mensajes", label: "Mensajes", roles: ["*"] },
 ]
 
@@ -325,6 +327,7 @@ export default function PerfilPage() {
       {activeTab === "ayuda" && renderAyudaTab()}
       {activeTab === "conexiones" && renderConexionesTab()}
       {activeTab === "empresa" && <EmpresaPanel />}
+      {activeTab === "organizacion" && renderOrganizacionTab()}
       {activeTab === "mensajes" && <MensajesPanel />}
     </div>
   )
@@ -540,6 +543,35 @@ export default function PerfilPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+    )
+  }
+
+  function renderOrganizacionTab() {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-2">Panel de Organización</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Administra los miembros de tu organización y da seguimiento a las ayudas.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-muted rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-primary">--</p>
+                <p className="text-sm text-muted-foreground">Miembros</p>
+              </div>
+              <div className="bg-muted rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-primary">--</p>
+                <p className="text-sm text-muted-foreground">Ayudas activas</p>
+              </div>
+              <div className="bg-muted rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-primary">--</p>
+                <p className="text-sm text-muted-foreground">Solicitudes</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }

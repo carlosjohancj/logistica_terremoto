@@ -47,4 +47,4 @@ export const TABLES = {
   DONATION_SETTINGS: "donation_settings",
 } as const
 
-export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "admin"
+export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "organizacion" | "admin"

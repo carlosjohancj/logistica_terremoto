@@ -17,7 +17,16 @@
     "registrarse": "Registrarse",
     "cerrarSesion": "Cerrar Sesión",
     "ofrecerInsumos": "Ofrecer Insumos",
-    "registroEmpresa": "Registrar Empresa"
+    "registroEmpresa": "Registrar Empresa",
+    "roleOrganizacion": "Organización",
+    "voluntarioTipo": "Tipo de voluntario",
+    "voluntarioHospedaje": "Voluntario de hospedaje",
+    "voluntarioGestion": "Voluntario de gestión",
+    "statsVoluntarios": "Voluntarios",
+    "statsOrganizaciones": "Organizaciones",
+    "ctaEmpiezo": "Empiezo Desde Cero",
+    "donarPlataforma": "Donar para la plataforma",
+    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva."
   },
   "home": {
     "title": "Desde Cero",

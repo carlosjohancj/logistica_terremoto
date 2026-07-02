@@ -17,7 +17,16 @@
     "registrarse": "S'inscrire",
     "cerrarSesion": "Déconnexion",
     "ofrecerInsumos": "Offrir Fournitures",
-    "registroEmpresa": "Enregistrer une Entreprise"
+    "registroEmpresa": "Enregistrer une Entreprise",
+    "roleOrganizacion": "Organisation",
+    "voluntarioTipo": "Type de bénévole",
+    "voluntarioHospedaje": "Bénévole d'hébergement",
+    "voluntarioGestion": "Bénévole de gestion",
+    "statsVoluntarios": "Bénévoles",
+    "statsOrganizaciones": "Organisations",
+    "ctaEmpiezo": "Commencer de Zéro",
+    "donarPlataforma": "Faire un don à la plateforme",
+    "heroDesc": "Plateforme logistique civile connectant bénévoles, organisations et victimes pour coordonner l'aide."
   },
   "home": {
     "title": "Desde Cero",

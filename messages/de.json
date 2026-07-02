@@ -17,7 +17,16 @@
     "registrarse": "Registrieren",
     "cerrarSesion": "Abmelden",
     "ofrecerInsumos": "Hilfsgüter anbieten",
-    "registroEmpresa": "Unternehmen registrieren"
+    "registroEmpresa": "Unternehmen registrieren",
+    "roleOrganizacion": "Organisation",
+    "voluntarioTipo": "Freiwilligentyp",
+    "voluntarioHospedaje": "Unterkunftsfreiwilliger",
+    "voluntarioGestion": "Verwaltungsfreiwilliger",
+    "statsVoluntarios": "Freiwillige",
+    "statsOrganizaciones": "Organisationen",
+    "ctaEmpiezo": "Von Null Starten",
+    "donarPlataforma": "Für die Plattform spenden",
+    "heroDesc": "Zivile Logistikplattform, die Freiwillige, Organisationen und Opfer verbindet, um effektive Hilfe zu koordinieren."
   },
   "home": {
     "title": "Desde Cero",

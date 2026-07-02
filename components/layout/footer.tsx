@@ -23,10 +23,10 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-3">Enlaces</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><Link href={`/${locale}/empiezo-desde-cero`} className="hover:text-primary">{t("ctaEmpiezo")}</Link></li>
               <li><Link href={`/${locale}/solicitar-viaje`} className="hover:text-primary">{t("ctaSolicitar")}</Link></li>
               <li><Link href={`/${locale}/ofrecer-transporte`} className="hover:text-primary">{t("ctaTransporte")}</Link></li>
               <li><Link href={`/${locale}/ofrecer-hospedaje`} className="hover:text-primary">{t("ctaHospedaje")}</Link></li>
-              <li><Link href={`/${locale}/donar`} className="hover:text-primary">{t("ctaDonar")}</Link></li>
             </ul>
           </div>
           <div>
@@ -45,8 +45,9 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-8 pt-6 border-t border-border text-center text-sm text-muted-foreground">
-          <p>{t("footer")} &copy; {year}</p>
+        <div className="mt-8 pt-6 border-t border-border text-center text-sm text-muted-foreground space-x-4">
+          <span>{t("footer")} &copy; {year}</span>
+          <Link href={`/${locale}/donar`} className="hover:text-primary underline underline-offset-2">{t("donarPlataforma")}</Link>
         </div>
       </div>
     </footer>

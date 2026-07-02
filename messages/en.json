@@ -17,7 +17,16 @@
     "registrarse": "Register",
     "cerrarSesion": "Logout",
     "ofrecerInsumos": "Offer Supplies",
-    "registroEmpresa": "Register Company"
+    "registroEmpresa": "Register Company",
+    "roleOrganizacion": "Organization",
+    "voluntarioTipo": "Volunteer Type",
+    "voluntarioHospedaje": "Housing Volunteer",
+    "voluntarioGestion": "Management Volunteer",
+    "statsVoluntarios": "Volunteers",
+    "statsOrganizaciones": "Organizations",
+    "ctaEmpiezo": "Start From Zero",
+    "donarPlataforma": "Donate to platform",
+    "heroDesc": "Civil logistics platform connecting volunteers, organizations and victims to coordinate effective aid."
   },
   "home": {
     "title": "Desde Cero",

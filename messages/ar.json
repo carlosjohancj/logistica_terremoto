@@ -17,7 +17,16 @@
     "registrarse": "التسجيل",
     "cerrarSesion": "تسجيل الخروج",
     "ofrecerInsumos": "تقديم الإمدادات",
-    "registroEmpresa": "تسجيل شركة"
+    "registroEmpresa": "تسجيل شركة",
+    "roleOrganizacion": "منظمة",
+    "voluntarioTipo": "نوع المتطوع",
+    "voluntarioHospedaje": "متطوع إيواء",
+    "voluntarioGestion": "متطوع إدارة",
+    "statsVoluntarios": "متطوعون",
+    "statsOrganizaciones": "منظمات",
+    "ctaEmpiezo": "ابدأ من الصفر",
+    "donarPlataforma": "التبرع للمنصة",
+    "heroDesc": "منصة لوجستية مدنية تربط المتطوعين والمنظمات والضحايا لتنسيق المساعدة الفعالة."
   },
   "home": {
     "title": "من الصفر",
