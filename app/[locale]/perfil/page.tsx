@@ -110,7 +110,9 @@ export default function PerfilPage() {
 
   const [matches, setMatches] = useState<Match[]>([])
 
-  const activeTab = useMemo(() => {
+  const [localTab, setLocalTab] = useState<string>("")
+
+  const computedActiveTab = useMemo(() => {
     const validTabs = ALL_TABS.filter((tab) => {
       if (tab.roles.includes("*")) return true
       if (tab.roles.includes("empresa")) return hasCompanies
@@ -120,6 +122,12 @@ export default function PerfilPage() {
     if (tabParam && validTabs.includes(tabParam)) return tabParam
     return "perfil"
   }, [tabParam, userRole, hasCompanies])
+
+  useEffect(() => {
+    setLocalTab(computedActiveTab)
+  }, [computedActiveTab])
+
+  const activeTab = localTab || computedActiveTab
 
   const availableTabs = useMemo(() => {
     return ALL_TABS.filter((tab) => {
@@ -315,7 +323,10 @@ export default function PerfilPage() {
             key={tab.id}
             variant={activeTab === tab.id ? "default" : "outline"}
             size="sm"
-            onClick={() => router.replace(`/${locale}/perfil?tab=${tab.id}`, { scroll: false })}
+            onClick={() => {
+              setLocalTab(tab.id)
+              router.replace(`/${locale}/perfil?tab=${tab.id}`, { scroll: false })
+            }}
           >
             {tab.label}
           </Button>
@@ -336,35 +347,81 @@ export default function PerfilPage() {
   )
 
   function renderPerfilTab() {
+    const vt = user?.volunteer_type as string
+    const isGestion = userRole === "voluntario" && (vt === "gestion" || vt === "ambos")
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t("solicitarViaje")}</CardTitle>
-            <CardDescription>{travelReqs.length} publicaciones</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-primary">{travelReqs.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t("ofrecerTransporte")}</CardTitle>
-            <CardDescription>{transportOffers.length} publicaciones</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-accent">{transportOffers.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t("ofrecerHospedaje")}</CardTitle>
-            <CardDescription>{housingOffers.length} publicaciones</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-green-600">{housingOffers.length}</p>
-          </CardContent>
-        </Card>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{t("solicitarViaje")}</CardTitle>
+              <CardDescription>{travelReqs.length} publicaciones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-primary">{travelReqs.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{t("ofrecerTransporte")}</CardTitle>
+              <CardDescription>{transportOffers.length} publicaciones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-accent">{transportOffers.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">{t("ofrecerHospedaje")}</CardTitle>
+              <CardDescription>{housingOffers.length} publicaciones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-green-600">{housingOffers.length}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {isGestion && (
+          <Card>
+            <CardContent className="p-5">
+              <h3 className="font-semibold mb-3">Tareas de gestión</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                  <div>
+                    <p className="text-sm font-medium">Solicitudes de viaje pendientes</p>
+                    <p className="text-xs text-muted-foreground">Validar información y asignar transportistas</p>
+                  </div>
+                  <Badge>{travelReqs.length}</Badge>
+                </div>
+                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                  <div>
+                    <p className="text-sm font-medium">Mensajes sin leer</p>
+                    <p className="text-xs text-muted-foreground">Gestionar comunicación entre partes</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setLocalTab("mensajes")
+                    router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
+                  }}>
+                    Ir a mensajes
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                  <div>
+                    <p className="text-sm font-medium">Logística de reasentamiento</p>
+                    <p className="text-xs text-muted-foreground">Coordinar viajes y hospedaje para damnificados</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setLocalTab("solicitudes")
+                    router.replace(`/${locale}/perfil?tab=solicitudes`, { scroll: false })
+                  }}>
+                    Ver solicitudes
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     )
   }
