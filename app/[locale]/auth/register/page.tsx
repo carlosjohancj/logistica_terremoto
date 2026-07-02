@@ -36,7 +36,7 @@ export default function RegisterPage() {
     organizacion: t("roleOrganizacion"),
   }
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterFormValues>({
+  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(
       createRegisterSchema({
         errorRequired: t("errorRequired"),
@@ -47,6 +47,8 @@ export default function RegisterPage() {
     ),
     defaultValues: { role: "damnificado" },
   })
+
+  const selectedRole = watch("role")
 
   async function onSubmit(values: RegisterFormValues) {
     setLoading(true)
@@ -115,6 +117,27 @@ export default function RegisterPage() {
                 )}
               />
             </div>
+            {selectedRole === "voluntario" && (
+              <div className="space-y-2">
+                <Label>{t("voluntarioTipo")}</Label>
+                <Controller
+                  name="volunteerType"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v)}>
+                      <SelectTrigger className={SELECT_TRIGGER_CLASS}>
+                        <SelectValue placeholder={t("voluntarioTipo")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hospedaje">{t("voluntarioHospedaje")}</SelectItem>
+                        <SelectItem value="gestion">{t("voluntarioGestion")}</SelectItem>
+                        <SelectItem value="ambos">{t("voluntarioAmbos")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
               <PasswordInput id="password" className={PASSWORD_FIELD_CLASS} {...register("password")} />

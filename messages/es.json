@@ -26,7 +26,8 @@
     "statsOrganizaciones": "Organizaciones",
     "ctaEmpiezo": "Empiezo Desde Cero",
     "donarPlataforma": "Donar para la plataforma",
-    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva."
+    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva.",
+    "voluntarioAmbos": "Ambos"
   },
   "home": {
     "title": "Desde Cero",
