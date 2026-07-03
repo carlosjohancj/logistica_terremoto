@@ -18,21 +18,18 @@
     "cerrarSesion": "Cerrar Sesión",
     "ofrecerInsumos": "Ofrecer Insumos",
     "registroEmpresa": "Registrar Empresa",
-    "roleOrganizacion": "Organización",
-    "voluntarioTipo": "Tipo de voluntario",
-    "voluntarioHospedaje": "Voluntario de hospedaje",
-    "voluntarioGestion": "Voluntario de gestión",
-    "statsVoluntarios": "Voluntarios",
-    "statsOrganizaciones": "Organizaciones",
-    "ctaEmpiezo": "Empiezo Desde Cero",
-    "donarPlataforma": "Donar para la plataforma",
-    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva.",
-    "voluntarioAmbos": "Ambos"
+    "enlaces": "Enlaces",
+    "ayuda": "Ayuda",
+    "preguntasFrecuentes": "Preguntas frecuentes",
+    "contacto": "Contacto",
+    "terminosUso": "Términos de uso",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Conectando damnificados con transportistas y anfitriones en Venezuela",
-    "heroDesc": "Una plataforma solidaria para ayudar a las familias afectadas por el terremoto a reunirse con sus seres queridos.",
+    "heroDesc": "Plataforma de logística civil que conecta voluntarios, organizaciones y damnificados para coordinar ayuda efectiva.",
     "ctaSolicitar": "Necesito Viajar",
     "ctaSolicitarDesc": "Publica tu solicitud de traslado",
     "ctaTransporte": "Ofrezco Transporte",
@@ -52,7 +49,11 @@
     "paso2Desc": "Publica tu solicitud de viaje, oferta de transporte u hospedaje.",
     "paso3": "Conecta",
     "paso3Desc": "Encuentra matches y coordina el traslado o la estadía.",
-    "footer": "Hecho con ❤️ para Venezuela"
+    "footer": "Hecho con ❤️ para Venezuela",
+    "statsVoluntarios": "Voluntarios",
+    "statsOrganizaciones": "Organizaciones",
+    "ctaEmpiezo": "Empiezo Desde Cero",
+    "donarPlataforma": "Donar para la plataforma"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -79,7 +80,12 @@
     "errorEmail": "Correo inválido",
     "errorPasswordLength": "Mínimo 6 caracteres",
     "errorLogin": "Correo o contraseña incorrectos",
-    "errorPasswordMatch": "Las contraseñas no coinciden"
+    "errorPasswordMatch": "Las contraseñas no coinciden",
+    "roleOrganizacion": "Organización",
+    "voluntarioTipo": "Tipo de voluntario",
+    "voluntarioHospedaje": "Voluntario de hospedaje",
+    "voluntarioGestion": "Voluntario de gestión",
+    "voluntarioAmbos": "Ambos"
   },
   "travelRequest": {
     "title": "Solicitar Viaje",
@@ -320,7 +326,11 @@
     "familia": "Familia específica",
     "familiaDesc": "Ayuda directa a una familia damnificada específica.",
     "paymentSectionTitle": "Métodos de Pago",
-    "contactUs": "Contáctanos para más información"
+    "contactUs": "Contáctanos para más información",
+    "organizacionesTitle": "Organizaciones que ayudan",
+    "organizacionesDesc": "Estas organizaciones aceptan donaciones para ayudar directamente a los damnificados.",
+    "plataformaTitle": "Apoyar la plataforma Desde Cero",
+    "plataformaDesc": "Tu donación se destina al mantenimiento técnico de la plataforma (servidores, desarrollo)."
   },
   "contact": {
     "title": "¡Hola!",
@@ -377,6 +387,43 @@
     "themeToggle": "Cambiar tema",
     "themeLight": "Claro",
     "themeDark": "Oscuro",
-    "themeSystem": "Sistema"
+    "themeSystem": "Sistema",
+    "select": "Seleccionar",
+    "authRequired": "Debes iniciar sesión",
+    "tryAgain": "Intenta de nuevo"
+  },
+  "familyAid": {
+    "title": "Ayuda Familiar",
+    "subtitle": "Solicita o encuentra ayuda económica para familias damnificadas.",
+    "formTitle": "Solicitar Ayuda Familiar",
+    "titleLabel": "Título de la solicitud",
+    "descriptionLabel": "Descripción",
+    "storyLabel": "Historia de la familia",
+    "amountLabel": "Monto necesario (USD)",
+    "helpTypeLabel": "Tipo de ayuda",
+    "locationLabel": "Ubicación",
+    "stateLabel": "Estado",
+    "cityLabel": "Ciudad",
+    "submit": "Publicar Solicitud",
+    "success": "Solicitud publicada exitosamente",
+    "filters": "Filtros",
+    "all": "Todas",
+    "open": "Abiertas",
+    "fulfilled": "Completadas",
+    "closed": "Cerradas",
+    "contactar": "Contactar",
+    "sinResultados": "No hay solicitudes disponibles.",
+    "sinProviders": "No hay organizaciones registradas aún.",
+    "cantidad": "Cantidad"
+  },
+  "helpTypes": {
+    "vivienda": "Vivienda (alquiler, inicial, reparaciones)",
+    "salud": "Salud (medicinas, tratamientos)",
+    "educacion": "Educación (colegio, universidad, materiales)",
+    "alimentacion": "Alimentación",
+    "transporte": "Transporte",
+    "legal": "Asistencia legal",
+    "psicologico": "Apoyo psicológico",
+    "otros": "Otros"
   }
 }

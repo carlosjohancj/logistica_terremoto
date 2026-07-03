@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Globe } from "lucide-react";
 import {
   Select,
@@ -21,18 +21,16 @@ const languages = [
 
 export function LanguageSwitcher() {
   const pathname = usePathname();
-  const router = useRouter();
-  const currentLocale = pathname.split("/")[1] || "es";
 
   function switchLocale(locale: string | null) {
     if (!locale) return;
     const segments = pathname.split("/");
     segments[1] = locale;
-    router.push(segments.join("/"));
+    window.location.href = segments.join("/");
   }
 
   return (
-    <Select value={currentLocale} onValueChange={switchLocale}>
+    <Select defaultValue="es" onValueChange={switchLocale}>
       <SelectTrigger className="rounded-full border border-border px-2.5 py-1 h-auto text-xs font-medium hover:bg-muted transition-colors shadow-none bg-transparent w-auto gap-1">
         <Globe className="size-3.5 shrink-0 text-muted-foreground" />
       </SelectTrigger>

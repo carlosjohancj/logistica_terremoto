@@ -18,21 +18,18 @@
     "cerrarSesion": "Esci",
     "ofrecerInsumos": "Offrire Forniture",
     "registroEmpresa": "Registra Azienda",
-    "roleOrganizacion": "Organizzazione",
-    "voluntarioTipo": "Tipo di volontario",
-    "voluntarioHospedaje": "Volontario alloggio",
-    "voluntarioGestion": "Volontario gestione",
-    "statsVoluntarios": "Volontari",
-    "statsOrganizaciones": "Organizzazioni",
-    "ctaEmpiezo": "Ricominciare da Zero",
-    "donarPlataforma": "Dona alla piattaforma",
-    "heroDesc": "Piattaforma logistica civile che collega volontari, organizzazioni e vittime per coordinare aiuti efficaci.",
-    "voluntarioAmbos": "Entrambi"
+    "enlaces": "Link",
+    "ayuda": "Aiuto",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Contatto",
+    "terminosUso": "Termini d'uso",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Collegare le vittime del terremoto con trasportatori e ospiti in Venezuela",
-    "heroDesc": "Una piattaforma solidale per aiutare le famiglie colpite dal terremoto a riunirsi con i loro cari.",
+    "heroDesc": "Piattaforma logistica civile che collega volontari, organizzazioni e vittime per coordinare aiuti efficaci.",
     "ctaSolicitar": "Ho Bisogno di Viaggiare",
     "ctaTransporte": "Offro Trasporto",
     "ctaHospedaje": "Offro Alloggio",
@@ -52,7 +49,11 @@
     "paso2Desc": "Pubblica la tua richiesta di viaggio, offerta di trasporto o alloggio.",
     "paso3": "Connetti",
     "paso3Desc": "Trova corrispondenze e coordina il viaggio o il soggiorno.",
-    "footer": "Fatto con ❤️ per il Venezuela"
+    "footer": "Fatto con ❤️ per il Venezuela",
+    "statsVoluntarios": "Volontari",
+    "statsOrganizaciones": "Organizzazioni",
+    "ctaEmpiezo": "Ricominciare da Zero",
+    "donarPlataforma": "Dona alla piattaforma"
   },
   "auth": {
     "login": "Accedi",
@@ -79,7 +80,12 @@
     "errorEmail": "Email non valida",
     "errorPasswordLength": "Minimo 6 caratteri",
     "errorLogin": "Email o password errati",
-    "errorPasswordMatch": "Le password non corrispondono"
+    "errorPasswordMatch": "Le password non corrispondono",
+    "roleOrganizacion": "Organizzazione",
+    "voluntarioTipo": "Tipo di volontario",
+    "voluntarioHospedaje": "Volontario alloggio",
+    "voluntarioGestion": "Volontario gestione",
+    "voluntarioAmbos": "Entrambi"
   },
   "travelRequest": {
     "title": "Richiedi Viaggio",
@@ -318,7 +324,11 @@
     "familia": "Famiglia specifica",
     "familiaDesc": "Aiuto diretto a una famiglia sinistrata specifica.",
     "paymentSectionTitle": "Metodi di pagamento",
-    "contactUs": "Contattaci per maggiori informazioni"
+    "contactUs": "Contattaci per maggiori informazioni",
+    "organizacionesTitle": "Organizzazioni che aiutano",
+    "organizacionesDesc": "Queste organizzazioni accettano donazioni per aiutare direttamente le vittime.",
+    "plataformaTitle": "Supporta la piattaforma Desde Cero",
+    "plataformaDesc": "La tua donazione va alla manutenzione della piattaforma (server, sviluppo)."
   },
   "contact": {
     "title": "Ciao!",
@@ -375,6 +385,43 @@
     "themeToggle": "Cambia tema",
     "themeLight": "Chiaro",
     "themeDark": "Scuro",
-    "themeSystem": "Sistema"
+    "themeSystem": "Sistema",
+    "select": "Selezionare",
+    "authRequired": "Devi accedere",
+    "tryAgain": "Riprova"
+  },
+  "familyAid": {
+    "title": "Aiuto Familiare",
+    "subtitle": "Richiedi o trova aiuto economico per le famiglie colpite.",
+    "formTitle": "Richiedi Aiuto Familiare",
+    "titleLabel": "Titolo della richiesta",
+    "descriptionLabel": "Descrizione",
+    "storyLabel": "Storia della famiglia",
+    "amountLabel": "Importo necessario (USD)",
+    "helpTypeLabel": "Tipo di aiuto",
+    "locationLabel": "Posizione",
+    "stateLabel": "Stato",
+    "cityLabel": "Città",
+    "submit": "Pubblica Richiesta",
+    "success": "Richiesta pubblicata con successo",
+    "filters": "Filtri",
+    "all": "Tutte",
+    "open": "Aperte",
+    "fulfilled": "Completate",
+    "closed": "Chiuse",
+    "contactar": "Contattare",
+    "sinResultados": "Nessuna richiesta disponibile.",
+    "sinProviders": "Nessuna organizzazione registrata.",
+    "cantidad": "Importo"
+  },
+  "helpTypes": {
+    "vivienda": "Alloggio (affitto, acconto, riparazioni)",
+    "salud": "Salute (farmaci, trattamenti)",
+    "educacion": "Istruzione (scuola, università, materiali)",
+    "alimentacion": "Alimentazione",
+    "transporte": "Trasporto",
+    "legal": "Assistenza legale",
+    "psicologico": "Supporto psicologico",
+    "otros": "Altri"
   }
 }

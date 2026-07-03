@@ -38,7 +38,6 @@ export const TABLES = {
   HOUSING_OFFERS: "housing_offers",
   DONATIONS: "donations",
   MATCHES: "matches",
-  REVIEWS: "reviews",
   COMPANIES: "companies",
   JOBS: "jobs",
   SUPPLIES: "supplies",
@@ -46,6 +45,8 @@ export const TABLES = {
   ESTADOS: "estados",
   DONATION_SETTINGS: "donation_settings",
   ROUTE_SEGMENTS: "route_segments",
+  SERVICE_PROVIDERS: "service_providers",
+  FAMILY_AID_REQUESTS: "family_aid_requests",
 } as const
 
 export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "organizacion" | "admin"

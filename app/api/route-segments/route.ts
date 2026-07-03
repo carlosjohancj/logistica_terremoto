@@ -1,18 +1,24 @@
 import { NextResponse } from "next/server"
-import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { travel_request_id, transportista_id, origin_city, origin_state, destination_city, destination_state, is_full_route } = body
+    const supabase = getSupabase()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
 
-    if (!travel_request_id || !transportista_id || !origin_city || !origin_state || !destination_city || !destination_state) {
+    const body = await request.json()
+    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route } = body
+
+    if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const supabase = getServiceSupabase()
+    const service = getServiceSupabase()
 
     const originCoord = await getCityCoord(origin_state, origin_city)
     const destCoord = await getCityCoord(destination_state, destination_city)
@@ -25,8 +31,7 @@ export async function POST(request: Request) {
     const to = [destCoord.lng, destCoord.lat]
     const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) / 10
 
-    // Check existing segments for this travel request
-    const { data: existingSegments } = await supabase
+    const { data: existingSegments } = await service
       .from("route_segments")
       .select("id, \"order\"")
       .eq("travel_request_id", travel_request_id)
@@ -34,8 +39,7 @@ export async function POST(request: Request) {
 
     const nextOrder = (existingSegments?.[0]?.order ?? 0) + 1
 
-    // Check if this segment completes the route
-    const { data: travelReq } = await supabase
+    const { data: travelReq } = await service
       .from(TABLES.TRAVEL_REQUESTS)
       .select("destination_state, destination_city")
       .eq("id", travel_request_id)
@@ -46,10 +50,9 @@ export async function POST(request: Request) {
 
     const allCovered = is_full_route || reachedFinalDest
 
-    // Create match if one doesn't exist
     let matchId: string | null = null
     if (!allCovered) {
-      const { data: existingMatch } = await supabase
+      const { data: existingMatch } = await service
         .from(TABLES.MATCHES)
         .select("id")
         .eq("travel_request_id", travel_request_id)
@@ -61,20 +64,19 @@ export async function POST(request: Request) {
     }
 
     if (!matchId) {
-      const { data: newMatch } = await supabase
+      const { data: newMatch } = await service
         .from(TABLES.MATCHES)
-        .insert({ travel_request_id, user_id: transportista_id, status: allCovered ? "confirmed" : "pending" } as never)
+        .insert({ travel_request_id, user_id: user.id, status: allCovered ? "confirmed" : "pending" } as never)
         .select()
         .single() as never as { data: { id: string } | null }
       matchId = newMatch?.id ?? null
     }
 
-    // Insert segment
-    const { data: segment, error: segError } = await supabase
+    const { data: segment, error: segError } = await service
       .from("route_segments")
       .insert({
         match_id: matchId,
-        transportista_id,
+        transportista_id: user.id,
         travel_request_id,
         origin_city,
         origin_state,
@@ -96,9 +98,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: segError.message }, { status: 500 })
     }
 
-    // If full route or final destination reached, mark travel request as matched
     if (allCovered) {
-      await supabase
+      await service
         .from(TABLES.TRAVEL_REQUESTS)
         .update({ status: "matched" } as never)
         .eq("id", travel_request_id)

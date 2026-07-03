@@ -7,6 +7,7 @@ import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact-info";
 
 export function Footer() {
   const t = useTranslations("home");
+  const n = useTranslations("nav");
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
   const year = new Date().getFullYear();
@@ -21,7 +22,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground">{t("heroDesc")}</p>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">Enlaces</h4>
+            <h4 className="font-semibold mb-3">{n("enlaces")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href={`/${locale}/empiezo-desde-cero`} className="hover:text-primary">{t("ctaEmpiezo")}</Link></li>
               <li><Link href={`/${locale}/solicitar-viaje`} className="hover:text-primary">{t("ctaSolicitar")}</Link></li>
@@ -30,18 +31,18 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">Ayuda</h4>
+            <h4 className="font-semibold mb-3">{n("ayuda")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><span className="cursor-default">Preguntas frecuentes</span></li>
-              <li><Link href={`/${locale}/contacto`} className="hover:text-primary">Contacto</Link></li>
-              <li><Link href={`/${locale}/terminos-de-uso`} className="hover:text-primary">Términos de uso</Link></li>
+              <li><Link href={`/${locale}/#faq`} className="hover:text-primary">{n("preguntasFrecuentes")}</Link></li>
+              <li><Link href={`/${locale}/contacto`} className="hover:text-primary">{n("contacto")}</Link></li>
+              <li><Link href={`/${locale}/terminos-de-uso`} className="hover:text-primary">{n("terminosUso")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">Contacto</h4>
+            <h4 className="font-semibold mb-3">{n("contacto")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>WhatsApp: {WHATSAPP_NUMBER}</li>
-              <li>Email: {CONTACT_EMAIL}</li>
+              <li>{n("whatsapp")}: {WHATSAPP_NUMBER}</li>
+              <li>{n("email")}: {CONTACT_EMAIL}</li>
             </ul>
           </div>
         </div>

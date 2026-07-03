@@ -18,21 +18,18 @@
     "cerrarSesion": "تسجيل الخروج",
     "ofrecerInsumos": "تقديم الإمدادات",
     "registroEmpresa": "تسجيل شركة",
-    "roleOrganizacion": "منظمة",
-    "voluntarioTipo": "نوع المتطوع",
-    "voluntarioHospedaje": "متطوع إيواء",
-    "voluntarioGestion": "متطوع إدارة",
-    "statsVoluntarios": "متطوعون",
-    "statsOrganizaciones": "منظمات",
-    "ctaEmpiezo": "ابدأ من الصفر",
-    "donarPlataforma": "التبرع للمنصة",
-    "heroDesc": "منصة لوجستية مدنية تربط المتطوعين والمنظمات والضحايا لتنسيق المساعدة الفعالة.",
-    "voluntarioAmbos": "كلاهما"
+    "enlaces": "روابط",
+    "ayuda": "مساعدة",
+    "preguntasFrecuentes": "الأسئلة الشائعة",
+    "contacto": "اتصال",
+    "terminosUso": "شروط الاستخدام",
+    "whatsapp": "واتساب",
+    "email": "بريد إلكتروني"
   },
   "home": {
     "title": "من الصفر",
     "subtitle": "ربط المتضررين من الزلزال بالناقلين والمضيفين في فنزويلا",
-    "heroDesc": "منصة تضامن لمساعدة العائلات المتضررة من الزلزال على لم شملهم مع أحبائهم.",
+    "heroDesc": "منصة لوجستية مدنية تربط المتطوعين والمنظمات والضحايا لتنسيق المساعدة الفعالة.",
     "ctaSolicitar": "أحتاج للسفر",
     "ctaTransporte": "أعرض نقلاً",
     "ctaHospedaje": "أعرض إقامة",
@@ -52,7 +49,11 @@
     "paso2Desc": "انشر طلب رحلتك أو عرض النقل أو الإقامة.",
     "paso3": "تواصل",
     "paso3Desc": "ابحث عن التطابقات ونسق الرحلة أو الإقامة.",
-    "footer": "صنع بحب ❤️ لفنزويلا"
+    "footer": "صنع بحب ❤️ لفنزويلا",
+    "statsVoluntarios": "متطوعون",
+    "statsOrganizaciones": "منظمات",
+    "ctaEmpiezo": "ابدأ من الصفر",
+    "donarPlataforma": "التبرع للمنصة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -79,7 +80,12 @@
     "errorEmail": "بريد إلكتروني غير صالح",
     "errorPasswordLength": "6 أحرف على الأقل",
     "errorLogin": "بريد إلكتروني أو كلمة مرور غير صحيحة",
-    "errorPasswordMatch": "كلمتا المرور غير متطابقتين"
+    "errorPasswordMatch": "كلمتا المرور غير متطابقتين",
+    "roleOrganizacion": "منظمة",
+    "voluntarioTipo": "نوع المتطوع",
+    "voluntarioHospedaje": "متطوع إيواء",
+    "voluntarioGestion": "متطوع إدارة",
+    "voluntarioAmbos": "كلاهما"
   },
   "travelRequest": {
     "title": "طلب رحلة",
@@ -318,7 +324,11 @@
     "familia": "عائلة محددة",
     "familiaDesc": "مساعدة مباشرة لعائلة متضررة محددة.",
     "paymentSectionTitle": "طرق الدفع",
-    "contactUs": "اتصل بنا لمزيد من المعلومات"
+    "contactUs": "اتصل بنا لمزيد من المعلومات",
+    "organizacionesTitle": "المنظمات التي تساعد",
+    "organizacionesDesc": "تقبل هذه المنظمات التبرعات لمساعدة المتضررين مباشرة.",
+    "plataformaTitle": "ادعم منصة Desde Cero",
+    "plataformaDesc": "تبرعك يذهب لصيانة المنصة (الخوادم، التطوير)."
   },
   "contact": {
     "title": "مرحباً!",
@@ -375,6 +385,43 @@
     "themeToggle": "تبديل المظهر",
     "themeLight": "فاتح",
     "themeDark": "داكن",
-    "themeSystem": "النظام"
+    "themeSystem": "النظام",
+    "select": "اختيار",
+    "authRequired": "يجب تسجيل الدخول",
+    "tryAgain": "حاول مرة أخرى"
+  },
+  "familyAid": {
+    "title": "مساعدة عائلية",
+    "subtitle": "اطلب أو اعثر على مساعدة مالية للعائلات المتضررة.",
+    "formTitle": "طلب مساعدة عائلية",
+    "titleLabel": "عنوان الطلب",
+    "descriptionLabel": "وصف",
+    "storyLabel": "قصة العائلة",
+    "amountLabel": "المبلغ المطلوب (دولار)",
+    "helpTypeLabel": "نوع المساعدة",
+    "locationLabel": "الموقع",
+    "stateLabel": "الولاية",
+    "cityLabel": "المدينة",
+    "submit": "نشر الطلب",
+    "success": "تم نشر الطلب بنجاح",
+    "filters": "تصفية",
+    "all": "الكل",
+    "open": "مفتوحة",
+    "fulfilled": "مكتملة",
+    "closed": "مغلقة",
+    "contactar": "اتصال",
+    "sinResultados": "لا توجد طلبات متاحة.",
+    "sinProviders": "لا توجد منظمات مسجلة بعد.",
+    "cantidad": "المبلغ"
+  },
+  "helpTypes": {
+    "vivienda": "سكن (إيجار، دفعة أولى، إصلاحات)",
+    "salud": "صحة (أدوية، علاجات)",
+    "educacion": "تعليم (مدرسة، جامعة، مواد)",
+    "alimentacion": "غذاء",
+    "transporte": "نقل",
+    "legal": "مساعدة قانونية",
+    "psicologico": "دعم نفسي",
+    "otros": "أخرى"
   }
 }

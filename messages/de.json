@@ -18,21 +18,18 @@
     "cerrarSesion": "Abmelden",
     "ofrecerInsumos": "Hilfsgüter anbieten",
     "registroEmpresa": "Unternehmen registrieren",
-    "roleOrganizacion": "Organisation",
-    "voluntarioTipo": "Freiwilligentyp",
-    "voluntarioHospedaje": "Unterkunftsfreiwilliger",
-    "voluntarioGestion": "Verwaltungsfreiwilliger",
-    "statsVoluntarios": "Freiwillige",
-    "statsOrganizaciones": "Organisationen",
-    "ctaEmpiezo": "Von Null Starten",
-    "donarPlataforma": "Für die Plattform spenden",
-    "heroDesc": "Zivile Logistikplattform, die Freiwillige, Organisationen und Opfer verbindet, um effektive Hilfe zu koordinieren.",
-    "voluntarioAmbos": "Beides"
+    "enlaces": "Links",
+    "ayuda": "Hilfe",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Kontakt",
+    "terminosUso": "Nutzungsbedingungen",
+    "whatsapp": "WhatsApp",
+    "email": "E-Mail"
   },
   "home": {
     "title": "Desde Cero",
     "subtitle": "Erdbebenopfer mit Transporteuren und Gastgebern in Venezuela verbinden",
-    "heroDesc": "Eine Solidaritätsplattform, um betroffenen Familien zu helfen, sich mit ihren Lieben zu vereinen.",
+    "heroDesc": "Zivile Logistikplattform, die Freiwillige, Organisationen und Opfer verbindet, um effektive Hilfe zu koordinieren.",
     "ctaSolicitar": "Ich Muss Reisen",
     "ctaTransporte": "Ich Biete Transport",
     "ctaHospedaje": "Ich Biete Unterkunft",
@@ -52,7 +49,11 @@
     "paso2Desc": "Veröffentliche deine Reiseanfrage, Transport- oder Unterkunftsangebot.",
     "paso3": "Verbinde",
     "paso3Desc": "Finde Übereinstimmungen und koordiniere die Reise oder den Aufenthalt.",
-    "footer": "Gemacht mit ❤️ für Venezuela"
+    "footer": "Gemacht mit ❤️ für Venezuela",
+    "statsVoluntarios": "Freiwillige",
+    "statsOrganizaciones": "Organisationen",
+    "ctaEmpiezo": "Von Null Starten",
+    "donarPlataforma": "Für die Plattform spenden"
   },
   "auth": {
     "login": "Anmelden",
@@ -79,7 +80,12 @@
     "errorEmail": "Ungültige E-Mail",
     "errorPasswordLength": "Mindestens 6 Zeichen",
     "errorLogin": "Falsche E-Mail oder falsches Passwort",
-    "errorPasswordMatch": "Passwörter stimmen nicht überein"
+    "errorPasswordMatch": "Passwörter stimmen nicht überein",
+    "roleOrganizacion": "Organisation",
+    "voluntarioTipo": "Freiwilligentyp",
+    "voluntarioHospedaje": "Unterkunftsfreiwilliger",
+    "voluntarioGestion": "Verwaltungsfreiwilliger",
+    "voluntarioAmbos": "Beides"
   },
   "travelRequest": {
     "title": "Reise Anfragen",
@@ -318,7 +324,11 @@
     "familia": "Bestimmte Familie",
     "familiaDesc": "Direkte Hilfe für eine bestimmte betroffene Familie.",
     "paymentSectionTitle": "Zahlungsmethoden",
-    "contactUs": "Kontaktiere uns für weitere Informationen"
+    "contactUs": "Kontaktiere uns für weitere Informationen",
+    "organizacionesTitle": "Organisationen, die helfen",
+    "organizacionesDesc": "Diese Organisationen nehmen Spenden an, um Opfern direkt zu helfen.",
+    "plataformaTitle": "Unterstützen Sie die Desde Cero Plattform",
+    "plataformaDesc": "Ihre Spende fließt in die Wartung der Plattform (Server, Entwicklung)."
   },
   "contact": {
     "title": "Hallo!",
@@ -375,6 +385,43 @@
     "themeToggle": "Design wechseln",
     "themeLight": "Hell",
     "themeDark": "Dunkel",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "select": "Auswählen",
+    "authRequired": "Sie müssen angemeldet sein",
+    "tryAgain": "Versuchen Sie es erneut"
+  },
+  "familyAid": {
+    "title": "Familienhilfe",
+    "subtitle": "Beantragen oder finden Sie finanzielle Hilfe für betroffene Familien.",
+    "formTitle": "Familienhilfe beantragen",
+    "titleLabel": "Titel der Anfrage",
+    "descriptionLabel": "Beschreibung",
+    "storyLabel": "Geschichte der Familie",
+    "amountLabel": "Benötigter Betrag (USD)",
+    "helpTypeLabel": "Art der Hilfe",
+    "locationLabel": "Standort",
+    "stateLabel": "Bundesland",
+    "cityLabel": "Stadt",
+    "submit": "Anfrage veröffentlichen",
+    "success": "Anfrage erfolgreich veröffentlicht",
+    "filters": "Filter",
+    "all": "Alle",
+    "open": "Offen",
+    "fulfilled": "Erfüllt",
+    "closed": "Geschlossen",
+    "contactar": "Kontaktieren",
+    "sinResultados": "Keine Anfragen verfügbar.",
+    "sinProviders": "Keine Organisationen registriert.",
+    "cantidad": "Betrag"
+  },
+  "helpTypes": {
+    "vivienda": "Wohnung (Miete, Anzahlung, Reparaturen)",
+    "salud": "Gesundheit (Medikamente, Behandlungen)",
+    "educacion": "Bildung (Schule, Universität, Materialien)",
+    "alimentacion": "Lebensmittel",
+    "transporte": "Transport",
+    "legal": "Rechtshilfe",
+    "psicologico": "Psychologische Unterstützung",
+    "otros": "Andere"
   }
 }

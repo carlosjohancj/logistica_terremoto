@@ -22,12 +22,7 @@ export default function HomePage() {
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
 
-  const [stats, setStats] = useState([
-    { value: "-", label: t("statsViajes") },
-    { value: "-", label: t("statsTransportistas") },
-    { value: "-", label: t("statsVoluntarios") },
-    { value: "-", label: t("statsOrganizaciones") },
-  ]);
+  const [counts, setCounts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function fetchStats() {
@@ -52,22 +47,14 @@ export default function HomePage() {
               .select("*", { count: "exact", head: true })
               .eq("role", "organizacion"),
           ]);
-        setStats([
-          { value: String(travelCount.count), label: t("statsViajes") },
-          {
-            value: String(transportCount.count),
-            label: t("statsTransportistas"),
-          },
-          { value: String(volCount.count), label: t("statsVoluntarios") },
-          { value: String(orgCount.count), label: t("statsOrganizaciones") },
-        ]);
+        setCounts({
+          viajes: String(travelCount.count),
+          transportistas: String(transportCount.count),
+          voluntarios: String(volCount.count),
+          organizaciones: String(orgCount.count),
+        });
       } catch {
-        setStats([
-          { value: "0", label: t("statsViajes") },
-          { value: "0", label: t("statsTransportistas") },
-          { value: "0", label: t("statsVoluntarios") },
-          { value: "0", label: t("statsOrganizaciones") },
-        ]);
+        setCounts({ viajes: "0", transportistas: "0", voluntarios: "0", organizaciones: "0" });
       }
     }
     fetchStats();
@@ -79,9 +66,15 @@ export default function HomePage() {
     { icon: "🤝", title: t("paso3"), desc: t("paso3Desc") },
   ];
 
+  const stats = [
+    { value: counts.viajes ?? "-", label: t("statsViajes") },
+    { value: counts.transportistas ?? "-", label: t("statsTransportistas") },
+    { value: counts.voluntarios ?? "-", label: t("statsVoluntarios") },
+    { value: counts.organizaciones ?? "-", label: t("statsOrganizaciones") },
+  ];
+
   return (
     <div className="flex flex-col">
-      {/* Hero */}
       <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-stone-50 overflow-hidden px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -108,7 +101,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats */}
       <section className="py-12 bg-secondary/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -126,7 +118,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-10">
