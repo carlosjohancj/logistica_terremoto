@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { getSupabase } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
-import { Separator } from "@/components/ui/separator"
 
 const MapWithNoSSR = dynamic(
   () => import("./route-planner-map"),
@@ -210,7 +209,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
 
       {segments.length > 0 && (
         <div className="space-y-2">
-          <Separator />
+          <hr className="border-t" />
           <p className="font-medium text-sm">Tramos planificados</p>
           {segments.map((seg, i) => (
             <Card key={seg.id || i}>
