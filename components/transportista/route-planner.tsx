@@ -1,0 +1,249 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import dynamic from "next/dynamic"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { toast } from "sonner"
+import { getSupabase } from "@/lib/supabase"
+import { getCityCoord } from "@/lib/estados"
+import { Separator } from "@/components/ui/separator"
+
+const MapWithNoSSR = dynamic(
+  () => import("./route-planner-map"),
+  { ssr: false }
+)
+
+export type Segment = {
+  id?: string
+  order: number
+  origin_city: string
+  origin_state: string
+  destination_city: string
+  destination_state: string
+  distance_km: number
+  status: string
+  lat?: number
+  lng?: number
+  destLat?: number
+  destLng?: number
+}
+
+type Props = {
+  travelRequestId: string
+  originCity: string
+  originState: string
+  destCity: string
+  destState: string
+  onComplete: () => void
+}
+
+export default function RoutePlanner({ travelRequestId, originCity, originState, destCity, destState, onComplete }: Props) {
+  const [segments, setSegments] = useState<Segment[]>([])
+  const [saving, setSaving] = useState(false)
+  const [originCoord, setOriginCoord] = useState<{ lat: number; lng: number } | null>(null)
+  const [destCoord, setDestCoord] = useState<{ lat: number; lng: number } | null>(null)
+
+  useEffect(() => {
+    Promise.all([
+      getCityCoord(originState, originCity),
+      getCityCoord(destState, destCity),
+    ]).then(([o, d]) => {
+      if (o) setOriginCoord(o)
+      if (d) setDestCoord(d)
+    })
+  }, [originState, originCity, destState, destCity])
+
+  useEffect(() => {
+    loadSegments()
+  }, [travelRequestId])
+
+  async function loadSegments() {
+    const supabase = getSupabase()
+    const { data } = await supabase
+      .from("route_segments")
+      .select("*")
+      .eq("travel_request_id", travelRequestId)
+      .order("order", { ascending: true })
+
+    if (data) {
+      setSegments(data.map((s: any) => ({
+        id: s.id,
+        order: s.order,
+        origin_city: s.origin_city,
+        origin_state: s.origin_state,
+        destination_city: s.destination_city,
+        destination_state: s.destination_state,
+        distance_km: s.distance_km,
+        status: s.status,
+        lat: s.origin_lat,
+        lng: s.origin_lng,
+        destLat: s.destination_lat,
+        destLng: s.destination_lng,
+      })))
+    }
+  }
+
+  const handleMapClick = useCallback(async (lat: number, lng: number) => {
+    if (saving) return
+    setSaving(true)
+    try {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const prevSegment = segments[segments.length - 1]
+      const segOrigin = prevSegment
+        ? { city: prevSegment.destination_city, state: prevSegment.destination_state, lat: prevSegment.destLat!, lng: prevSegment.destLng! }
+        : { city: originCity, state: originState, lat: originCoord?.lat || 0, lng: originCoord?.lng || 0 }
+
+      const destName = `Punto ${segments.length + 1}`
+      const from = [segOrigin.lng, segOrigin.lat]
+      const to = [lng, lat]
+
+      const { distance } = await import("@turf/turf")
+      const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) / 10
+
+      const res = await fetch("/api/route-segments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          travel_request_id: travelRequestId,
+          origin_city: segOrigin.city,
+          origin_state: segOrigin.state,
+          destination_city: destName,
+          destination_state: destState,
+          is_full_route: false,
+        }),
+      })
+
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || "Error al crear segmento")
+
+      toast.success(`Tramo ${segments.length + 1} guardado (${distanceKm} km)`)
+      await loadSegments()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error")
+    } finally {
+      setSaving(false)
+    }
+  }, [saving, segments, travelRequestId, originCity, originState, destState, originCoord])
+
+  async function updateSegmentStatus(segmentId: string, newStatus: string) {
+    const res = await fetch(`/api/route-segments/${segmentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    })
+    if (!res.ok) {
+      const j = await res.json()
+      throw new Error(j.error || "Error")
+    }
+    await loadSegments()
+  }
+
+  async function startSegment(segmentId: string) {
+    try {
+      await updateSegmentStatus(segmentId, "in_progress")
+      toast.success("Segmento iniciado")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error")
+    }
+  }
+
+  async function completeSegment(segmentId: string) {
+    try {
+      await updateSegmentStatus(segmentId, "completed")
+      toast.success("Segmento completado")
+      const allDone = segments.every((s) => s.id === segmentId || s.status === "completed")
+      if (allDone) {
+        const remaining = segments.filter((s) => s.id !== segmentId)
+        if (remaining.every((s) => s.status === "completed")) {
+          toast.success("Ruta completada — la familia ha sido notificada")
+          onComplete()
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error")
+    }
+  }
+
+  async function completeAll() {
+    try {
+      const incomplete = segments.filter((s) => s.status !== "completed")
+      for (const s of incomplete) {
+        if (s.id) await updateSegmentStatus(s.id, s.status === "pending" ? "in_progress" : s.status)
+      }
+      for (const s of incomplete) {
+        if (s.id) await updateSegmentStatus(s.id, "completed")
+      }
+      toast.success("Ruta completada — la familia ha sido notificada")
+      onComplete()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error")
+    }
+  }
+
+  const canCompleteAll = segments.length > 0 && segments.some((s) => s.status === "in_progress" || s.status === "pending")
+
+  return (
+    <div className="space-y-4">
+      <div className="h-[400px] rounded-lg overflow-hidden border">
+        <MapWithNoSSR
+          originCoord={originCoord ? [originCoord.lat, originCoord.lng] : null}
+          destCoord={destCoord ? [destCoord.lat, destCoord.lng] : null}
+          segments={segments}
+          onClick={handleMapClick}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Haz clic en el mapa para agregar un tramo intermedio
+        </p>
+        {canCompleteAll && (
+          <Button onClick={completeAll} variant="default">
+            Finalizar ruta
+          </Button>
+        )}
+      </div>
+
+      {segments.length > 0 && (
+        <div className="space-y-2">
+          <Separator />
+          <p className="font-medium text-sm">Tramos planificados</p>
+          {segments.map((seg, i) => (
+            <Card key={seg.id || i}>
+              <CardContent className="p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">
+                    Tramo {seg.order}: {seg.origin_city} → {seg.destination_city}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{seg.distance_km} km</p>
+                </div>
+                <div className="flex gap-2">
+                  {seg.status === "pending" && (
+                    <Button size="sm" variant="outline" onClick={() => seg.id && startSegment(seg.id)}>
+                      ▶ Iniciar
+                    </Button>
+                  )}
+                  {seg.status === "in_progress" && (
+                    <Button size="sm" variant="default" onClick={() => seg.id && completeSegment(seg.id)}>
+                      ✅ Completar
+                    </Button>
+                  )}
+                  {seg.status === "completed" && (
+                    <span className="text-xs text-green-600 font-medium">Completado</span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            Total: {segments.reduce((sum, s) => sum + s.distance_km, 0).toFixed(0)} km
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}

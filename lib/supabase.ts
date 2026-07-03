@@ -45,6 +45,7 @@ export const TABLES = {
   GRAPHICS: "graphics",
   ESTADOS: "estados",
   DONATION_SETTINGS: "donation_settings",
+  ROUTE_SEGMENTS: "route_segments",
 } as const
 
 export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "organizacion" | "admin"
