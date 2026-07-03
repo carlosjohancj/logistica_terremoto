@@ -26,6 +26,7 @@ export type Segment = {
   lng?: number
   destLat?: number
   destLng?: number
+  route_geometry?: [number, number][]
 }
 
 type Props = {
@@ -35,6 +36,21 @@ type Props = {
   destCity: string
   destState: string
   onComplete: () => void
+}
+
+async function fetchOSRM(fromLng: number, fromLat: number, toLng: number, toLat: number): Promise<{ geometry: [number, number][]; distanceKm: number } | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full`
+    const res = await fetch(url)
+    const data = await res.json()
+    if (data.code !== "Ok" || !data.routes?.[0]) return null
+    const route = data.routes[0]
+    const coords: [number, number][] = route.geometry.coordinates.map((c: number[]) => [c[1], c[0]])
+    const distanceKm = Math.round(route.distance / 1000 * 10) / 10
+    return { geometry: coords, distanceKm }
+  } catch {
+    return null
+  }
 }
 
 export default function RoutePlanner({ travelRequestId, originCity, originState, destCity, destState, onComplete }: Props) {
@@ -66,20 +82,31 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       .order("order", { ascending: true })
 
     if (data) {
-      setSegments(data.map((s: any) => ({
-        id: s.id,
-        order: s.order,
-        origin_city: s.origin_city,
-        origin_state: s.origin_state,
-        destination_city: s.destination_city,
-        destination_state: s.destination_state,
-        distance_km: s.distance_km,
-        status: s.status,
-        lat: s.origin_lat,
-        lng: s.origin_lng,
-        destLat: s.destination_lat,
-        destLng: s.destination_lng,
-      })))
+      setSegments(data.map((s: any) => {
+        let geo: [number, number][] | undefined
+        if (s.route_geometry) {
+          try {
+            geo = typeof s.route_geometry === "string"
+              ? JSON.parse(s.route_geometry)
+              : s.route_geometry
+          } catch {}
+        }
+        return {
+          id: s.id,
+          order: s.order,
+          origin_city: s.origin_city,
+          origin_state: s.origin_state,
+          destination_city: s.destination_city,
+          destination_state: s.destination_state,
+          distance_km: s.distance_km,
+          status: s.status,
+          lat: s.origin_lat,
+          lng: s.origin_lng,
+          destLat: s.destination_lat,
+          destLng: s.destination_lng,
+          route_geometry: geo,
+        }
+      }))
     }
   }
 
@@ -97,11 +124,19 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
         : { city: originCity, state: originState, lat: originCoord?.lat || 0, lng: originCoord?.lng || 0 }
 
       const destName = `Punto ${segments.length + 1}`
-      const from = [segOrigin.lng, segOrigin.lat]
-      const to = [lng, lat]
+      const order = segments.length + 1
 
-      const { distance } = await import("@turf/turf")
-      const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) / 10
+      let distanceKm: number
+      let routeGeo: [number, number][] | null = null
+
+      const osrm = await fetchOSRM(segOrigin.lng, segOrigin.lat, lng, lat)
+      if (osrm) {
+        distanceKm = osrm.distanceKm
+        routeGeo = osrm.geometry
+      } else {
+        const { distance } = await import("@turf/turf")
+        distanceKm = Math.round(distance([segOrigin.lng, segOrigin.lat], [lng, lat], { units: "kilometers" }) * 10) / 10
+      }
 
       const res = await fetch("/api/route-segments", {
         method: "POST",
@@ -123,8 +158,27 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || "Error al crear segmento")
 
-      toast.success(`Tramo ${segments.length + 1} guardado (${distanceKm} km)`)
-      await loadSegments()
+      if (routeGeo) {
+        setSegments(prev => [...prev, {
+          id: json.segment?.id,
+          order,
+          origin_city: segOrigin.city,
+          origin_state: segOrigin.state,
+          destination_city: destName,
+          destination_state: destState,
+          distance_km: distanceKm,
+          status: "pending",
+          lat: segOrigin.lat,
+          lng: segOrigin.lng,
+          destLat: lat,
+          destLng: lng,
+          route_geometry: routeGeo,
+        }])
+      } else {
+        await loadSegments()
+      }
+
+      toast.success(`Tramo ${order} guardado (${distanceKm} km por carretera)`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error")
     } finally {
@@ -145,23 +199,22 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
     await loadSegments()
   }
 
-  async function startSegment(segmentId: string) {
-    try {
-      await updateSegmentStatus(segmentId, "in_progress")
-      toast.success("Segmento iniciado")
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error")
-    }
+  function handleStartSegment(segmentId?: string) {
+    if (!segmentId) return
+    updateSegmentStatus(segmentId, "in_progress")
+    toast.success("Segmento iniciado")
   }
 
-  async function completeSegment(segmentId: string) {
+  async function handleCompleteSegment(segmentId?: string) {
+    if (!segmentId) return
     try {
       await updateSegmentStatus(segmentId, "completed")
       toast.success("Segmento completado")
-      const allDone = segments.every((s) => s.id === segmentId || s.status === "completed")
-      if (allDone) {
-        const remaining = segments.filter((s) => s.id !== segmentId)
-        if (remaining.every((s) => s.status === "completed")) {
+      const seg = segments.find(s => s.id === segmentId)
+      if (seg) {
+        seg.status = "completed"
+        const allDone = segments.every(s => s.status === "completed")
+        if (allDone) {
           toast.success("Ruta completada — la familia ha sido notificada")
           onComplete()
         }
@@ -173,7 +226,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
 
   async function completeAll() {
     try {
-      const incomplete = segments.filter((s) => s.status !== "completed")
+      const incomplete = segments.filter(s => s.status !== "completed")
       for (const s of incomplete) {
         if (s.id) await updateSegmentStatus(s.id, s.status === "pending" ? "in_progress" : s.status)
       }
@@ -187,7 +240,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
     }
   }
 
-  const canCompleteAll = segments.length > 0 && segments.some((s) => s.status === "in_progress" || s.status === "pending")
+  const canCompleteAll = segments.length > 0 && segments.some(s => s.status === "in_progress" || s.status === "pending")
 
   return (
     <div className="space-y-4">
@@ -226,12 +279,12 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
                 </div>
                 <div className="flex gap-2">
                   {seg.status === "pending" && (
-                    <Button size="sm" variant="outline" onClick={() => seg.id && startSegment(seg.id)}>
+                    <Button size="sm" variant="outline" onClick={() => handleStartSegment(seg.id)}>
                       ▶ Iniciar
                     </Button>
                   )}
                   {seg.status === "in_progress" && (
-                    <Button size="sm" variant="default" onClick={() => seg.id && completeSegment(seg.id)}>
+                    <Button size="sm" variant="default" onClick={() => handleCompleteSegment(seg.id)}>
                       ✅ Completar
                     </Button>
                   )}

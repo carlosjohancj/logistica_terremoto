@@ -33,6 +33,7 @@ type SegmentDisplay = {
   status: string
   origin_city: string
   destination_city: string
+  route_geometry?: [number, number][]
 }
 
 type Props = {
@@ -51,27 +52,21 @@ function ClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void
   return null
 }
 
+function getSegmentPoints(seg: SegmentDisplay): [number, number][] | null {
+  if (seg.route_geometry && seg.route_geometry.length > 1) {
+    return seg.route_geometry
+  }
+  if (seg.lat !== undefined && seg.lng !== undefined && seg.destLat !== undefined && seg.destLng !== undefined) {
+    return [[seg.lat, seg.lng], [seg.destLat, seg.destLng]]
+  }
+  return null
+}
+
 export default function RoutePlannerMap({ originCoord, destCoord, segments, onClick }: Props) {
   const center: [number, number] = originCoord || [9.5, -66.5]
 
-  const allPositions: [number, number][] = []
-  if (originCoord) {
-    allPositions.push(originCoord)
-    segments.forEach((s) => {
-      if (s.destLat !== undefined && s.destLng !== undefined) {
-        allPositions.push([s.destLat, s.destLng])
-      }
-    })
-  }
-  if (destCoord && allPositions.length > 0) {
-    const last = allPositions[allPositions.length - 1]
-    if (last[0] !== destCoord[0] || last[1] !== destCoord[1]) {
-      allPositions.push(destCoord)
-    }
-  }
-
   return (
-    <MapContainer center={center} zoom={7} className="h-full w-full" scrollWheelZoom={true}>
+    <MapContainer center={center} zoom={8} className="h-full w-full" scrollWheelZoom={true}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -89,30 +84,22 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
       )}
 
       {segments.map((seg) => {
-        const points: [number, number][] = []
-        if (seg.lat !== undefined && seg.lng !== undefined) {
-          points.push([seg.lat, seg.lng])
-        }
-        if (seg.destLat !== undefined && seg.destLng !== undefined) {
-          points.push([seg.destLat, seg.destLng])
-        }
-        if (points.length === 2) {
-          return (
-            <Polyline
-              key={seg.order}
-              positions={points}
-              color={seg.status === "completed" ? "#6B8F71" : seg.status === "in_progress" ? "#A0845C" : "#94a3b8"}
-              weight={3}
-              opacity={0.7}
-            />
-          )
-        }
-        return null
+        const points = getSegmentPoints(seg)
+        if (!points) return null
+        return (
+          <Polyline
+            key={seg.order}
+            positions={points}
+            color={seg.status === "completed" ? "#6B8F71" : seg.status === "in_progress" ? "#A0845C" : "#94a3b8"}
+            weight={4}
+            opacity={0.85}
+          />
+        )
       })}
 
-      {originCoord && allPositions.length > 1 && (
+      {destCoord && originCoord && segments.length === 0 && (
         <Polyline
-          positions={[allPositions[0], ...(destCoord ? [destCoord] : [])]}
+          positions={[originCoord, destCoord]}
           color="#6B8F71"
           weight={2}
           opacity={0.3}
