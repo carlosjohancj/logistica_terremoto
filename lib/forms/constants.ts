@@ -9,6 +9,17 @@ export const HOUSING_DESTRUCTION_OPTIONS = [
 
 export const JOB_MODALITIES = ["presencial", "remoto", "hibrido"] as const;
 
+export const HELP_TYPES = [
+  "vivienda",
+  "salud",
+  "educacion",
+  "alimentacion",
+  "transporte",
+  "legal",
+  "psicologico",
+  "otros",
+] as const;
+
 export const AMENITY_TOGGLE_FIELDS = [
   { field: "has_furniture" as const, labelKey: "hasFurniture" },
   { field: "has_kitchen" as const, labelKey: "hasKitchen" },

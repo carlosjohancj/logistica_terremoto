@@ -43,7 +43,8 @@ export const TABLES = {
   SUPPLIES: "supplies",
   GRAPHICS: "graphics",
   ESTADOS: "estados",
-
+  SERVICE_PROVIDERS: "service_providers",
+  FAMILY_AID_REQUESTS: "family_aid_requests",
 } as const
 
 export type Role = "damnificado" | "transportista" | "anfitrion" | "donante" | "voluntario" | "organizacion" | "admin"

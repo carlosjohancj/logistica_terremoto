@@ -117,6 +117,12 @@ export default function RegisterPage() {
                 )}
               />
             </div>
+            {selectedRole === "damnificado" && (
+              <div className="space-y-2">
+                <Label htmlFor="age">Edad</Label>
+                <Input id="age" type="number" min={0} max={150} className={FIELD_CLASS} {...register("age", { valueAsNumber: true })} />
+              </div>
+            )}
             {selectedRole === "voluntario" && (
               <div className="space-y-2">
                 <Label>{t("voluntarioTipo")}</Label>

@@ -18,7 +18,14 @@
     "cerrarSesion": "Abmelden",
     "ofrecerInsumos": "Hilfsgüter anbieten",
     "registroEmpresa": "Unternehmen registrieren",
-    "ctaEmpiezo": "Von Null Starten"
+    "ctaEmpiezo": "Von Null Starten",
+    "enlaces": "Links",
+    "ayuda": "Hilfe",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Kontakt",
+    "terminosUso": "Nutzungsbedingungen",
+    "whatsapp": "WhatsApp",
+    "email": "E-Mail"
   },
   "home": {
     "title": "Desde Cero",
@@ -318,7 +325,11 @@
     "familia": "Bestimmte Familie",
     "familiaDesc": "Direkte Hilfe für eine bestimmte betroffene Familie.",
     "paymentSectionTitle": "Zahlungsmethoden",
-    "contactUs": "Kontaktiere uns für weitere Informationen"
+    "contactUs": "Kontaktiere uns für weitere Informationen",
+    "organizacionesTitle": "Organisationen, die helfen",
+    "organizacionesDesc": "Diese Organisationen nehmen Spenden an, um Opfern direkt zu helfen.",
+    "plataformaTitle": "Unterstützen Sie die Desde Cero Plattform",
+    "plataformaDesc": "Ihre Spende fließt in die Wartung der Plattform (Server, Entwicklung)."
   },
   "contact": {
     "title": "Hallo!",
@@ -375,6 +386,43 @@
     "themeToggle": "Design wechseln",
     "themeLight": "Hell",
     "themeDark": "Dunkel",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "select": "Auswählen",
+    "authRequired": "Sie müssen angemeldet sein",
+    "tryAgain": "Versuchen Sie es erneut"
+  },
+  "familyAid": {
+    "title": "Familienhilfe",
+    "subtitle": "Beantragen oder finden Sie finanzielle Hilfe für betroffene Familien.",
+    "formTitle": "Familienhilfe beantragen",
+    "titleLabel": "Titel der Anfrage",
+    "descriptionLabel": "Beschreibung",
+    "storyLabel": "Geschichte der Familie",
+    "amountLabel": "Benötigter Betrag (USD)",
+    "helpTypeLabel": "Art der Hilfe",
+    "locationLabel": "Standort",
+    "stateLabel": "Bundesland",
+    "cityLabel": "Stadt",
+    "submit": "Anfrage veröffentlichen",
+    "success": "Anfrage erfolgreich veröffentlicht",
+    "filters": "Filter",
+    "all": "Alle",
+    "open": "Offen",
+    "fulfilled": "Erfüllt",
+    "closed": "Geschlossen",
+    "contactar": "Kontaktieren",
+    "sinResultados": "Keine Anfragen verfügbar.",
+    "sinProviders": "Keine Organisationen registriert.",
+    "cantidad": "Betrag"
+  },
+  "helpTypes": {
+    "vivienda": "Wohnung (Miete, Anzahlung, Reparaturen)",
+    "salud": "Gesundheit (Medikamente, Behandlungen)",
+    "educacion": "Bildung (Schule, Universität, Materialien)",
+    "alimentacion": "Lebensmittel",
+    "transporte": "Transport",
+    "legal": "Rechtshilfe",
+    "psicologico": "Psychologische Unterstützung",
+    "otros": "Andere"
   }
 }

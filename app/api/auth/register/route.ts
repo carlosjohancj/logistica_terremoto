@@ -4,7 +4,7 @@ import { getServiceSupabase, TABLES } from "@/lib/supabase"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, password, name, role, phone, volunteerType } = body
+    const { email, password, name, role, phone, age, volunteerType } = body
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -29,6 +29,9 @@ export async function POST(request: Request) {
     }
 
     const profileData: Record<string, unknown> = { id: userId, name, role: role || "damnificado", phone }
+    if (age !== undefined) {
+      profileData.age = age
+    }
     if (volunteerType) {
       profileData.volunteer_type = volunteerType
     }

@@ -18,7 +18,14 @@
     "cerrarSesion": "Logout",
     "ofrecerInsumos": "Offer Supplies",
     "registroEmpresa": "Register Company",
-    "ctaEmpiezo": "Start From Zero"
+    "ctaEmpiezo": "Start From Zero",
+    "enlaces": "Links",
+    "ayuda": "Help",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Contact",
+    "terminosUso": "Terms of use",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
@@ -320,7 +327,11 @@
     "familia": "Specific family",
     "familiaDesc": "Direct help to a specific affected family.",
     "paymentSectionTitle": "Payment Methods",
-    "contactUs": "Contact us for more information"
+    "contactUs": "Contact us for more information",
+    "organizacionesTitle": "Organizations that help",
+    "organizacionesDesc": "These organizations accept donations to directly help victims.",
+    "plataformaTitle": "Support Desde Cero platform",
+    "plataformaDesc": "Your donation goes to platform maintenance (servers, development)."
   },
   "contact": {
     "title": "Hello!",
@@ -377,6 +388,43 @@
     "themeToggle": "Toggle theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "select": "Select",
+    "authRequired": "You must be logged in",
+    "tryAgain": "Try again"
+  },
+  "familyAid": {
+    "title": "Family Aid",
+    "subtitle": "Request or find financial aid for affected families.",
+    "formTitle": "Request Family Aid",
+    "titleLabel": "Request title",
+    "descriptionLabel": "Description",
+    "storyLabel": "Family story",
+    "amountLabel": "Amount needed (USD)",
+    "helpTypeLabel": "Help type",
+    "locationLabel": "Location",
+    "stateLabel": "State",
+    "cityLabel": "City",
+    "submit": "Publish Request",
+    "success": "Request published successfully",
+    "filters": "Filters",
+    "all": "All",
+    "open": "Open",
+    "fulfilled": "Fulfilled",
+    "closed": "Closed",
+    "contactar": "Contact",
+    "sinResultados": "No requests available.",
+    "sinProviders": "No organizations registered yet.",
+    "cantidad": "Amount"
+  },
+  "helpTypes": {
+    "vivienda": "Housing (rent, down payment, repairs)",
+    "salud": "Health (medicine, treatments)",
+    "educacion": "Education (school, university, supplies)",
+    "alimentacion": "Food",
+    "transporte": "Transportation",
+    "legal": "Legal aid",
+    "psicologico": "Psychological support",
+    "otros": "Other"
   }
 }
