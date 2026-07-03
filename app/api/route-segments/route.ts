@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase } from "@/lib/supabase-server"
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
 

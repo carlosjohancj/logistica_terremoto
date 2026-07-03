@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase } from "@/lib/supabase-server"
 
 async function checkAdmin() {
   const supabase = await getServerSupabase()
