@@ -18,6 +18,7 @@ export default function TransportistaLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -87,11 +88,11 @@ export default function TransportistaLayout({
         </nav>
         <div className="p-2 border-t">
           <Link
-            href="/perfil"
+            href={`/${locale}`}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent transition-colors"
           >
-            <span className="text-lg">👤</span>
-            <span className="hidden lg:inline">Perfil</span>
+            <span className="text-lg">🏠</span>
+            <span className="hidden lg:inline">Inicio</span>
           </Link>
         </div>
       </aside>

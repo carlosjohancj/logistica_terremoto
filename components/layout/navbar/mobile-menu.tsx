@@ -15,9 +15,10 @@ export function NavMobileMenu({
   isActive: (href: string) => boolean;
 }) {
   const t = useTranslations("nav");
+  const th = useTranslations("home");
 
   const links = [
-    { href: `/${locale}/empiezo-desde-cero`, label: t("ctaEmpiezo") },
+    { href: `/${locale}/empiezo-desde-cero`, label: th("ctaEmpiezo") },
     { href: `/${locale}/solicitar-viaje`, label: t("solicitarViaje") },
     { href: `/${locale}/ofrecer-transporte`, label: t("ofrecerTransporte") },
     { href: `/${locale}/ofrecer-hospedaje`, label: t("ofrecerHospedaje") },

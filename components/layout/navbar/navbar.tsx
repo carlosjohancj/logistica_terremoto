@@ -17,21 +17,47 @@ import { NavMobileMenu } from "./mobile-menu";
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const th = useTranslations("home");
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = getSupabase();
     supabase.auth.getSession().then(({ data }) => {
-      setIsLoggedIn(!!data.session);
+      const loggedIn = !!data.session;
+      setIsLoggedIn(loggedIn);
+      if (loggedIn) {
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.session!.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile) setUserRole((profile as any).role)
+          })
+      }
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
         setIsLoggedIn(!!session);
+        if (session) {
+          supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single()
+            .then(({ data: profile }) => {
+              if (profile) setUserRole((profile as any).role)
+              else setUserRole(null)
+            })
+        } else {
+          setUserRole(null)
+        }
       }
     );
     return () => subscription.unsubscribe();
@@ -74,7 +100,7 @@ export function Navbar() {
                 : "text-muted-foreground"
             )}
           >
-            {t("ctaEmpiezo")}
+            {th("ctaEmpiezo")}
           </Link>
           <Link
             href={`/${locale}/solicitar-viaje`}
@@ -167,6 +193,13 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
               <>
+                {userRole === "transportista" && (
+                  <Link href={`/${locale}/transportista`}>
+                    <Button variant="default" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 <Link href={`/${locale}/perfil?tab=conexiones`}>
                   <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
                     {t("matches")}

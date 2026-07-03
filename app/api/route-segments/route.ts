@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route } = body
+    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng } = body
 
     if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -20,8 +20,8 @@ export async function POST(request: Request) {
 
     const service = getServiceSupabase()
 
-    const originCoord = await getCityCoord(origin_state, origin_city)
-    const destCoord = await getCityCoord(destination_state, destination_city)
+    const originCoord = origin_lat ? { lat: origin_lat, lng: origin_lng } : await getCityCoord(origin_state, origin_city)
+    const destCoord = destination_lat ? { lat: destination_lat, lng: destination_lng } : await getCityCoord(destination_state, destination_city)
 
     if (!originCoord || !destCoord) {
       return NextResponse.json({ error: "Could not resolve coordinates for cities" }, { status: 400 })
