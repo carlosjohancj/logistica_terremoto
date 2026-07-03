@@ -40,14 +40,15 @@ type Props = {
 
 async function fetchOSRM(fromLng: number, fromLat: number, toLng: number, toLat: number): Promise<{ geometry: [number, number][]; distanceKm: number } | null> {
   try {
-    const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full`
-    const res = await fetch(url)
+    const res = await fetch("/api/osrm-route", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromLng, fromLat, toLng, toLat }),
+    })
+    if (!res.ok) return null
     const data = await res.json()
-    if (data.code !== "Ok" || !data.routes?.[0]) return null
-    const route = data.routes[0]
-    const coords: [number, number][] = route.geometry.coordinates.map((c: number[]) => [c[1], c[0]])
-    const distanceKm = Math.round(route.distance / 1000 * 10) / 10
-    return { geometry: coords, distanceKm }
+    if (data.error) return null
+    return { geometry: data.geometry, distanceKm: data.distanceKm }
   } catch {
     return null
   }
