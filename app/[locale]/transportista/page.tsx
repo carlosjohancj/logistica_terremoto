@@ -101,24 +101,19 @@ export default function TransportistaPage() {
     const pending = (matches || []).filter((m: any) => m.status === "pending" || m.status === "in_progress")
     setSolicitudesPendientes(pending.length)
 
-    const { data: segments } = await supabase
-      .from("route_segments")
-      .select("distance_km, match_id")
-      .eq("transportista_id", user.id)
+    const [segRes, timelineRes] = await Promise.all([
+      fetch(`/api/route-segments?transportista_id=${user.id}`),
+      fetch(`/api/route-segments?transportista_id=${user.id}&limit=20`),
+    ])
+    const segJson = await segRes.json()
+    const timelineJson = await timelineRes.json()
 
-    const totalKm = (segments || []).reduce((sum: number, s: any) => sum + (s.distance_km || 0), 0)
+    const totalKm = (segJson.segments || []).reduce((sum: number, s: any) => sum + (s.distance_km || 0), 0)
     setKmTotal(totalKm)
 
     const allMatchIds = [...new Set((matches || []).map((m: any) => m.id))]
 
-    const { data: segmentsWithRoute } = await supabase
-      .from("route_segments")
-      .select("id, match_id, origin_city, destination_city, status, created_at")
-      .eq("transportista_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20)
-
-    const timelineData: TimelineEntry[] = (segmentsWithRoute || []).map((s: any) => {
+    const timelineData: TimelineEntry[] = (timelineJson.segments || []).map((s: any) => {
       const match = (matches || []).find((m: any) => m.id === s.match_id)
       return {
         id: s.id,

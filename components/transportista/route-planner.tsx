@@ -75,39 +75,38 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
   }, [travelRequestId])
 
   async function loadSegments() {
-    const supabase = getSupabase()
-    const { data } = await supabase
-      .from("route_segments")
-      .select("*")
-      .eq("travel_request_id", travelRequestId)
-      .order("order", { ascending: true })
-
-    if (data) {
-      setSegments(data.map((s: any) => {
-        let geo: [number, number][] | undefined
-        if (s.route_geometry) {
-          try {
-            geo = typeof s.route_geometry === "string"
-              ? JSON.parse(s.route_geometry)
-              : s.route_geometry
-          } catch {}
-        }
-        return {
-          id: s.id,
-          order: s.order,
-          origin_city: s.origin_city,
-          origin_state: s.origin_state,
-          destination_city: s.destination_city,
-          destination_state: s.destination_state,
-          distance_km: s.distance_km,
-          status: s.status,
-          lat: s.origin_lat,
-          lng: s.origin_lng,
-          destLat: s.destination_lat,
-          destLng: s.destination_lng,
-          route_geometry: geo,
-        }
-      }))
+    try {
+      const res = await fetch(`/api/route-segments?travel_request_id=${travelRequestId}`)
+      const json = await res.json()
+      if (json.segments) {
+        setSegments(json.segments.map((s: any) => {
+          let geo: [number, number][] | undefined
+          if (s.route_geometry) {
+            try {
+              geo = typeof s.route_geometry === "string"
+                ? JSON.parse(s.route_geometry)
+                : s.route_geometry
+            } catch {}
+          }
+          return {
+            id: s.id,
+            order: s.order,
+            origin_city: s.origin_city,
+            origin_state: s.origin_state,
+            destination_city: s.destination_city,
+            destination_state: s.destination_state,
+            distance_km: s.distance_km,
+            status: s.status,
+            lat: s.origin_lat,
+            lng: s.origin_lng,
+            destLat: s.destination_lat,
+            destLng: s.destination_lng,
+            route_geometry: geo,
+          }
+        }))
+      }
+    } catch {
+      // ignore
     }
   }
 
