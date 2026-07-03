@@ -17,7 +17,14 @@
     "registrarse": "S'inscrire",
     "cerrarSesion": "Déconnexion",
     "ofrecerInsumos": "Offrir Fournitures",
-    "registroEmpresa": "Enregistrer une Entreprise"
+    "registroEmpresa": "Enregistrer une Entreprise",
+    "enlaces": "Liens",
+    "ayuda": "Aide",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Contact",
+    "terminosUso": "Conditions d'utilisation",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
@@ -317,7 +324,11 @@
     "familia": "Famille spécifique",
     "familiaDesc": "Aide directe à une famille sinistrée spécifique.",
     "paymentSectionTitle": "Moyens de paiement",
-    "contactUs": "Contactez-nous pour plus d'informations"
+    "contactUs": "Contactez-nous pour plus d'informations",
+    "organizacionesTitle": "Organisations qui aident",
+    "organizacionesDesc": "Ces organisations acceptent les dons pour aider directement les victimes.",
+    "plataformaTitle": "Soutenir la plateforme Desde Cero",
+    "plataformaDesc": "Votre don va à la maintenance de la plateforme (serveurs, développement)."
   },
   "contact": {
     "title": "Bonjour !",
@@ -374,6 +385,43 @@
     "themeToggle": "Changer de thème",
     "themeLight": "Clair",
     "themeDark": "Sombre",
-    "themeSystem": "Système"
+    "themeSystem": "Système",
+    "select": "Sélectionner",
+    "authRequired": "Vous devez être connecté",
+    "tryAgain": "Réessayez"
+  },
+  "familyAid": {
+    "title": "Aide Familiale",
+    "subtitle": "Demandez ou trouvez une aide financière pour les familles touchées.",
+    "formTitle": "Demander une Aide Familiale",
+    "titleLabel": "Titre de la demande",
+    "descriptionLabel": "Description",
+    "storyLabel": "Histoire de la famille",
+    "amountLabel": "Montant nécessaire (USD)",
+    "helpTypeLabel": "Type d'aide",
+    "locationLabel": "Emplacement",
+    "stateLabel": "État",
+    "cityLabel": "Ville",
+    "submit": "Publier la Demande",
+    "success": "Demande publiée avec succès",
+    "filters": "Filtres",
+    "all": "Toutes",
+    "open": "Ouvertes",
+    "fulfilled": "Réalisées",
+    "closed": "Fermées",
+    "contactar": "Contacter",
+    "sinResultados": "Aucune demande disponible.",
+    "sinProviders": "Aucune organisation enregistrée.",
+    "cantidad": "Montant"
+  },
+  "helpTypes": {
+    "vivienda": "Logement (loyer, acompte, réparations)",
+    "salud": "Santé (médicaments, traitements)",
+    "educacion": "Éducation (école, université, fournitures)",
+    "alimentacion": "Alimentation",
+    "transporte": "Transport",
+    "legal": "Aide juridique",
+    "psicologico": "Soutien psychologique",
+    "otros": "Autres"
   }
 }

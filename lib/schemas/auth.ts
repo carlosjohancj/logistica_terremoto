@@ -20,6 +20,7 @@ export function createRegisterSchema(msgs: AuthMessages) {
       name: z.string().min(1, msgs.errorRequired),
       email: z.string().min(1, msgs.errorRequired).email(msgs.errorEmail),
       phone: z.string().optional(),
+      age: z.coerce.number().int().min(0).max(150).optional(),
       role: z.string().optional(),
       volunteerType: z.string().optional(),
       password: z.string().min(6, msgs.errorPasswordLength),

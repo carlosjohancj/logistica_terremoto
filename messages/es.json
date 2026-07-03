@@ -17,7 +17,14 @@
     "registrarse": "Registrarse",
     "cerrarSesion": "Cerrar Sesión",
     "ofrecerInsumos": "Ofrecer Insumos",
-    "registroEmpresa": "Registrar Empresa"
+    "registroEmpresa": "Registrar Empresa",
+    "enlaces": "Enlaces",
+    "ayuda": "Ayuda",
+    "preguntasFrecuentes": "Preguntas frecuentes",
+    "contacto": "Contacto",
+    "terminosUso": "Términos de uso",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
@@ -319,7 +326,11 @@
     "familia": "Familia específica",
     "familiaDesc": "Ayuda directa a una familia damnificada específica.",
     "paymentSectionTitle": "Métodos de Pago",
-    "contactUs": "Contáctanos para más información"
+    "contactUs": "Contáctanos para más información",
+    "organizacionesTitle": "Organizaciones que ayudan",
+    "organizacionesDesc": "Estas organizaciones aceptan donaciones para ayudar directamente a los damnificados.",
+    "plataformaTitle": "Apoyar la plataforma Desde Cero",
+    "plataformaDesc": "Tu donación se destina al mantenimiento técnico de la plataforma (servidores, desarrollo)."
   },
   "contact": {
     "title": "¡Hola!",
@@ -376,6 +387,43 @@
     "themeToggle": "Cambiar tema",
     "themeLight": "Claro",
     "themeDark": "Oscuro",
-    "themeSystem": "Sistema"
+    "themeSystem": "Sistema",
+    "select": "Seleccionar",
+    "authRequired": "Debes iniciar sesión",
+    "tryAgain": "Intenta de nuevo"
+  },
+  "familyAid": {
+    "title": "Ayuda Familiar",
+    "subtitle": "Solicita o encuentra ayuda económica para familias damnificadas.",
+    "formTitle": "Solicitar Ayuda Familiar",
+    "titleLabel": "Título de la solicitud",
+    "descriptionLabel": "Descripción",
+    "storyLabel": "Historia de la familia",
+    "amountLabel": "Monto necesario (USD)",
+    "helpTypeLabel": "Tipo de ayuda",
+    "locationLabel": "Ubicación",
+    "stateLabel": "Estado",
+    "cityLabel": "Ciudad",
+    "submit": "Publicar Solicitud",
+    "success": "Solicitud publicada exitosamente",
+    "filters": "Filtros",
+    "all": "Todas",
+    "open": "Abiertas",
+    "fulfilled": "Completadas",
+    "closed": "Cerradas",
+    "contactar": "Contactar",
+    "sinResultados": "No hay solicitudes disponibles.",
+    "sinProviders": "No hay organizaciones registradas aún.",
+    "cantidad": "Cantidad"
+  },
+  "helpTypes": {
+    "vivienda": "Vivienda (alquiler, inicial, reparaciones)",
+    "salud": "Salud (medicinas, tratamientos)",
+    "educacion": "Educación (colegio, universidad, materiales)",
+    "alimentacion": "Alimentación",
+    "transporte": "Transporte",
+    "legal": "Asistencia legal",
+    "psicologico": "Apoyo psicológico",
+    "otros": "Otros"
   }
 }

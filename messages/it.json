@@ -17,7 +17,14 @@
     "registrarse": "Registrati",
     "cerrarSesion": "Esci",
     "ofrecerInsumos": "Offrire Forniture",
-    "registroEmpresa": "Registra Azienda"
+    "registroEmpresa": "Registra Azienda",
+    "enlaces": "Link",
+    "ayuda": "Aiuto",
+    "preguntasFrecuentes": "FAQ",
+    "contacto": "Contatto",
+    "terminosUso": "Termini d'uso",
+    "whatsapp": "WhatsApp",
+    "email": "Email"
   },
   "home": {
     "title": "Desde Cero",
@@ -317,7 +324,11 @@
     "familia": "Famiglia specifica",
     "familiaDesc": "Aiuto diretto a una famiglia sinistrata specifica.",
     "paymentSectionTitle": "Metodi di pagamento",
-    "contactUs": "Contattaci per maggiori informazioni"
+    "contactUs": "Contattaci per maggiori informazioni",
+    "organizacionesTitle": "Organizzazioni che aiutano",
+    "organizacionesDesc": "Queste organizzazioni accettano donazioni per aiutare direttamente le vittime.",
+    "plataformaTitle": "Supporta la piattaforma Desde Cero",
+    "plataformaDesc": "La tua donazione va alla manutenzione della piattaforma (server, sviluppo)."
   },
   "contact": {
     "title": "Ciao!",
@@ -374,6 +385,43 @@
     "themeToggle": "Cambia tema",
     "themeLight": "Chiaro",
     "themeDark": "Scuro",
-    "themeSystem": "Sistema"
+    "themeSystem": "Sistema",
+    "select": "Selezionare",
+    "authRequired": "Devi accedere",
+    "tryAgain": "Riprova"
+  },
+  "familyAid": {
+    "title": "Aiuto Familiare",
+    "subtitle": "Richiedi o trova aiuto economico per le famiglie colpite.",
+    "formTitle": "Richiedi Aiuto Familiare",
+    "titleLabel": "Titolo della richiesta",
+    "descriptionLabel": "Descrizione",
+    "storyLabel": "Storia della famiglia",
+    "amountLabel": "Importo necessario (USD)",
+    "helpTypeLabel": "Tipo di aiuto",
+    "locationLabel": "Posizione",
+    "stateLabel": "Stato",
+    "cityLabel": "Città",
+    "submit": "Pubblica Richiesta",
+    "success": "Richiesta pubblicata con successo",
+    "filters": "Filtri",
+    "all": "Tutte",
+    "open": "Aperte",
+    "fulfilled": "Completate",
+    "closed": "Chiuse",
+    "contactar": "Contattare",
+    "sinResultados": "Nessuna richiesta disponibile.",
+    "sinProviders": "Nessuna organizzazione registrata.",
+    "cantidad": "Importo"
+  },
+  "helpTypes": {
+    "vivienda": "Alloggio (affitto, acconto, riparazioni)",
+    "salud": "Salute (farmaci, trattamenti)",
+    "educacion": "Istruzione (scuola, università, materiali)",
+    "alimentacion": "Alimentazione",
+    "transporte": "Trasporto",
+    "legal": "Assistenza legale",
+    "psicologico": "Supporto psicologico",
+    "otros": "Altri"
   }
 }
