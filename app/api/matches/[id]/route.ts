@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

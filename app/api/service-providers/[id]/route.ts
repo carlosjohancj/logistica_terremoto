@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 
 async function checkAdmin() {
-  const supabase = getSupabase()
+  const supabase = await getServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   const { data: profile } = await supabase.from(TABLES.PROFILES).select("role").eq("id", user.id).single()

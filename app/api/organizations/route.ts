@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 
 export async function POST(request: Request) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Organization name is required" }, { status: 400 })
     }
 
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 
 export async function GET(request: Request) {
   try {
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

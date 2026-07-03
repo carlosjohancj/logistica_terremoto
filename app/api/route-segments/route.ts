@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
 
 export async function POST(request: Request) {
   try {
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
