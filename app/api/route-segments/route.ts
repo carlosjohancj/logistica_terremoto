@@ -1,18 +1,80 @@
 import { NextResponse } from "next/server"
-import { getSupabase, getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServerSupabase } from "@/lib/supabase-server"
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
 
+function sortSegments(data: any[], column: string, dir: "asc" | "desc") {
+  const sorted = [...data].sort((a, b) => {
+    const va = a[column] ?? 0
+    const vb = b[column] ?? 0
+    if (typeof va === "string" && typeof vb === "string") {
+      return dir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va)
+    }
+    return dir === "asc" ? Number(va) - Number(vb) : Number(vb) - Number(va)
+  })
+  return sorted
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const travelRequestId = searchParams.get("travel_request_id")
+    const transportistaId = searchParams.get("transportista_id")
+    const travelRequestIds = searchParams.get("travel_request_ids")
+    const limitParam = searchParams.get("limit")
+    const includeProfile = searchParams.get("include_profile") === "true"
+
+    const service = getServiceSupabase()
+
+    const selectCols = includeProfile
+      ? "*, profiles:transportista_id(name, phone)"
+      : "*"
+
+    let query = service.from("route_segments").select(selectCols)
+
+    if (travelRequestId) {
+      query = query.eq("travel_request_id", travelRequestId)
+    }
+    if (transportistaId) {
+      query = query.eq("transportista_id", transportistaId)
+    }
+    if (travelRequestIds) {
+      const ids = travelRequestIds.split(",").map(s => s.trim())
+      query = query.in("travel_request_id", ids)
+    }
+
+    const { data, error } = await query as never as { data: any[] | null; error: any }
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    let segments = data ?? []
+
+    segments = sortSegments(segments, "order", "asc")
+
+    const limit = limitParam ? parseInt(limitParam, 10) : 0
+    if (limit > 0) {
+      segments = segments.slice(0, limit)
+    }
+
+    return NextResponse.json({ segments })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
 export async function POST(request: Request) {
   try {
-    const supabase = getSupabase()
+    const supabase = await getServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route } = body
+    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry } = body
 
     if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -20,8 +82,8 @@ export async function POST(request: Request) {
 
     const service = getServiceSupabase()
 
-    const originCoord = await getCityCoord(origin_state, origin_city)
-    const destCoord = await getCityCoord(destination_state, destination_city)
+    const originCoord = origin_lat ? { lat: origin_lat, lng: origin_lng } : await getCityCoord(origin_state, origin_city)
+    const destCoord = destination_lat ? { lat: destination_lat, lng: destination_lng } : await getCityCoord(destination_state, destination_city)
 
     if (!originCoord || !destCoord) {
       return NextResponse.json({ error: "Could not resolve coordinates for cities" }, { status: 400 })
@@ -34,10 +96,10 @@ export async function POST(request: Request) {
     const { data: existingSegments } = await service
       .from("route_segments")
       .select("id, \"order\"")
-      .eq("travel_request_id", travel_request_id)
-      .order("order", { ascending: false }) as never as { data: { id: string; order: number }[] | null }
+      .eq("travel_request_id", travel_request_id) as never as { data: { id: string; order: number }[] | null }
 
-    const nextOrder = (existingSegments?.[0]?.order ?? 0) + 1
+    const sorted = sortSegments(existingSegments ?? [], "order", "desc")
+    const nextOrder = (sorted[0]?.order ?? 0) + 1
 
     const { data: travelReq } = await service
       .from(TABLES.TRAVEL_REQUESTS)
@@ -90,6 +152,7 @@ export async function POST(request: Request) {
         order: nextOrder,
         is_full_route: !!is_full_route,
         status: allCovered ? "confirmed" : "pending",
+        route_geometry: route_geometry || null,
       } as never)
       .select()
       .single()

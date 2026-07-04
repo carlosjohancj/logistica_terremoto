@@ -25,17 +25,29 @@ function getInitials(name: string) {
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const th = useTranslations("home");
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = getSupabase();
     supabase.auth.getSession().then(({ data }) => {
-      setIsLoggedIn(!!data.session);
-      setUserName((data.session?.user.user_metadata?.name as string) || "");
+      const loggedIn = !!data.session;
+      setIsLoggedIn(loggedIn);
+      if (loggedIn) {
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.session!.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile) setUserRole((profile as any).role);
+          });
+      }
     });
     const {
       data: { subscription },
@@ -43,7 +55,20 @@ export function Navbar() {
       (_event: AuthChangeEvent, session: Session | null) => {
         setIsLoggedIn(!!session);
         setUserName((session?.user.user_metadata?.name as string) || "");
-      }
+        if (session) {
+          supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single()
+            .then(({ data: profile }) => {
+              if (profile) setUserRole((profile as any).role);
+              else setUserRole(null);
+            });
+        } else {
+          setUserRole(null);
+        }
+      },
     );
     return () => subscription.unsubscribe();
   }, []);
@@ -73,28 +98,32 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href={`/${locale}`} className="flex items-center shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/only-logo.png" alt="Desde Cero" className="h-12 w-auto" />
+          <img
+            src="https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/only-logo.png"
+            alt="Desde Cero"
+            className="h-12 w-auto"
+          />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-3 xl:gap-6 shrink-0">
           <Link
             href={`/${locale}/empiezo-desde-cero`}
             className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
+              "whitespace-nowrap text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/empiezo-desde-cero`)
                 ? "text-primary"
-                : "text-muted-foreground"
+                : "text-muted-foreground",
             )}
           >
-            {t("ctaEmpiezo")}
+            {th("ctaEmpiezo")}
           </Link>
           <Link
             href={`/${locale}/solicitar-viaje`}
             className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
+              "whitespace-nowrap text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/solicitar-viaje`)
                 ? "text-primary"
-                : "text-muted-foreground"
+                : "text-muted-foreground",
             )}
           >
             {t("solicitarViaje")}
@@ -131,10 +160,10 @@ export function Navbar() {
           <Link
             href={`/${locale}/donar`}
             className={cn(
-              "text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
+              "whitespace-nowrap text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
               isActive(`/${locale}/donar`)
                 ? "text-primary"
-                : "text-muted-foreground"
+                : "text-muted-foreground",
             )}
           >
             {t("donar")}
@@ -181,25 +210,49 @@ export function Navbar() {
           </NavDropdown>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <ThemeToggle />
           <LanguageSwitcher />
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             {isLoggedIn ? (
-              <Link href={`/${locale}/perfil`} aria-label={t("perfil")} title={t("perfil")}>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold uppercase text-primary-foreground">
-                  {getInitials(userName)}
-                </span>
-              </Link>
+              <>
+                {userRole === "transportista" && (
+                  <Link href={`/${locale}/transportista`}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="rounded-full text-xs font-semibold tracking-wide uppercase"
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
+                <Link
+                  href={`/${locale}/perfil`}
+                  aria-label={t("perfil")}
+                  title={t("perfil")}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold uppercase text-primary-foreground">
+                    {getInitials(userName)}
+                  </span>
+                </Link>
+              </>
             ) : (
               <>
                 <Link href={`/${locale}/auth/login`}>
-                  <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full text-xs font-semibold tracking-wide uppercase"
+                  >
                     {t("iniciarSesion")}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/auth/register`}>
-                  <Button size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase px-5">
+                  <Button
+                    size="sm"
+                    className="rounded-full text-xs font-semibold tracking-wide uppercase px-5"
+                  >
                     {t("registrarse")}
                   </Button>
                 </Link>
@@ -207,7 +260,7 @@ export function Navbar() {
             )}
           </div>
           <button
-            className="md:hidden p-2"
+            className="lg:hidden p-2"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -220,13 +273,13 @@ export function Navbar() {
         </div>
       </div>
 
-      {menuOpen && (
-        <NavMobileMenu
-          locale={locale}
-          isLoggedIn={isLoggedIn}
-          isActive={isActive}
-        />
-      )}
+      <NavMobileMenu
+        locale={locale}
+        isLoggedIn={isLoggedIn}
+        isActive={isActive}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+      />
     </header>
   );
 }

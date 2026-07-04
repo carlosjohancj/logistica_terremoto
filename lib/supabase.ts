@@ -43,6 +43,8 @@ export const TABLES = {
   SUPPLIES: "supplies",
   GRAPHICS: "graphics",
   ESTADOS: "estados",
+  DONATION_SETTINGS: "donation_settings",
+  ROUTE_SEGMENTS: "route_segments",
   SERVICE_PROVIDERS: "service_providers",
   FAMILY_AID_REQUESTS: "family_aid_requests",
 } as const

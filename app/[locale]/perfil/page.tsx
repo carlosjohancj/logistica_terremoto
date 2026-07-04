@@ -225,23 +225,20 @@ export default function PerfilPage() {
     profiles?: { name: string; phone: string }
   }
 
-  async function loadAyudaData(myReqs: TravelRequest[], supabase: ReturnType<typeof getSupabase>) {
+  async function loadAyudaData(myReqs: TravelRequest[], sb: ReturnType<typeof getSupabase>) {
     if (myReqs.length === 0) return
     const reqIds = myReqs.map((r) => r.id)
     const [matchResult, segmentResult] = await Promise.all([
-      supabase
+      sb
         .from("matches")
         .select("*, profiles:user_id(name, phone)")
         .in("travel_request_id", reqIds) as never as { data: Match[] | null },
-      supabase
-        .from("route_segments")
-        .select("*, profiles:transportista_id(name, phone)")
-        .in("travel_request_id", reqIds)
-        .order("order", { ascending: true }) as never as { data: Segment[] | null },
+      fetch(`/api/route-segments?travel_request_ids=${reqIds.join(",")}&include_profile=true`),
     ])
 
     const matchData = matchResult.data
-    const segmentData = segmentResult.data
+    const segJson = await segmentResult.json()
+    const segmentData = segJson.segments as Segment[]
 
     if (!matchData || matchData.length === 0) return
 

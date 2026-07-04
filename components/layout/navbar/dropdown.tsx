@@ -16,7 +16,7 @@ export function NavDropdown({
     <div className="relative group">
       <button
         className={cn(
-          "flex items-center gap-1 text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
+          "flex items-center gap-1 whitespace-nowrap text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
           active ? "text-primary" : "text-muted-foreground"
         )}
       >

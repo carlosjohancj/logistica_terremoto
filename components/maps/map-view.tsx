@@ -73,6 +73,8 @@ const destIcons: Record<string, L.DivIcon> = {
   housing: createDestIcon(destColors.housing),
 }
 
+const tileUrl = process.env.NEXT_PUBLIC_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
 export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps) {
   return (
     <div className="relative isolate z-0 h-full w-full rounded-lg overflow-hidden border">
@@ -84,7 +86,7 @@ export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url={tileUrl}
         />
         {items.map((item) => (
           <div key={item.id}>
