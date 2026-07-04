@@ -5,14 +5,6 @@ import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -22,24 +14,21 @@ import {
 } from "@/components/ui/select"
 import { getSupabase, TABLES } from "@/lib/supabase"
 import { toast } from "sonner"
-import { Search, Building2, MapPin, Briefcase } from "lucide-react"
+import { Search } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { useEstados } from "@/lib/estados"
+import { JobCard, type Job } from "@/components/jobs/job-card"
+import { FIELD_CLASS, SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
-type Job = {
-  id: string
-  title: string
-  company?: { name: string } | null
-  description: string
-  requirements: string
-  location_state: string
-  location_city: string
-  modality: string
-  salary_range: string
-  contact_email: string
-  status: string
-  created: string
-}
+const PAGE_SIZE = 15
 
 export default function EmpleosPage() {
   const t = useTranslations("jobs")
@@ -50,6 +39,7 @@ export default function EmpleosPage() {
   const [search, setSearch] = useState("")
   const [filterState, setFilterState] = useState("")
   const [filterModality, setFilterModality] = useState("")
+  const [page, setPage] = useState(1)
   const { estados, loading: estadosLoading } = useEstados()
 
   useEffect(() => {
@@ -82,6 +72,14 @@ export default function EmpleosPage() {
     return true
   })
 
+  useEffect(() => {
+    setPage(1)
+  }, [search, filterState, filterModality])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -101,11 +99,11 @@ export default function EmpleosPage() {
             placeholder={t("search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className={`${FIELD_CLASS} pl-9`}
           />
         </div>
         <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-          <SelectTrigger className="w-full sm:w-44">
+          <SelectTrigger className={`${SELECT_TRIGGER_CLASS} sm:w-44`}>
             <SelectValue placeholder={t("filterState")} />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +118,7 @@ export default function EmpleosPage() {
           </SelectContent>
         </Select>
         <Select value={filterModality} onValueChange={(v) => setFilterModality(v ?? "")}>
-          <SelectTrigger className="w-full sm:w-40">
+          <SelectTrigger className={`${SELECT_TRIGGER_CLASS} sm:w-40`}>
             <SelectValue placeholder={t("filterModality")} />
           </SelectTrigger>
           <SelectContent>
@@ -137,40 +135,57 @@ export default function EmpleosPage() {
         <p className="text-center text-muted-foreground">{t("noResults")}</p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((job) => (
-          <Link key={job.id} href={`/empleos/${job.id}`}>
-            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base">{job.title}</CardTitle>
-                  <Badge variant="outline" className="shrink-0">
-                    {job.modality}
-                  </Badge>
-                </div>
-                <CardDescription className="flex items-center gap-1 mt-1">
-                  <Building2 className="h-3 w-3" />
-                  {job.company?.name || "Empresa"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {job.location_city}, {job.location_state}
-                  </span>
-                  {job.salary_range && (
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="h-3 w-3" />
-                      {job.salary_range}
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {paginated.map((job, index) => (
+          <JobCard key={job.id} job={job} index={index} />
         ))}
       </div>
+
+      {!loading && totalPages > 1 && (
+        <Pagination className="mt-10">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                className="rounded-full"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.max(1, p - 1))
+                }}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <PaginationItem key={n}>
+                <PaginationLink
+                  href="#"
+                  isActive={n === currentPage}
+                  className={
+                    n === currentPage
+                      ? "rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "rounded-full"
+                  }
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setPage(n)
+                  }}
+                >
+                  {n}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                className="rounded-full"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.min(totalPages, p + 1))
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   )
 }

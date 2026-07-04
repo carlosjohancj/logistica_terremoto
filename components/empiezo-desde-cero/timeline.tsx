@@ -205,8 +205,8 @@ export function Timeline() {
                 className={cn(
                   "text-sm font-medium px-4 leading-tight",
                   isActive
-                    ? "text-foreground"
-                    : "text-gray-400 group-hover:text-foreground",
+                    ? "text-gray-900"
+                    : "text-gray-400 group-hover:text-gray-900",
                 )}
               >
                 {step.title}

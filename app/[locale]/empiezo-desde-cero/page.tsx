@@ -142,20 +142,22 @@ export default function EmpiezoDesdeCeroPage() {
         </div>
       </section>
 
-      <section className="py-12 bg-primary/5">
-        <div className="container mx-auto px-4 text-center">
-          <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary" />
-          <h2 className="text-xl font-bold mb-3">¿Necesitas ayuda personalizada?</h2>
-          <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto">
-            Nuestro asistente con IA te guiará en el proceso de registro, evaluará tus necesidades y te conectará con los recursos disponibles.
-          </p>
-          <Link href={`/${locale}/empiezo-desde-cero/asistencia`}>
-            <Button size="lg" className="rounded-full gap-2 px-8">
-              <Bot className="h-4 w-4" />
-              Ir a Asistencia IA
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+      <section className="py-12 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-lg mx-auto rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+            <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary" />
+            <h2 className="text-xl font-bold mb-3">¿Necesitas ayuda personalizada?</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Nuestro asistente con IA te guiará en el proceso de registro, evaluará tus necesidades y te conectará con los recursos disponibles.
+            </p>
+            <Link href={`/${locale}/empiezo-desde-cero/asistencia`}>
+              <Button size="lg" className="rounded-full gap-3 px-10 h-14 text-base">
+                <Bot className="h-5 w-5" />
+                Ir a Asistencia IA
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

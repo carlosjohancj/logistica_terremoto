@@ -1,8 +1,15 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { createPortal } from "react-dom"
-import { ChevronDown, ChevronUp, MapPin, Home } from "lucide-react"
+import { ChevronRight, MapPin, Home } from "lucide-react"
+import { getStateFlagUrl } from "@/lib/state-flags"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 type HousingOffer = {
   id: string
@@ -24,126 +31,91 @@ type StateCardProps = {
 }
 
 export function StateCard({ name, capital, cities, housingByCity, onOpenChange }: StateCardProps) {
-  const [open, setOpen] = useState(false)
-  const [panelRect, setPanelRect] = useState<{ top: number; left: number; width: number } | null>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  function close() {
-    setOpen(false)
-    onOpenChange?.(false)
-  }
-
-  function toggle() {
-    if (open) {
-      close()
-      return
-    }
-    const rect = buttonRef.current?.getBoundingClientRect()
-    if (rect) {
-      setPanelRect({ top: rect.bottom + 4, left: rect.left, width: rect.width })
-    }
-    setOpen(true)
-    onOpenChange?.(true)
-  }
-
-  // Floating panel doesn't reposition on scroll, so close it instead of
-  // letting it drift away from the button that opened it.
-  useEffect(() => {
-    if (!open) return
-
-    function handleScroll(e: Event) {
-      if (e.target instanceof Node && panelRef.current?.contains(e.target)) return
-      close()
-    }
-
-    function handleResize() {
-      close()
-    }
-
-    function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node
-      if (buttonRef.current?.contains(target) || panelRef.current?.contains(target)) return
-      close()
-    }
-
-    window.addEventListener("scroll", handleScroll, true)
-    window.addEventListener("resize", handleResize)
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      window.removeEventListener("scroll", handleScroll, true)
-      window.removeEventListener("resize", handleResize)
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  const flagUrl = getStateFlagUrl(name)
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden bg-card transition-all hover:shadow-md">
-      <button
-        ref={buttonRef}
-        onClick={toggle}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+    <Dialog onOpenChange={onOpenChange}>
+      <DialogTrigger
+        render={
+          <button className="w-full flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-md" />
+        }
       >
-        <div>
-          <h3 className="font-semibold text-base">{name}</h3>
-          <p className="text-xs text-muted-foreground">Capital: {capital}</p>
+        <div className="flex min-w-0 items-center gap-3">
+          {flagUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={flagUrl}
+              alt={`Bandera de ${name}`}
+              className="h-6 w-9 shrink-0 rounded-sm border border-border object-cover"
+            />
+          )}
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold text-base">{name}</h3>
+            <p className="truncate text-xs text-muted-foreground">Capital: {capital}</p>
+          </div>
         </div>
-        {open ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-        )}
-      </button>
+        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+      </DialogTrigger>
 
-      {open && panelRect && typeof document !== "undefined" &&
-        createPortal(
-          <div
-            ref={panelRef}
-            className="fixed z-50 space-y-2 rounded-xl border border-border bg-popover px-4 py-3 shadow-lg max-h-72 overflow-y-auto"
-            style={{ top: panelRect.top, left: panelRect.left, width: panelRect.width }}
-          >
-            {cities.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Sin ciudades registradas</p>
-            ) : (
-              cities.map((city) => {
-                const housings = housingByCity[city] || []
-                return (
-                  <div key={city} className="flex items-start gap-2">
-                    <MapPin className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{city}</p>
-                      {housings.length > 0 && (
-                        <div className="mt-1 space-y-1">
-                          {housings.map((h) => (
-                            <div
-                              key={h.id}
-                              className="flex items-start gap-1.5 text-xs text-muted-foreground bg-background rounded p-1.5 border"
-                            >
-                              <Home className="h-3 w-3 mt-0.5 shrink-0" />
-                              <div>
-                                <p>
-                                  {h.city} — Capacidad: {h.capacity} pers.
-                                </p>
-                                {h.notes && (
-                                  <p className="italic">{h.notes}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {housings.length === 0 && (
-                        <p className="text-xs text-muted-foreground">Sin alojamientos registrados</p>
-                      )}
-                    </div>
-                  </div>
-                )
-              })
+      <DialogContent className="p-6 sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center gap-4">
+            {flagUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={flagUrl}
+                alt={`Bandera de ${name}`}
+                className="h-10 w-16 shrink-0 rounded-sm border border-border object-cover"
+              />
             )}
-          </div>,
-          document.body
-        )}
-    </div>
+            <div>
+              <DialogTitle className="text-xl">{name}</DialogTitle>
+              <DialogDescription className="text-base">Capital: {capital}</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="max-h-96 space-y-4 overflow-y-auto py-1">
+          {cities.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Sin ciudades registradas</p>
+          ) : (
+            cities.map((city) => {
+              const housings = housingByCity[city] || []
+              return (
+                <div key={city} className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 mt-1 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-medium">{city}</p>
+                    {housings.length > 0 && (
+                      <div className="mt-2 space-y-2">
+                        {housings.map((h) => (
+                          <div
+                            key={h.id}
+                            className="flex items-start gap-2 text-sm text-muted-foreground bg-background rounded-lg p-3 border"
+                          >
+                            <Home className="h-4 w-4 mt-0.5 shrink-0" />
+                            <div>
+                              <p>
+                                {h.city} — Capacidad: {h.capacity} pers.
+                              </p>
+                              {h.notes && (
+                                <p className="italic">{h.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {housings.length === 0 && (
+                      <p className="text-sm text-muted-foreground">Sin alojamientos registrados</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

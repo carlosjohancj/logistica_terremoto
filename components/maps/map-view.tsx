@@ -75,7 +75,7 @@ const destIcons: Record<string, L.DivIcon> = {
 
 export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps) {
   return (
-    <div className="h-full w-full rounded-lg overflow-hidden border">
+    <div className="relative isolate z-0 h-full w-full rounded-lg overflow-hidden border">
       <MapContainer
         center={center}
         zoom={zoom}
