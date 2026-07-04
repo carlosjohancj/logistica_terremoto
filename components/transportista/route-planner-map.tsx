@@ -86,13 +86,18 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
       {segments.map((seg) => {
         const points = getSegmentPoints(seg)
         if (!points) return null
+        const isCompleted = seg.status === "completed"
         return (
           <Polyline
             key={seg.order}
             positions={points}
-            color={seg.status === "completed" ? "#6B8F71" : seg.status === "in_progress" ? "#A0845C" : "#94a3b8"}
-            weight={4}
-            opacity={0.85}
+            pathOptions={{
+              color: isCompleted ? "#10B981" : "#3B82F6",
+              weight: isCompleted ? 5 : 6,
+              opacity: isCompleted ? 0.7 : 0.85,
+              lineCap: "round",
+              lineJoin: "round",
+            }}
           />
         )
       })}

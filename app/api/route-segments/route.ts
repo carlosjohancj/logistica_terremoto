@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng } = body
+    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry } = body
 
     if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -152,6 +152,7 @@ export async function POST(request: Request) {
         order: nextOrder,
         is_full_route: !!is_full_route,
         status: allCovered ? "confirmed" : "pending",
+        route_geometry: route_geometry || null,
       } as never)
       .select()
       .single()

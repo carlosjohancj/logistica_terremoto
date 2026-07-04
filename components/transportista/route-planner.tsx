@@ -152,6 +152,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
           destination_lat: lat,
           destination_lng: lng,
           is_full_route: false,
+          route_geometry: routeGeo,
         }),
       })
 
