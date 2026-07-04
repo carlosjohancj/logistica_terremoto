@@ -15,26 +15,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing coordinates" }, { status: 400 })
     }
 
-    const osrmUrl = process.env.OSRM_URL || "https://router.project-osrm.org"
-    const url = `${osrmUrl}/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full`
+    const valhallaUrl = process.env.VALHALLA_URL || "http://valhalla:8002"
 
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
+    const body = {
+      locations: [
+        { lat: fromLat, lon: fromLng, type: "break" },
+        { lat: toLat, lon: toLng, type: "break" },
+      ],
+      costing: "auto",
+      directions_options: { units: "kilometers" },
+      format: "geojson",
+    }
+
+    const res = await fetch(`${valhallaUrl}/route`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
     })
 
     if (!res.ok) {
-      return NextResponse.json({ error: "OSRM request failed" }, { status: 502 })
+      return NextResponse.json({ error: "Valhalla request failed" }, { status: 502 })
     }
 
     const data = await res.json()
 
-    if (data.code !== "Ok" || !data.routes?.[0]) {
-      return NextResponse.json({ error: "OSRM returned no route" }, { status: 502 })
+    const feature = data.features?.[0]
+    if (!feature?.geometry?.coordinates) {
+      return NextResponse.json({ error: "Valhalla returned no route" }, { status: 502 })
     }
 
-    const route = data.routes[0]
-    const geometry: [number, number][] = route.geometry.coordinates.map((c: number[]) => [c[1], c[0]])
-    const distanceKm = Math.round((route.distance / 1000) * 10) / 10
+    const geometry: [number, number][] = feature.geometry.coordinates.map(
+      (c: number[]) => [c[0], c[1]]
+    )
+
+    const distanceKm = Math.round((feature.properties?.summary?.length || 0) * 10) / 10
 
     return NextResponse.json({ geometry, distanceKm })
   } catch (err) {
