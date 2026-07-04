@@ -15,23 +15,34 @@ import { NavDropdown } from "./dropdown";
 import { DropdownLink } from "./dropdown-link";
 import { NavMobileMenu } from "./mobile-menu";
 
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const first = parts[0][0];
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
 export function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "es";
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const supabase = getSupabase();
     supabase.auth.getSession().then(({ data }) => {
       setIsLoggedIn(!!data.session);
+      setUserName((data.session?.user.user_metadata?.name as string) || "");
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
         setIsLoggedIn(!!session);
+        setUserName((session?.user.user_metadata?.name as string) || "");
       }
     );
     return () => subscription.unsubscribe();
@@ -54,6 +65,7 @@ export function Navbar() {
     `/${locale}/empleos`,
     `/${locale}/recursos`,
     `/${locale}/sobre-nosotros`,
+    ...(isLoggedIn ? [`/${locale}/perfil`] : []),
   ];
 
   return (
@@ -128,6 +140,14 @@ export function Navbar() {
             {t("donar")}
           </Link>
           <NavDropdown label="Más" active={masPaths.some(isActive)}>
+            {isLoggedIn && (
+              <DropdownLink
+                href={`/${locale}/perfil?tab=conexiones`}
+                active={isActive(`/${locale}/perfil`)}
+              >
+                {t("matches")}
+              </DropdownLink>
+            )}
             <DropdownLink
               href={`/${locale}/explorar`}
               active={isActive(`/${locale}/explorar`)}
@@ -166,18 +186,11 @@ export function Navbar() {
           <LanguageSwitcher />
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
-              <>
-                <Link href={`/${locale}/perfil?tab=conexiones`}>
-                  <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase">
-                    {t("matches")}
-                  </Button>
-                </Link>
-                <Link href={`/${locale}/perfil`}>
-                  <Button variant="outline" size="sm" className="rounded-full text-xs font-semibold tracking-wide uppercase px-5">
-                    {t("perfil")}
-                  </Button>
-                </Link>
-              </>
+              <Link href={`/${locale}/perfil`} aria-label={t("perfil")} title={t("perfil")}>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold uppercase text-primary-foreground">
+                  {getInitials(userName)}
+                </span>
+              </Link>
             ) : (
               <>
                 <Link href={`/${locale}/auth/login`}>
