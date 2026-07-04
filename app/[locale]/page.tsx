@@ -4,18 +4,62 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { StatCard } from "@/components/ui/stat-card";
+import { StepCard } from "@/components/ui/step-card";
+import { ImageTextCarousel, type ImageTextCarouselItem } from "@/components/shared/image-text-carousel";
+import { BrandBannerStack, BannerHighlight, type BrandBannerItem } from "@/components/shared/brand-banner-stack";
 import { getSupabase, TABLES } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 
 const LOGO_URL =
   "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/desde-cero.webp";
+
+const impactSlides: ImageTextCarouselItem[] = [
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/logistic.webp",
+    label: "Logística civil",
+  },
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/effective-help.webp",
+    label: "Ayuda efectiva",
+  },
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/rebuild.webp",
+    label: "Reconstrucción",
+  },
+];
+
+const brandBanners: BrandBannerItem[] = [
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/volunteer.webp",
+    title: "Conecta voluntarios",
+    subtitle: (
+      <>
+        Únete a una red de personas que quiere <BannerHighlight>hacer la diferencia.</BannerHighlight>
+      </>
+    ),
+  },
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/volunteer2.webp",
+    title: "Coordina ayuda efectiva",
+    subtitle: (
+      <>
+        Organizaciones y voluntarios trabajando juntos para que la ayuda llegue{" "}
+        <BannerHighlight>donde más se necesita.</BannerHighlight>
+      </>
+    ),
+  },
+  {
+    image: "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/backgrounds/desde-0.webp",
+    title: "Apoya a quienes lo necesitan",
+    subtitle: (
+      <>
+        Si necesitas <BannerHighlight>ayuda o quieres</BannerHighlight> donar, aquí comienza el cambio{" "}
+        <BannerHighlight>en Venezuela.</BannerHighlight>
+      </>
+    ),
+  },
+];
 
 export default function HomePage() {
   const t = useTranslations("home");
@@ -61,16 +105,16 @@ export default function HomePage() {
   }, []);
 
   const steps = [
-    { icon: "📝", title: t("paso1"), desc: t("paso1Desc") },
-    { icon: "📢", title: t("paso2"), desc: t("paso2Desc") },
-    { icon: "🤝", title: t("paso3"), desc: t("paso3Desc") },
+    { icon: "📝", tag: "01", title: t("paso1"), desc: t("paso1Desc") },
+    { icon: "📢", tag: "02", title: t("paso2"), desc: t("paso2Desc") },
+    { icon: "🤝", tag: "03", title: t("paso3"), desc: t("paso3Desc") },
   ];
 
   const stats = [
-    { value: counts.viajes ?? "-", label: t("statsViajes") },
-    { value: counts.transportistas ?? "-", label: t("statsTransportistas") },
-    { value: counts.voluntarios ?? "-", label: t("statsVoluntarios") },
-    { value: counts.organizaciones ?? "-", label: t("statsOrganizaciones") },
+    { value: counts.viajes ?? "-", label: t("statsViajes"), desc: t("statsViajesDesc") },
+    { value: counts.transportistas ?? "-", label: t("statsTransportistas"), desc: t("statsTransportistasDesc") },
+    { value: counts.voluntarios ?? "-", label: t("statsVoluntarios"), desc: t("statsVoluntariosDesc") },
+    { value: counts.organizaciones ?? "-", label: t("statsOrganizaciones"), desc: t("statsOrganizacionesDesc") },
   ];
 
   return (
@@ -89,32 +133,15 @@ export default function HomePage() {
 
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           <Link href={`/${locale}/empiezo-desde-cero`}>
-            <Button size="lg" className="rounded-full px-10">
+            <Button size="lg" className="rounded-full px-10 h-14 text-base">
               {t("ctaEmpiezo")}
             </Button>
           </Link>
           <Link href={`/${locale}/solicitar-viaje`}>
-            <Button size="lg" variant="outline" className="rounded-full px-10">
+            <Button size="lg" variant="outline" className="rounded-full px-10 h-14 text-base">
               {t("ctaSolicitar")}
             </Button>
           </Link>
-        </div>
-      </section>
-
-      <section className="py-12 bg-secondary/50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-primary">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -125,19 +152,53 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((step) => (
-              <Card key={step.title} className="text-center">
-                <CardHeader>
-                  <div className="text-4xl mb-2">{step.icon}</div>
-                  <CardTitle>{step.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{step.desc}</CardDescription>
-                </CardContent>
-              </Card>
+              <StepCard
+                key={step.title}
+                icon={step.icon}
+                tag={step.tag}
+                title={step.title}
+                description={step.desc}
+              />
             ))}
           </div>
         </div>
       </section>
+
+      <section className="py-16 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-extrabold uppercase tracking-tight">
+              {t("impactTitleStart")}{" "}
+              <span className="text-primary">{t("impactTitleHighlight")}</span>{" "}
+              {t("impactTitleEnd")}
+            </h2>
+            <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+              {t("impactSubtitle")}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {stats.map((stat) => (
+              <StatCard
+                key={stat.label}
+                label={stat.label}
+                value={stat.value}
+                desc={stat.desc}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-16">
+        <ImageTextCarousel items={impactSlides} className="rounded-none" />
+      </section>
+
+      <section className="pb-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <BrandBannerStack items={brandBanners} />
+        </div>
+      </section>
+
     </div>
   );
 }

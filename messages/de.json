@@ -54,7 +54,15 @@
     "statsVoluntarios": "Freiwillige",
     "statsOrganizaciones": "Organisationen",
     "ctaEmpiezo": "Von Null Starten",
-    "donarPlataforma": "Für die Plattform spenden"
+    "donarPlataforma": "Für die Plattform spenden",
+    "impactTitleStart": "Unsere",
+    "impactTitleHighlight": "Wirkung",
+    "impactTitleEnd": "in Aktion",
+    "impactSubtitle": "Jede Zahl steht für echte Menschen, die sich gegenseitig beim Wiederaufbau Venezuelas helfen.",
+    "statsViajesDesc": "Registrierte Fahrtanfragen von Menschen, die umziehen müssen.",
+    "statsTransportistasDesc": "Fahrer, die bereit sind, Menschen und Fracht in sichere Gebiete zu transportieren.",
+    "statsVoluntariosDesc": "Engagierte Menschen, die bei der Koordination der Hilfe unterstützen.",
+    "statsOrganizacionesDesc": "Gruppen und Organisationen, die sich zusammengeschlossen haben, um Hilfsmaßnahmen zu koordinieren."
   },
   "auth": {
     "login": "Anmelden",

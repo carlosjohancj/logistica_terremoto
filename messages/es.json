@@ -54,7 +54,15 @@
     "statsVoluntarios": "Voluntarios",
     "statsOrganizaciones": "Organizaciones",
     "ctaEmpiezo": "Empiezo Desde Cero",
-    "donarPlataforma": "Donar para la plataforma"
+    "donarPlataforma": "Donar para la plataforma",
+    "impactTitleStart": "Nuestro",
+    "impactTitleHighlight": "Impacto",
+    "impactTitleEnd": "en Acción",
+    "impactSubtitle": "Cada cifra representa personas reales ayudándose mutuamente a reconstruir Venezuela.",
+    "statsViajesDesc": "Solicitudes de traslado registradas por personas que necesitan reubicarse.",
+    "statsTransportistasDesc": "Conductores dispuestos a trasladar personas y carga hacia zonas seguras.",
+    "statsVoluntariosDesc": "Personas comprometidas ayudando con la gestión y coordinación de la ayuda.",
+    "statsOrganizacionesDesc": "Grupos y organizaciones que se han sumado para coordinar esfuerzos de ayuda."
   },
   "auth": {
     "login": "Iniciar Sesión",

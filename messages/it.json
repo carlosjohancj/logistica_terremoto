@@ -54,7 +54,15 @@
     "statsVoluntarios": "Volontari",
     "statsOrganizaciones": "Organizzazioni",
     "ctaEmpiezo": "Ricominciare da Zero",
-    "donarPlataforma": "Dona alla piattaforma"
+    "donarPlataforma": "Dona alla piattaforma",
+    "impactTitleStart": "Il Nostro",
+    "impactTitleHighlight": "Impatto",
+    "impactTitleEnd": "in Azione",
+    "impactSubtitle": "Ogni numero rappresenta persone reali che si aiutano a vicenda per ricostruire il Venezuela.",
+    "statsViajesDesc": "Richieste di viaggio registrate da persone che devono trasferirsi.",
+    "statsTransportistasDesc": "Autisti disposti a trasportare persone e merci verso zone sicure.",
+    "statsVoluntariosDesc": "Persone impegnate ad aiutare nella gestione e coordinamento degli aiuti.",
+    "statsOrganizacionesDesc": "Gruppi e organizzazioni che si sono uniti per coordinare gli sforzi di soccorso."
   },
   "auth": {
     "login": "Accedi",
