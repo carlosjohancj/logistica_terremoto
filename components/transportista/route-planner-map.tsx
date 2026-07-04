@@ -62,6 +62,8 @@ function getSegmentPoints(seg: SegmentDisplay): [number, number][] | null {
   return null
 }
 
+const tileUrl = process.env.NEXT_PUBLIC_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
 export default function RoutePlannerMap({ originCoord, destCoord, segments, onClick }: Props) {
   const center: [number, number] = originCoord || [9.5, -66.5]
 
@@ -69,7 +71,7 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
     <MapContainer center={center} zoom={8} className="h-full w-full" scrollWheelZoom={true}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-        url="/api/tiles/{z}/{x}/{y}.png"
+        url={tileUrl}
       />
       <ClickHandler onClick={onClick} />
 
