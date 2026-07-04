@@ -69,7 +69,7 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
     <MapContainer center={center} zoom={8} className="h-full w-full" scrollWheelZoom={true}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="/api/tiles/{z}/{x}/{y}.png"
       />
       <ClickHandler onClick={onClick} />
 

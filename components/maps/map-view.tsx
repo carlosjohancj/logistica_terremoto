@@ -84,7 +84,7 @@ export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="/api/tiles/{z}/{x}/{y}.png"
         />
         {items.map((item) => (
           <div key={item.id}>

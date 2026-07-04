@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing coordinates" }, { status: 400 })
     }
 
-    const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full`
+    const osrmUrl = process.env.OSRM_URL || "https://router.project-osrm.org"
+    const url = `${osrmUrl}/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full`
 
     const res = await fetch(url, {
       signal: AbortSignal.timeout(8000),
