@@ -8,7 +8,6 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +17,7 @@ import { getSupabase } from "@/lib/supabase"
 import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/auth"
 import { FIELD_CLASS, PASSWORD_FIELD_CLASS, SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
+import { FormField } from "@/components/forms/shared/form-field"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
@@ -79,82 +79,103 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t("name")}</Label>
-              <Input id="name" className={FIELD_CLASS} {...register("name")} />
-              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
-              <Input id="email" type="email" className={FIELD_CLASS} {...register("email")} />
-              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t("phone")}</Label>
-              <Input id="phone" type="tel" className={FIELD_CLASS} {...register("phone")} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("role")}</Label>
-              <Controller
-                name="role"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value ?? "damnificado"} onValueChange={field.onChange}>
-                    <SelectTrigger className={SELECT_TRIGGER_CLASS}>
-                      <SelectValue placeholder={t("role")}>
-                        {(value: string | null) => (value ? roleLabels[value] : null)}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="damnificado">{t("roleDamnificado")}</SelectItem>
-                      <SelectItem value="transportista">{t("roleTransportista")}</SelectItem>
-                      <SelectItem value="anfitrion">{t("roleAnfitrion")}</SelectItem>
-                      <SelectItem value="donante">{t("roleDonante")}</SelectItem>
-                      <SelectItem value="voluntario">{t("roleVoluntario")}</SelectItem>
-                      <SelectItem value="organizacion">{t("roleOrganizacion")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            {selectedRole === "damnificado" && (
-              <div className="space-y-2">
-                <Label htmlFor="age">Edad</Label>
-                <Input id="age" type="number" min={0} max={150} className={FIELD_CLASS} {...register("age", { valueAsNumber: true })} />
-              </div>
-            )}
-            {selectedRole === "voluntario" && (
-              <div className="space-y-2">
-                <Label>{t("voluntarioTipo")}</Label>
+            <FormField label={t("name")} required error={errors.name?.message}>
+              {(field) => (
+                <Input {...field} autoComplete="name" className={FIELD_CLASS} {...register("name")} />
+              )}
+            </FormField>
+            <FormField label={t("email")} required error={errors.email?.message}>
+              {(field) => (
+                <Input {...field} type="email" autoComplete="email" className={FIELD_CLASS} {...register("email")} />
+              )}
+            </FormField>
+            <FormField label={t("phone")}>
+              {(field) => (
+                <Input {...field} type="tel" autoComplete="tel" className={FIELD_CLASS} {...register("phone")} />
+              )}
+            </FormField>
+            <FormField label={t("role")}>
+              {(field) => (
                 <Controller
-                  name="volunteerType"
+                  name="role"
                   control={control}
-                  render={({ field }) => (
-                    <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v)}>
-                      <SelectTrigger className={SELECT_TRIGGER_CLASS}>
-                        <SelectValue placeholder={t("voluntarioTipo")} />
+                  render={({ field: rhf }) => (
+                    <Select value={rhf.value ?? "damnificado"} onValueChange={rhf.onChange}>
+                      <SelectTrigger id={field.id} className={SELECT_TRIGGER_CLASS}>
+                        <SelectValue placeholder={t("role")}>
+                          {(value: string | null) => (value ? roleLabels[value] : null)}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="hospedaje">{t("voluntarioHospedaje")}</SelectItem>
-                        <SelectItem value="gestion">{t("voluntarioGestion")}</SelectItem>
-                        <SelectItem value="ambos">{t("voluntarioAmbos")}</SelectItem>
+                        <SelectItem value="damnificado">{t("roleDamnificado")}</SelectItem>
+                        <SelectItem value="transportista">{t("roleTransportista")}</SelectItem>
+                        <SelectItem value="anfitrion">{t("roleAnfitrion")}</SelectItem>
+                        <SelectItem value="donante">{t("roleDonante")}</SelectItem>
+                        <SelectItem value="voluntario">{t("roleVoluntario")}</SelectItem>
+                        <SelectItem value="organizacion">{t("roleOrganizacion")}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-              </div>
+              )}
+            </FormField>
+            {selectedRole === "damnificado" && (
+              <FormField label={t("age")}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    max={150}
+                    className={FIELD_CLASS}
+                    {...register("age", { valueAsNumber: true })}
+                  />
+                )}
+              </FormField>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("password")}</Label>
-              <PasswordInput id="password" className={PASSWORD_FIELD_CLASS} {...register("password")} />
-              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="passwordConfirm">{t("passwordConfirm")}</Label>
-              <PasswordInput id="passwordConfirm" className={PASSWORD_FIELD_CLASS} {...register("passwordConfirm")} />
-              {errors.passwordConfirm && <p className="text-sm text-destructive">{errors.passwordConfirm.message}</p>}
-            </div>
-            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={loading}>
+            {selectedRole === "voluntario" && (
+              <FormField label={t("voluntarioTipo")}>
+                {(field) => (
+                  <Controller
+                    name="volunteerType"
+                    control={control}
+                    render={({ field: rhf }) => (
+                      <Select value={rhf.value ?? ""} onValueChange={(v) => rhf.onChange(v)}>
+                        <SelectTrigger id={field.id} className={SELECT_TRIGGER_CLASS}>
+                          <SelectValue placeholder={t("voluntarioTipo")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hospedaje">{t("voluntarioHospedaje")}</SelectItem>
+                          <SelectItem value="gestion">{t("voluntarioGestion")}</SelectItem>
+                          <SelectItem value="ambos">{t("voluntarioAmbos")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                )}
+              </FormField>
+            )}
+            <FormField label={t("password")} required error={errors.password?.message}>
+              {(field) => (
+                <PasswordInput
+                  {...field}
+                  autoComplete="new-password"
+                  className={PASSWORD_FIELD_CLASS}
+                  {...register("password")}
+                />
+              )}
+            </FormField>
+            <FormField label={t("passwordConfirm")} required error={errors.passwordConfirm?.message}>
+              {(field) => (
+                <PasswordInput
+                  {...field}
+                  autoComplete="new-password"
+                  className={PASSWORD_FIELD_CLASS}
+                  {...register("passwordConfirm")}
+                />
+              )}
+            </FormField>
+            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={loading} aria-busy={loading}>
               {loading ? tc("loading") : t("submit")}
             </Button>
           </form>

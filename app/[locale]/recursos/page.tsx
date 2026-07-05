@@ -145,23 +145,25 @@ export default function RecursosPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {filtered.map((item) => (
           <Card key={item.id} className="overflow-hidden group">
-            <div
-              className="aspect-video bg-muted relative cursor-pointer overflow-hidden"
+            <button
+              type="button"
+              className="aspect-video bg-muted relative cursor-pointer overflow-hidden w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => setPreview(item)}
+              aria-label={item.title}
             >
               {item.thumbnail || item.file ? (
                 <img
                   src={fileUrl(item, item.thumbnail ? "thumbnail" : "file") || ""}
-                  alt={item.title}
+                  alt=""
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform"
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <Eye className="h-8 w-8" />
+                  <Eye className="h-8 w-8" aria-hidden="true" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </div>
+            </button>
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-sm">{item.title}</CardTitle>
@@ -191,20 +193,28 @@ export default function RecursosPage() {
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => setPreview(item)}
+                    aria-label={tc("view")}
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                  <a
-                    href={fileUrl(item, "file") || "#"}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackDownload(item)}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label={t("download")}
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={fileUrl(item, "file") || "#"}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => trackDownload(item)}
+                      />
+                    }
                   >
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </a>
+                    <Download className="h-4 w-4" aria-hidden="true" />
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -239,18 +249,21 @@ export default function RecursosPage() {
                     </span>
                   )}
                 </div>
-                <a
-                  href={fileUrl(preview, "file") || "#"}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackDownload(preview)}
+                <Button
+                  nativeButton={false}
+                  render={
+                    <a
+                      href={fileUrl(preview, "file") || "#"}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackDownload(preview)}
+                    />
+                  }
                 >
-                  <Button>
-                    <Download className="h-4 w-4 mr-1" />
-                    {t("download")}
-                  </Button>
-                </a>
+                  <Download className="h-4 w-4 mr-1" aria-hidden="true" />
+                  {t("download")}
+                </Button>
               </div>
             </>
           )}

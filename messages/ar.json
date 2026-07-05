@@ -18,13 +18,16 @@
     "cerrarSesion": "تسجيل الخروج",
     "ofrecerInsumos": "تقديم الإمدادات",
     "registroEmpresa": "تسجيل شركة",
+    "ctaEmpiezo": "ابدأ من الصفر",
     "enlaces": "روابط",
     "ayuda": "مساعدة",
     "preguntasFrecuentes": "الأسئلة الشائعة",
     "contacto": "اتصال",
     "terminosUso": "شروط الاستخدام",
     "whatsapp": "واتساب",
-    "email": "بريد إلكتروني"
+    "email": "بريد إلكتروني",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة"
   },
   "home": {
     "title": "من الصفر",
@@ -53,7 +56,15 @@
     "statsVoluntarios": "متطوعون",
     "statsOrganizaciones": "منظمات",
     "ctaEmpiezo": "ابدأ من الصفر",
-    "donarPlataforma": "التبرع للمنصة"
+    "donarPlataforma": "التبرع للمنصة",
+    "impactTitleStart": "تأثيرنا",
+    "impactTitleHighlight": "الحقيقي",
+    "impactTitleEnd": "",
+    "impactSubtitle": "كل رقم يمثل أشخاصًا حقيقيين يساعدون بعضهم البعض لإعادة بناء فنزويلا.",
+    "statsViajesDesc": "طلبات رحلات مسجلة من أشخاص بحاجة إلى الانتقال.",
+    "statsTransportistasDesc": "سائقون مستعدون لنقل الأشخاص والبضائع إلى مناطق آمنة.",
+    "statsVoluntariosDesc": "أشخاص ملتزمون بالمساعدة في تنسيق وإدارة الدعم.",
+    "statsOrganizacionesDesc": "مجموعات ومنظمات انضمت لتنسيق جهود الإغاثة."
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -85,7 +96,8 @@
     "voluntarioTipo": "نوع المتطوع",
     "voluntarioHospedaje": "متطوع إيواء",
     "voluntarioGestion": "متطوع إدارة",
-    "voluntarioAmbos": "كلاهما"
+    "voluntarioAmbos": "كلاهما",
+    "age": "العمر"
   },
   "travelRequest": {
     "title": "طلب رحلة",
@@ -388,7 +400,12 @@
     "themeSystem": "النظام",
     "select": "اختيار",
     "authRequired": "يجب تسجيل الدخول",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "languageToggle": "تغيير اللغة",
+    "mapView": "عرض الخريطة",
+    "listView": "عرض القائمة"
   },
   "familyAid": {
     "title": "مساعدة عائلية",

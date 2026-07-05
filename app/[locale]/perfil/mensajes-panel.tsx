@@ -140,7 +140,7 @@ export default function MensajesPanel() {
   if (matches.length === 0) {
     return (
       <div className="text-center py-8">
-        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
         <p className="text-muted-foreground">No tienes conversaciones aún.</p>
         <p className="text-sm text-muted-foreground mt-1">
           Las conversaciones se crean cuando tomas una solicitud o alguien toma la tuya.
@@ -157,8 +157,17 @@ export default function MensajesPanel() {
         {matches.map((match) => (
           <Card
             key={match.id}
-            className={`cursor-pointer ${selectedMatch === match.id ? "ring-2 ring-primary" : ""}`}
+            role="button"
+            tabIndex={0}
+            aria-pressed={selectedMatch === match.id}
+            className={`cursor-pointer transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selectedMatch === match.id ? "ring-2 ring-primary" : ""}`}
             onClick={() => setSelectedMatch(match.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                setSelectedMatch(match.id)
+              }
+            }}
           >
             <CardContent className="p-3">
               <p className="text-sm font-medium truncate">
@@ -203,13 +212,20 @@ export default function MensajesPanel() {
           className="flex gap-2"
         >
           <Input
+            aria-label="Escribe un mensaje"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Escribe un mensaje..."
             disabled={sending}
           />
-          <Button type="submit" size="icon" disabled={sending || !newMessage.trim()}>
-            <Send className="h-4 w-4" />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={sending || !newMessage.trim()}
+            aria-busy={sending}
+            aria-label="Enviar mensaje"
+          >
+            <Send className="h-4 w-4" aria-hidden="true" />
           </Button>
         </form>
       </div>

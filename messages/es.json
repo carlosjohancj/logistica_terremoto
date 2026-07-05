@@ -18,13 +18,16 @@
     "cerrarSesion": "Cerrar Sesión",
     "ofrecerInsumos": "Ofrecer Insumos",
     "registroEmpresa": "Registrar Empresa",
+    "ctaEmpiezo": "Empiezo Desde Cero",
     "enlaces": "Enlaces",
     "ayuda": "Ayuda",
     "preguntasFrecuentes": "Preguntas frecuentes",
     "contacto": "Contacto",
     "terminosUso": "Términos de uso",
     "whatsapp": "WhatsApp",
-    "email": "Email"
+    "email": "Email",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "home": {
     "title": "Desde Cero",
@@ -53,7 +56,15 @@
     "statsVoluntarios": "Voluntarios",
     "statsOrganizaciones": "Organizaciones",
     "ctaEmpiezo": "Empiezo Desde Cero",
-    "donarPlataforma": "Donar para la plataforma"
+    "donarPlataforma": "Donar para la plataforma",
+    "impactTitleStart": "Nuestro",
+    "impactTitleHighlight": "Impacto",
+    "impactTitleEnd": "en Acción",
+    "impactSubtitle": "Cada cifra representa personas reales ayudándose mutuamente a reconstruir Venezuela.",
+    "statsViajesDesc": "Solicitudes de traslado registradas por personas que necesitan reubicarse.",
+    "statsTransportistasDesc": "Conductores dispuestos a trasladar personas y carga hacia zonas seguras.",
+    "statsVoluntariosDesc": "Personas comprometidas ayudando con la gestión y coordinación de la ayuda.",
+    "statsOrganizacionesDesc": "Grupos y organizaciones que se han sumado para coordinar esfuerzos de ayuda."
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -85,7 +96,8 @@
     "voluntarioTipo": "Tipo de voluntario",
     "voluntarioHospedaje": "Voluntario de hospedaje",
     "voluntarioGestion": "Voluntario de gestión",
-    "voluntarioAmbos": "Ambos"
+    "voluntarioAmbos": "Ambos",
+    "age": "Edad"
   },
   "travelRequest": {
     "title": "Solicitar Viaje",
@@ -390,7 +402,12 @@
     "themeSystem": "Sistema",
     "select": "Seleccionar",
     "authRequired": "Debes iniciar sesión",
-    "tryAgain": "Intenta de nuevo"
+    "tryAgain": "Intenta de nuevo",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "languageToggle": "Cambiar idioma",
+    "mapView": "Vista de mapa",
+    "listView": "Vista de lista"
   },
   "familyAid": {
     "title": "Ayuda Familiar",

@@ -18,13 +18,16 @@
     "cerrarSesion": "Sair",
     "ofrecerInsumos": "Oferecer Insumos",
     "registroEmpresa": "Registrar Empresa",
+    "ctaEmpiezo": "Começar do Zero",
     "enlaces": "Links",
     "ayuda": "Ajuda",
     "preguntasFrecuentes": "FAQ",
     "contacto": "Contato",
     "terminosUso": "Termos de uso",
     "whatsapp": "WhatsApp",
-    "email": "Email"
+    "email": "Email",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
   },
   "home": {
     "title": "Desde Cero",
@@ -53,7 +56,15 @@
     "statsVoluntarios": "Voluntários",
     "statsOrganizaciones": "Organizações",
     "ctaEmpiezo": "Começar do Zero",
-    "donarPlataforma": "Doar para a plataforma"
+    "donarPlataforma": "Doar para a plataforma",
+    "impactTitleStart": "Nosso",
+    "impactTitleHighlight": "Impacto",
+    "impactTitleEnd": "em Ação",
+    "impactSubtitle": "Cada número representa pessoas reais se ajudando para reconstruir a Venezuela.",
+    "statsViajesDesc": "Solicitações de viagem registradas por pessoas que precisam se realocar.",
+    "statsTransportistasDesc": "Motoristas dispostos a transportar pessoas e carga para áreas seguras.",
+    "statsVoluntariosDesc": "Pessoas comprometidas ajudando na gestão e coordenação da ajuda.",
+    "statsOrganizacionesDesc": "Grupos e organizações que se uniram para coordenar os esforços de ajuda."
   },
   "auth": {
     "login": "Entrar",
@@ -85,7 +96,8 @@
     "voluntarioTipo": "Tipo de voluntário",
     "voluntarioHospedaje": "Voluntário de hospedagem",
     "voluntarioGestion": "Voluntário de gestão",
-    "voluntarioAmbos": "Ambos"
+    "voluntarioAmbos": "Ambos",
+    "age": "Idade"
   },
   "travelRequest": {
     "title": "Solicitar Viagem",
@@ -388,7 +400,12 @@
     "themeSystem": "Sistema",
     "select": "Selecionar",
     "authRequired": "Você precisa fazer login",
-    "tryAgain": "Tente novamente"
+    "tryAgain": "Tente novamente",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "languageToggle": "Mudar idioma",
+    "mapView": "Vista de mapa",
+    "listView": "Vista de lista"
   },
   "familyAid": {
     "title": "Ajuda Familiar",

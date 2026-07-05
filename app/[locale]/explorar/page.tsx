@@ -164,11 +164,12 @@ export default function ExplorarPage() {
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Filters bar */}
       <div className="border-b bg-card p-3 flex flex-wrap items-center gap-2">
-        <div className="hidden sm:flex gap-1">
+        <div role="group" aria-label={t("filterType")} className="hidden sm:flex gap-1">
           <Button
             size="sm"
             variant={filterType === "all" ? "default" : "outline"}
             onClick={() => setFilterType("all")}
+            aria-pressed={filterType === "all"}
           >
             {t("all")}
           </Button>
@@ -176,6 +177,7 @@ export default function ExplorarPage() {
             size="sm"
             variant={filterType === "travel" ? "default" : "outline"}
             onClick={() => setFilterType("travel")}
+            aria-pressed={filterType === "travel"}
           >
             {t("travelRequests")}
           </Button>
@@ -183,6 +185,7 @@ export default function ExplorarPage() {
             size="sm"
             variant={filterType === "transport" ? "default" : "outline"}
             onClick={() => setFilterType("transport")}
+            aria-pressed={filterType === "transport"}
           >
             {t("transportOffers")}
           </Button>
@@ -190,6 +193,7 @@ export default function ExplorarPage() {
             size="sm"
             variant={filterType === "housing" ? "default" : "outline"}
             onClick={() => setFilterType("housing")}
+            aria-pressed={filterType === "housing"}
           >
             {t("housingOffers")}
           </Button>
@@ -197,7 +201,7 @@ export default function ExplorarPage() {
 
         <div className="sm:hidden w-full">
           <Select value={filterType} onValueChange={(v) => setFilterType((v ?? "all") as FilterType)}>
-            <SelectTrigger>
+            <SelectTrigger aria-label={t("filterType")}>
               <SelectValue placeholder={t("filterType")} />
             </SelectTrigger>
             <SelectContent>
@@ -211,7 +215,7 @@ export default function ExplorarPage() {
 
         <div className="w-full sm:w-48">
           <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-            <SelectTrigger>
+            <SelectTrigger aria-label={t("filterOrigin")}>
               <SelectValue placeholder={t("filterOrigin")} />
             </SelectTrigger>
               <SelectContent>
@@ -238,15 +242,19 @@ export default function ExplorarPage() {
             size="sm"
             variant={viewMode === "map" ? "default" : "outline"}
             onClick={() => setViewMode("map")}
+            aria-pressed={viewMode === "map"}
+            aria-label={tc("mapView")}
           >
-            <MapIcon className="h-4 w-4" />
+            <MapIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             size="sm"
             variant={viewMode === "list" ? "default" : "outline"}
             onClick={() => setViewMode("list")}
+            aria-pressed={viewMode === "list"}
+            aria-label={tc("listView")}
           >
-            <ListIcon className="h-4 w-4" />
+            <ListIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </div>

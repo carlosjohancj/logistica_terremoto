@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Bot, ArrowLeft, Send, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { FormField } from "@/components/forms/shared/form-field"
+
+const TOTAL_STEPS = 4
 
 export default function AsistenciaPage() {
   const tc = useTranslations("common")
@@ -19,6 +22,9 @@ export default function AsistenciaPage() {
 
   const [step, setStep] = useState(0)
   const [sending, setSending] = useState(false)
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null)
+  const helpGroupId = useId()
+  const housingGroupId = useId()
 
   const [form, setForm] = useState({
     name: "",
@@ -32,6 +38,10 @@ export default function AsistenciaPage() {
     housingStatus: "",
     additionalInfo: "",
   })
+
+  useEffect(() => {
+    stepHeadingRef.current?.focus()
+  }, [step])
 
   const helpOptions = [
     { value: "trabajo", label: "Trabajo" },
@@ -85,7 +95,7 @@ export default function AsistenciaPage() {
   if (step === 999) {
     return (
       <div className="container mx-auto px-4 py-16 max-w-xl text-center">
-        <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" />
+        <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" aria-hidden="true" />
         <h1 className="text-2xl font-bold mb-4">¡Información recibida!</h1>
         <p className="text-muted-foreground mb-6">
           Hemos registrado tus datos. Un voluntario de gestión revisará tu caso y te contactará pronto. Mientras tanto, puedes explorar los recursos disponibles.
@@ -100,59 +110,93 @@ export default function AsistenciaPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Link href={`/${locale}/empiezo-desde-cero`} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
-        <ArrowLeft className="h-4 w-4" /> Empiezo Desde Cero
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Empiezo Desde Cero
       </Link>
 
-      <div className="flex items-center gap-3 mb-6">
-        <Bot className="h-8 w-8 text-primary" />
+      <div className="flex items-center gap-3 mb-2">
+        <Bot className="h-8 w-8 text-primary" aria-hidden="true" />
         <div>
           <h1 className="text-2xl font-bold">Asistencia con IA</h1>
           <p className="text-sm text-muted-foreground">Cuéntanos tu situación para conectarte con la ayuda adecuada</p>
         </div>
       </div>
 
+      <p className="text-xs font-medium text-muted-foreground mb-6" aria-live="polite">
+        Paso {step + 1} de {TOTAL_STEPS}
+      </p>
+
       <Card>
         <CardContent className="p-6 space-y-6">
           {step === 0 && (
             <>
-              <h2 className="text-lg font-semibold">Datos personales</h2>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="text-lg font-semibold outline-none">
+                Datos personales
+              </h2>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Nombre completo</Label>
-                  <Input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />
-                </div>
+                <FormField label="Nombre completo" required>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      autoComplete="name"
+                      value={form.name}
+                      onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                    />
+                  )}
+                </FormField>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Edad</Label>
-                    <Input type="number" value={form.age} onChange={(e) => setForm((p) => ({ ...p, age: e.target.value }))} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Teléfono</Label>
-                    <Input value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} />
-                  </div>
+                  <FormField label="Edad">
+                    {(field) => (
+                      <Input
+                        {...field}
+                        type="number"
+                        value={form.age}
+                        onChange={(e) => setForm((p) => ({ ...p, age: e.target.value }))}
+                      />
+                    )}
+                  </FormField>
+                  <FormField label="Teléfono">
+                    {(field) => (
+                      <Input
+                        {...field}
+                        type="tel"
+                        autoComplete="tel"
+                        value={form.phone}
+                        onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                      />
+                    )}
+                  </FormField>
                 </div>
-                <div className="space-y-2">
-                  <Label>Lugar de origen (estado / ciudad)</Label>
-                  <Input value={form.origin} onChange={(e) => setForm((p) => ({ ...p, origin: e.target.value }))} />
-                </div>
+                <FormField label="Lugar de origen (estado / ciudad)">
+                  {(field) => (
+                    <Input
+                      {...field}
+                      value={form.origin}
+                      onChange={(e) => setForm((p) => ({ ...p, origin: e.target.value }))}
+                    />
+                  )}
+                </FormField>
               </div>
-              <Button onClick={() => setStep(1)} className="w-full rounded-full">Siguiente</Button>
+              <Button type="button" onClick={() => setStep(1)} className="w-full rounded-full">Siguiente</Button>
             </>
           )}
 
           {step === 1 && (
             <>
-              <h2 className="text-lg font-semibold">Familiares y situación</h2>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="text-lg font-semibold outline-none">
+                Familiares y situación
+              </h2>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Integrantes de la familia (nombres y edades)</Label>
-                  <Textarea
-                    rows={4}
-                    value={form.familyMembers}
-                    onChange={(e) => setForm((p) => ({ ...p, familyMembers: e.target.value }))}
-                    placeholder="Ej: María López (45), Juan López (12)..."
-                  />
-                </div>
+                <FormField label="Integrantes de la familia (nombres y edades)">
+                  {(field) => (
+                    <Textarea
+                      {...field}
+                      rows={4}
+                      value={form.familyMembers}
+                      onChange={(e) => setForm((p) => ({ ...p, familyMembers: e.target.value }))}
+                      placeholder="Ej: María López (45), Juan López (12)..."
+                    />
+                  )}
+                </FormField>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <input
@@ -164,30 +208,40 @@ export default function AsistenciaPage() {
                     ¿Tiene familiares fallecidos?
                   </Label>
                   {form.deceasedRelatives && (
-                    <Textarea
-                      rows={3}
-                      value={form.deceasedDetail}
-                      onChange={(e) => setForm((p) => ({ ...p, deceasedDetail: e.target.value }))}
-                      placeholder="Indica nombres y relación si deseas..."
-                    />
+                    <FormField label="Detalle de familiares fallecidos" hideLabel>
+                      {(field) => (
+                        <Textarea
+                          {...field}
+                          rows={3}
+                          value={form.deceasedDetail}
+                          onChange={(e) => setForm((p) => ({ ...p, deceasedDetail: e.target.value }))}
+                          placeholder="Indica nombres y relación si deseas..."
+                        />
+                      )}
+                    </FormField>
                   )}
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep(0)} className="rounded-full">Atrás</Button>
-                <Button onClick={() => setStep(2)} className="w-full rounded-full">Siguiente</Button>
+                <Button type="button" variant="outline" onClick={() => setStep(0)} className="rounded-full">Atrás</Button>
+                <Button type="button" onClick={() => setStep(2)} className="w-full rounded-full">Siguiente</Button>
               </div>
             </>
           )}
 
           {step === 2 && (
-            <>
-              <h2 className="text-lg font-semibold">Tipo de ayuda necesaria</h2>
+            <div role="group" aria-labelledby={helpGroupId}>
+              <h2 ref={stepHeadingRef} tabIndex={-1} id={helpGroupId} className="text-lg font-semibold outline-none">
+                Tipo de ayuda necesaria
+              </h2>
               <p className="text-sm text-muted-foreground mb-4">Selecciona todas las que apliquen</p>
               <div className="grid grid-cols-2 gap-3">
                 {helpOptions.map((opt) => (
                   <button
                     key={opt.value}
+                    type="button"
+                    role="checkbox"
+                    aria-checked={form.helpNeeded.includes(opt.value)}
                     onClick={() => toggleHelp(opt.value)}
                     className={`p-3 rounded-lg border text-sm text-left transition-colors ${
                       form.helpNeeded.includes(opt.value)
@@ -200,44 +254,59 @@ export default function AsistenciaPage() {
                 ))}
               </div>
               <div className="flex gap-3 mt-4">
-                <Button variant="outline" onClick={() => setStep(1)} className="rounded-full">Atrás</Button>
-                <Button onClick={() => setStep(3)} className="w-full rounded-full">Siguiente</Button>
+                <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-full">Atrás</Button>
+                <Button type="button" onClick={() => setStep(3)} className="w-full rounded-full">Siguiente</Button>
               </div>
-            </>
+            </div>
           )}
 
           {step === 3 && (
             <>
-              <h2 className="text-lg font-semibold">Estado de la vivienda</h2>
-              <div className="space-y-3">
-                {housingOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setForm((p) => ({ ...p, housingStatus: opt.value }))}
-                    className={`w-full p-3 rounded-lg border text-sm text-left transition-colors ${
-                      form.housingStatus === opt.value
-                        ? "border-primary bg-primary/10 text-primary font-medium"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+              <div role="radiogroup" aria-labelledby={housingGroupId}>
+                <h2 ref={stepHeadingRef} tabIndex={-1} id={housingGroupId} className="text-lg font-semibold outline-none mb-3">
+                  Estado de la vivienda
+                </h2>
+                <div className="space-y-3">
+                  {housingOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={form.housingStatus === opt.value}
+                      onClick={() => setForm((p) => ({ ...p, housingStatus: opt.value }))}
+                      className={`w-full p-3 rounded-lg border text-sm text-left transition-colors ${
+                        form.housingStatus === opt.value
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Información adicional</Label>
-                <Textarea
-                  rows={4}
-                  value={form.additionalInfo}
-                  onChange={(e) => setForm((p) => ({ ...p, additionalInfo: e.target.value }))}
-                  placeholder="Cualquier otra información que consideres relevante..."
-                />
-              </div>
+              <FormField label="Información adicional">
+                {(field) => (
+                  <Textarea
+                    {...field}
+                    rows={4}
+                    value={form.additionalInfo}
+                    onChange={(e) => setForm((p) => ({ ...p, additionalInfo: e.target.value }))}
+                    placeholder="Cualquier otra información que consideres relevante..."
+                  />
+                )}
+              </FormField>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep(2)} className="rounded-full">Atrás</Button>
-                <Button onClick={handleSubmit} disabled={sending} className="w-full rounded-full gap-2">
+                <Button type="button" variant="outline" onClick={() => setStep(2)} className="rounded-full">Atrás</Button>
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={sending}
+                  aria-busy={sending}
+                  className="w-full rounded-full gap-2"
+                >
                   {sending ? "Enviando..." : "Enviar información"}
-                  <Send className="h-4 w-4" />
+                  <Send className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </>

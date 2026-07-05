@@ -18,13 +18,16 @@
     "cerrarSesion": "Logout",
     "ofrecerInsumos": "Offer Supplies",
     "registroEmpresa": "Register Company",
+    "ctaEmpiezo": "Start From Zero",
     "enlaces": "Links",
     "ayuda": "Help",
     "preguntasFrecuentes": "FAQ",
     "contacto": "Contact",
     "terminosUso": "Terms of use",
     "whatsapp": "WhatsApp",
-    "email": "Email"
+    "email": "Email",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "home": {
     "title": "Desde Cero",
@@ -53,7 +56,15 @@
     "statsVoluntarios": "Volunteers",
     "statsOrganizaciones": "Organizations",
     "ctaEmpiezo": "Start From Zero",
-    "donarPlataforma": "Donate to platform"
+    "donarPlataforma": "Donate to platform",
+    "impactTitleStart": "Our",
+    "impactTitleHighlight": "Impact",
+    "impactTitleEnd": "in Action",
+    "impactSubtitle": "Every number represents real people helping each other rebuild Venezuela.",
+    "statsViajesDesc": "Relocation trip requests submitted by people who need to move.",
+    "statsTransportistasDesc": "Drivers willing to transport people and cargo to safe areas.",
+    "statsVoluntariosDesc": "People committed to helping coordinate and manage aid.",
+    "statsOrganizacionesDesc": "Groups and organizations that have joined to coordinate relief efforts."
   },
   "auth": {
     "login": "Login",
@@ -85,7 +96,8 @@
     "voluntarioTipo": "Volunteer Type",
     "voluntarioHospedaje": "Housing Volunteer",
     "voluntarioGestion": "Management Volunteer",
-    "voluntarioAmbos": "Both"
+    "voluntarioAmbos": "Both",
+    "age": "Age"
   },
   "travelRequest": {
     "title": "Request Trip",
@@ -390,7 +402,12 @@
     "themeSystem": "System",
     "select": "Select",
     "authRequired": "You must be logged in",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "languageToggle": "Change language",
+    "mapView": "Map view",
+    "listView": "List view"
   },
   "familyAid": {
     "title": "Family Aid",

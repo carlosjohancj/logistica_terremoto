@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { getSupabase, TABLES } from "@/lib/supabase"
 import { getEstados, getCitiesByState } from "@/lib/estados"
 import type { Estado } from "@/lib/estados"
-import { StateCard } from "@/components/empiezo-desde-cero/state-card"
+import { StatesMarquee } from "@/components/empiezo-desde-cero/states-marquee"
 import { Timeline } from "@/components/empiezo-desde-cero/timeline"
 import { Search, ArrowRight, Bot, Truck, Sparkles } from "lucide-react"
 
@@ -34,7 +34,6 @@ export default function EmpiezoDesdeCeroPage() {
   const locale = pathname.split("/")[1] || "es"
 
   const [estados, setEstados] = useState<Estado[]>([])
-  const [filteredEstados, setFilteredEstados] = useState<Estado[]>([])
   const [citiesByState, setCitiesByState] = useState<Record<string, string[]>>({})
   const [housingByCity, setHousingByCity] = useState<Record<string, HousingOffer[]>>({})
   const [search, setSearch] = useState("")
@@ -45,7 +44,6 @@ export default function EmpiezoDesdeCeroPage() {
       try {
         const data = await getEstados()
         setEstados(data)
-        setFilteredEstados(data)
 
         const supabase = getSupabase()
         const { data: housing } = await supabase
@@ -76,21 +74,6 @@ export default function EmpiezoDesdeCeroPage() {
     load()
   }, [])
 
-  useEffect(() => {
-    if (!search.trim()) {
-      setFilteredEstados(estados)
-      return
-    }
-    const q = search.toLowerCase()
-    setFilteredEstados(
-      estados.filter(
-        (e) =>
-          e.name.toLowerCase().includes(q) ||
-          e.capital.toLowerCase().includes(q)
-      )
-    )
-  }, [search, estados])
-
   return (
     <div className="flex flex-col">
       <section className="relative min-h-[60vh] flex flex-col items-center justify-center bg-stone-50 overflow-hidden px-4 py-16">
@@ -101,14 +84,14 @@ export default function EmpiezoDesdeCeroPage() {
         </p>
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           <Link href={`/${locale}/empiezo-desde-cero/asistencia`}>
-            <Button size="lg" className="rounded-full px-8 gap-2">
-              <Bot className="h-4 w-4" />
+            <Button size="lg" className="rounded-full px-10 h-14 text-base gap-3">
+              <Bot className="h-5 w-5" />
               Asistencia IA
             </Button>
           </Link>
           <Link href={`/${locale}/empiezo-desde-cero/solicitar-viaje`}>
-            <Button size="lg" variant="outline" className="rounded-full px-8 gap-2">
-              <Truck className="h-4 w-4" />
+            <Button size="lg" variant="outline" className="rounded-full px-10 h-14 text-base gap-3">
+              <Truck className="h-5 w-5" />
               Solicitar Viaje
             </Button>
           </Link>
@@ -132,26 +115,21 @@ export default function EmpiezoDesdeCeroPage() {
               />
             </div>
           </div>
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-24 bg-muted animate-pulse rounded-xl" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredEstados.map((e) => (
-                <StateCard
-                  key={e.id}
-                  name={e.name}
-                  capital={e.capital}
-                  cities={citiesByState[e.name] || []}
-                  housingByCity={housingByCity}
-                />
-              ))}
-            </div>
-          )}
         </div>
+        {loading ? (
+          <div className="container mx-auto grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-24 bg-muted animate-pulse rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          <StatesMarquee
+            estados={estados}
+            citiesByState={citiesByState}
+            housingByCity={housingByCity}
+            search={search}
+          />
+        )}
       </section>
 
       <section className="py-16">
@@ -164,20 +142,22 @@ export default function EmpiezoDesdeCeroPage() {
         </div>
       </section>
 
-      <section className="py-12 bg-primary/5">
-        <div className="container mx-auto px-4 text-center">
-          <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary" />
-          <h2 className="text-xl font-bold mb-3">¿Necesitas ayuda personalizada?</h2>
-          <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto">
-            Nuestro asistente con IA te guiará en el proceso de registro, evaluará tus necesidades y te conectará con los recursos disponibles.
-          </p>
-          <Link href={`/${locale}/empiezo-desde-cero/asistencia`}>
-            <Button size="lg" className="rounded-full gap-2 px-8">
-              <Bot className="h-4 w-4" />
-              Ir a Asistencia IA
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+      <section className="py-12 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-lg mx-auto rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+            <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary" />
+            <h2 className="text-xl font-bold mb-3">¿Necesitas ayuda personalizada?</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Nuestro asistente con IA te guiará en el proceso de registro, evaluará tus necesidades y te conectará con los recursos disponibles.
+            </p>
+            <Link href={`/${locale}/empiezo-desde-cero/asistencia`}>
+              <Button size="lg" className="rounded-full gap-3 px-10 h-14 text-base">
+                <Bot className="h-5 w-5" />
+                Ir a Asistencia IA
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
