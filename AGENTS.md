@@ -29,11 +29,13 @@ Logística Terremoto — plataforma de **logística civil** (Next.js 16, Tailwin
   - Fix: tab activo con estado local (feedback visual inmediato)
   - Voluntarios gestión: tareas de validación, mensajes y logística
 - **Route Segments API**: POST `/api/route-segments` con @turf/turf (named import `{ distance }`)
-- **Mapa** (`/explorar`): marcadores origen/destino, Polyline, city coords via `getCityCoord()`
+- **Mapa** (`/explorar`): migrado a **MapLibre GL JS** (vector tiles via style.json), marcadores origen/destino, polylines
+- **Ruteo**: migrado a **Valhalla** (Docker privado, puerto 8002) vía `/api/osrm-route` (rewrite a Valhalla API)
+- **Tile server**: proxy `/api/map/[...path]` hacia tileserver-gl Docker privado (puerto 8080), rewrite de URLs en style.json
 - **Admin**: tabs de viajes, transporte, hospedaje, empresas, insumos, empleos + stats
 - **SQL**: `city-coords.sql`, `route-segments.sql`, `messages.sql`, `organizations.sql`, `volunteer-types.sql`
 - **Geocoding**: `scripts/geocode-cities.mjs` (Nominatim)
-- **Build**: 33 rutas, compila limpio
+- **Build**: 34 rutas, compila limpio
 
 #### Pendiente (debe ejecutar el usuario)
 1. ~~Ejecutar SQL en Supabase Studio~~ ✅
@@ -46,3 +48,6 @@ Logística Terremoto — plataforma de **logística civil** (Next.js 16, Tailwin
 - RLS policies asumen `auth.uid()`
 - Tablas nuevas: `organizations`, `organization_members`, `city_coords`, `route_segments`
 - Columna nueva: `profiles.volunteer_type` (hospedaje/gestion/ambos)
+- **Mapa**: MapLibre GL JS (imperativo, sin wrapper React). Tiles vía proxy `/api/map/[...path]` → tileserver-gl Docker
+- **Ruteo**: Valhalla en Docker (`http://valhalla:8002`), formate GeoJSON, respuesta: `features[0].geometry.coordinates` + `features[0].properties.summary.length`
+- **Env vars**: `VALHALLA_URL`, `TILE_SERVER_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`

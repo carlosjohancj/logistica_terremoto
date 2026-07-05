@@ -38,7 +38,7 @@ type Props = {
   onComplete: () => void
 }
 
-async function fetchOSRM(fromLng: number, fromLat: number, toLng: number, toLat: number): Promise<{ geometry: [number, number][]; distanceKm: number } | null> {
+async function fetchRoute(fromLng: number, fromLat: number, toLng: number, toLat: number): Promise<{ geometry: [number, number][]; distanceKm: number } | null> {
   try {
     const res = await fetch("/api/osrm-route", {
       method: "POST",
@@ -129,10 +129,10 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       let distanceKm: number
       let routeGeo: [number, number][] | null = null
 
-      const osrm = await fetchOSRM(segOrigin.lng, segOrigin.lat, lng, lat)
-      if (osrm) {
-        distanceKm = osrm.distanceKm
-        routeGeo = osrm.geometry
+      const valhalla = await fetchRoute(segOrigin.lng, segOrigin.lat, lng, lat)
+      if (valhalla) {
+        distanceKm = valhalla.distanceKm
+        routeGeo = valhalla.geometry
       } else {
         const { distance } = await import("@turf/turf")
         distanceKm = Math.round(distance([segOrigin.lng, segOrigin.lat], [lng, lat], { units: "kilometers" }) * 10) / 10

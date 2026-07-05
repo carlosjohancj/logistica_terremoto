@@ -1,28 +1,7 @@
 "use client"
 
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from "react-leaflet"
-import L from "leaflet"
-
-const originIcon = L.divIcon({
-  className: "",
-  html: `<div style="width:28px;height:28px;border-radius:50%;background:#6B8F71;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-})
-
-const destIcon = L.divIcon({
-  className: "",
-  html: `<div style="width:20px;height:20px;border-radius:50%;background:white;border:3px solid #4A7C59;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-})
-
-const waypointIcon = L.divIcon({
-  className: "",
-  html: `<div style="width:16px;height:16px;border-radius:50%;background:#A0845C;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-})
+import { useRef, useEffect, useCallback } from "react"
+import maplibregl from "maplibre-gl"
 
 type SegmentDisplay = {
   order: number
@@ -43,76 +22,150 @@ type Props = {
   onClick: (lat: number, lng: number) => void
 }
 
-function ClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onClick(e.latlng.lat, e.latlng.lng)
-    },
-  })
-  return null
-}
-
-function getSegmentPoints(seg: SegmentDisplay): [number, number][] | null {
-  if (seg.route_geometry && seg.route_geometry.length > 1) {
-    return seg.route_geometry
-  }
-  if (seg.lat !== undefined && seg.lng !== undefined && seg.destLat !== undefined && seg.destLng !== undefined) {
-    return [[seg.lat, seg.lng], [seg.destLat, seg.destLng]]
-  }
-  return null
-}
-
-const tileUrl = process.env.NEXT_PUBLIC_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+const styleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL || "https://demotiles.maplibre.org/style.json"
 
 export default function RoutePlannerMap({ originCoord, destCoord, segments, onClick }: Props) {
-  const center: [number, number] = originCoord || [9.5, -66.5]
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<maplibregl.Map | null>(null)
+  const markerRefs = useRef<maplibregl.Marker[]>([])
+
+  const handleClick = useCallback((e: maplibregl.MapMouseEvent) => {
+    onClick(e.lngLat.lat, e.lngLat.lng)
+  }, [onClick])
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return
+
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: styleUrl,
+      center: originCoord ? [originCoord[1], originCoord[0]] : [-66.5, 9.5],
+      zoom: 8,
+    })
+
+    map.addControl(new maplibregl.NavigationControl(), "top-right")
+    mapRef.current = map
+
+    return () => {
+      map.remove()
+      mapRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    const m = mapRef.current
+    if (!m) return
+
+    function render(map: maplibregl.Map) {
+      markerRefs.current.forEach((mk) => mk.remove())
+      markerRefs.current = []
+
+      if (originCoord) {
+        const el = document.createElement("div")
+        el.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:#6B8F71;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([originCoord[1], originCoord[0]])
+          .addTo(map)
+        markerRefs.current.push(marker)
+      }
+
+      if (destCoord) {
+        const el = document.createElement("div")
+        el.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:white;border:3px solid #4A7C59;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([destCoord[1], destCoord[0]])
+          .addTo(map)
+        markerRefs.current.push(marker)
+      }
+
+      updateSegments(map, segments)
+    }
+
+    if (m.isStyleLoaded()) {
+      render(m)
+    } else {
+      m.once("style.load", () => render(m))
+    }
+  }, [originCoord, destCoord, segments])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+
+    map.on("click", handleClick)
+    return () => { map.off("click", handleClick) }
+  }, [handleClick])
 
   return (
-    <MapContainer center={center} zoom={8} className="h-full w-full" scrollWheelZoom={true}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-        url={tileUrl}
-      />
-      <ClickHandler onClick={onClick} />
-
-      {originCoord && (
-        <Marker position={originCoord} icon={originIcon}>
-        </Marker>
-      )}
-
-      {destCoord && (
-        <Marker position={destCoord} icon={destIcon}>
-        </Marker>
-      )}
-
-      {segments.map((seg) => {
-        const points = getSegmentPoints(seg)
-        if (!points) return null
-        const isCompleted = seg.status === "completed"
-        return (
-          <Polyline
-            key={seg.order}
-            positions={points}
-            pathOptions={{
-              color: isCompleted ? "#10B981" : "#3B82F6",
-              weight: isCompleted ? 5 : 6,
-              opacity: isCompleted ? 0.7 : 0.85,
-              lineCap: "round",
-              lineJoin: "round",
-            }}
-          />
-        )
-      })}
-
-      {destCoord && originCoord && segments.length === 0 && (
-        <Polyline
-          positions={[originCoord, destCoord]}
-          color="#6B8F71"
-          weight={2}
-          opacity={0.3}
-          dashArray="8 6"
-        />
-      )}
-    </MapContainer>
+    <div className="h-full w-full" ref={containerRef} />
   )
+}
+
+function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
+  const sourceId = "planner-segments"
+  const features: GeoJSON.Feature[] = []
+
+  segments.forEach((seg) => {
+    let coords: number[][]
+    if (seg.route_geometry && seg.route_geometry.length > 1) {
+      coords = seg.route_geometry
+    } else if (seg.lat !== undefined && seg.lng !== undefined && seg.destLat !== undefined && seg.destLng !== undefined) {
+      coords = [[seg.lng, seg.lat], [seg.destLng, seg.destLat]]
+    } else {
+      return
+    }
+
+    features.push({
+      type: "Feature",
+      properties: { status: seg.status },
+      geometry: { type: "LineString", coordinates: coords },
+    })
+  })
+
+  if (map.getSource(sourceId)) {
+    ;(map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features,
+    })
+    return
+  }
+
+  if (features.length === 0) return
+
+  map.addSource(sourceId, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features },
+  })
+
+  map.addLayer({
+    id: sourceId,
+    type: "line",
+    source: sourceId,
+    filter: ["!=", ["get", "status"], "completed"],
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#3B82F6",
+      "line-width": 6,
+      "line-opacity": 0.85,
+    },
+  })
+
+  map.addLayer({
+    id: "planner-completed",
+    type: "line",
+    source: sourceId,
+    filter: ["==", ["get", "status"], "completed"],
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "#10B981",
+      "line-width": 5,
+      "line-opacity": 0.7,
+    },
+  })
 }

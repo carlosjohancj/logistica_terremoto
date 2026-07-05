@@ -309,7 +309,7 @@ Actualmente no hay un botón de auto-eliminación. Contacta al administrador par
 │                     Cliente Web                          │
 │  Next.js 16 (React 19) — Turbopack                      │
 │  Tailwind 4 + shadcn/ui (@base-ui/react)                │
-│  react-leaflet + leaflet                                │
+│  maplibre-gl (MapLibre GL JS)                           │
 │  react-hook-form + zod                                  │
 │  next-intl (i18n)                                       │
 │  sonner (toasts)                                        │
@@ -344,6 +344,12 @@ Actualmente no hay un botón de auto-eliminación. Contacta al administrador par
              │
              ▼
 ┌─────────────────────────────────────────────────────────┐
+│  Servicios Docker Internos                              │
+│  │  Valhalla (ruteo, puerto 8002)                       │
+│  │  tileserver-gl (tiles vectoriales, puerto 8080)       │
+│  └──────────────────────────────────────────────────────┘
+│              │
+│              ▼
 │  n8n (automatización / bots)                            │
 │                                                         │
 │  Telegram Webhook ← → POST /api/webhooks/telegram      │
@@ -375,9 +381,11 @@ logistica_terremoto/
 │   │   ├── organizations/     # GET/POST - crear/listar org
 │   │   │   └── members/       # POST - agregar miembro
 │   │   ├── route-segments/    # POST - crear segmento de ruta
+│   │   ├── map/[...path]/     # GET - proxy tileserver-gl (tiles, style.json)
+│   │   ├── map/[...path]/   # GET - proxy tileserver (style.json + tiles)
 │   │   └── webhooks/
-│   │       ├── telegram/      # POST - webhook Telegram (n8n)
-│   │       └── whatsapp/      # POST - webhook WhatsApp (n8n)
+│       ├── telegram/      # POST - webhook Telegram (n8n)
+│       └── whatsapp/      # POST - webhook WhatsApp (n8n)
 │   ├── [locale]/
 │   │   ├── layout.tsx         # Layout con Navbar, Footer, Toaster
 │   │   ├── page.tsx           # Homepage
@@ -426,7 +434,7 @@ logistica_terremoto/
 │   │   ├── navbar/            # Navbar + mobile menu + dropdowns
 │   │   └── footer.tsx
 │   ├── maps/
-│   │   └── map-view.tsx       # Mapa Leaflet con marcadores/polylines
+│   │   └── map-view.tsx       # Mapa MapLibre con marcadores/polylines (imperativo)
 │   ├── shared/
 │   │   ├── community-stats-bar.tsx
 │   │   ├── field-styles.ts
@@ -763,6 +771,11 @@ Errores: 400 (invalid type), 500 (insert error)
 
 #### 12.3 Cálculo de distancia
 
+Dos niveles:
+
+1. **Valhalla** (ruteo por carretera): POST a `/api/osrm-route` que proxy a Valhalla interno. Devuelve geometría real de la ruta y distancia por carretera.
+2. **Fallback @turf/turf** (línea recta): si Valhalla falla, se usa `distance()` de `@turf/turf` con haversine:
+
 ```ts
 import { distance } from "@turf/turf"  // named import obligatorio
 
@@ -773,16 +786,34 @@ const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) 
 
 `@turf/turf` NO admite default import. Usar siempre `{ distance }`.
 
-#### 12.4 Mapa (`/explorar`)
+#### 12.4 Mapas
 
-- Librería: Leaflet via `react-leaflet`.
-- Marcadores por tipo con colores diferenciados:
-  - **Origen viaje**: círculo verde sólido.
-  - **Destino viaje**: círculo blanco con borde verde.
-  - **Transporte**: morado.
-  - **Hospedaje**: naranja.
-- Polyline punteada verde entre origen y destino.
-- Popups con información al hacer clic.
+- **Librería**: MapLibre GL JS (imperativo, vía `maplibre-gl`). Sin wrapper React.
+- **Tiles**: Servidor privado tileserver-gl en Docker, proxy vía `/api/map/[...path]` en Next.js.
+- **Style**: `NEXT_PUBLIC_MAP_STYLE_URL=/api/map/styles/basic/style.json` — el proxy reescribe URLs absolutas/relativas del style.json.
+- **Marcadores**: `maplibregl.Marker` con elementos DOM custom (div con estilo inline).
+- **Polylines**: `map.addSource()` GeoJSON + `map.addLayer()` type `line`. Las rutas entre origen y destino se renderizan como líneas punteadas.
+- **Ciclo de vida**: Se verifica `map.isStyleLoaded()` antes de agregar marcadores/líneas; si no, se espera `style.load`.
+- **Marcadores de ruta**: Se almacenan en `markersRef` para limpieza en cada re-render.
+
+#### 12.5 Infraestructura Docker
+
+```
+Servicios internos (misma red Docker):
+
+Valhalla (valhalla:8002)
+  → Ruteo por carretera (auto)
+  → API: POST /route con format: geojson
+  → Puerto expuesto: 8002
+
+tileserver-gl (tiles-service:8080)
+  → Tiles vectoriales desde .mbtiles
+  → Style: /styles/basic/style.json
+  → Tiles: /tiles/{z}/{x}/{y}.pbf
+  → Puerto expuesto: 8080
+```
+
+Acceso desde Next.js vía `host.docker.internal` (puertos expuestos en host).
 
 ---
 
@@ -925,6 +956,9 @@ Cada formulario usa esquemas zod definidos en `lib/schemas/`.
 NEXT_PUBLIC_SUPABASE_URL=http://backend.desdecerovenezuela.org:8000
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+OSRM_URL=http://host.docker.internal:5000
+TILE_SERVER_URL=http://host.docker.internal:8080
+NEXT_PUBLIC_MAP_STYLE_URL=/api/map/styles/basic/style.json
 ```
 
 #### 16.3 Comandos
@@ -983,7 +1017,8 @@ No hay soporte para Supabase local en este proyecto. Todas las operaciones apunt
 | `react-hook-form` | 7.80.0 | Formularios |
 | `@hookform/resolvers` | 5.4.0 | Integración zod |
 | `zod` | 4.4.3 | Validación |
-| `leaflet` / `react-leaflet` | 1.9.4 / 5.0.0 | Mapas |
+| `maplibre-gl` | 4.7+ | Mapas vectoriales MapLibre GL JS |
+| `@turf/turf` | 7.3.5 | Cálculos geográficos |
 | `@turf/turf` | 7.3.5 | Cálculos geográficos |
 | `lucide-react` | 1.22.0 | Iconos |
 | `sonner` | 2.0.7 | Toasts / notificaciones |

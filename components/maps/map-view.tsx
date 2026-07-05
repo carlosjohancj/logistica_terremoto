@@ -1,134 +1,174 @@
-"use client"
+"use client";
 
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet"
-import L from "leaflet"
+import { useRef, useEffect } from "react";
+import maplibregl from "maplibre-gl";
 
 export type ListItem = {
-  id: string
-  type: "travel" | "transport" | "housing"
-  title: string
-  lat: number
-  lng: number
-  destLat?: number
-  destLng?: number
-  description: string
-}
+  id: string;
+  type: "travel" | "transport" | "housing";
+  title: string;
+  lat: number;
+  lng: number;
+  destLat?: number;
+  destLng?: number;
+  description: string;
+};
 
 type MapViewProps = {
-  items: ListItem[]
-  center?: [number, number]
-  zoom?: number
-}
-
-const markerSize = 28
-const destMarkerSize = 20
+  items: ListItem[];
+  center?: [number, number];
+  zoom?: number;
+};
 
 const originColors: Record<string, string> = {
   travel: "#6B8F71",
   transport: "#A0845C",
   housing: "#4A7C59",
-}
+};
 
 const destColors: Record<string, string> = {
   travel: "#4A7C59",
   transport: "#6B8F71",
   housing: "#3D6B47",
-}
+};
 
 const routeColors: Record<string, string> = {
   travel: "#6B8F71",
   transport: "#A0845C",
   housing: "#4A7C59",
-}
+};
 
-function createOriginIcon(color: string) {
-  return L.divIcon({
-    className: "",
-    html: `<div style="width:${markerSize}px;height:${markerSize}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`,
-    iconSize: [markerSize, markerSize],
-    iconAnchor: [markerSize / 2, markerSize / 2],
-    popupAnchor: [0, -markerSize / 2],
-  })
-}
+const styleUrl =
+  process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
+  "https://demotiles.maplibre.org/style.json";
 
-function createDestIcon(color: string) {
-  return L.divIcon({
-    className: "",
-    html: `<div style="width:${destMarkerSize}px;height:${destMarkerSize}px;border-radius:50%;background:white;border:3px solid ${color};box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`,
-    iconSize: [destMarkerSize, destMarkerSize],
-    iconAnchor: [destMarkerSize / 2, destMarkerSize / 2],
-    popupAnchor: [0, -destMarkerSize / 2],
-  })
-}
+export function MapView({
+  items,
+  center = [9.5, -66.5],
+  zoom = 6,
+}: MapViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
 
-const originIcons: Record<string, L.DivIcon> = {
-  travel: createOriginIcon(originColors.travel),
-  transport: createOriginIcon(originColors.transport),
-  housing: createOriginIcon(originColors.housing),
-}
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
 
-const destIcons: Record<string, L.DivIcon> = {
-  travel: createDestIcon(destColors.travel),
-  transport: createDestIcon(destColors.transport),
-  housing: createDestIcon(destColors.housing),
-}
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: styleUrl,
+      center: [center[1], center[0]],
+      zoom,
+    });
 
-const tileUrl = process.env.NEXT_PUBLIC_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
+    mapRef.current = map;
 
-export function MapView({ items, center = [9.5, -66.5], zoom = 6 }: MapViewProps) {
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const m = mapRef.current;
+    if (!m) return;
+
+    function render(map: maplibregl.Map) {
+      markersRef.current.forEach((mk) => mk.remove());
+      markersRef.current = [];
+
+      items.forEach((item) => {
+        const el = document.createElement("div");
+        el.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:${originColors[item.type]};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`;
+
+        const popup = new maplibregl.Popup({ offset: 14 }).setHTML(
+          `<div class="text-sm"><strong>${item.title}</strong><p class="text-muted-foreground mt-1">${item.description}</p></div>`,
+        );
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([item.lng, item.lat])
+          .setPopup(popup)
+          .addTo(map);
+        markersRef.current.push(marker);
+
+        if (item.destLat !== undefined && item.destLng !== undefined) {
+          const destEl = document.createElement("div");
+          destEl.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:white;border:3px solid ${destColors[item.type]};box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`;
+
+          const destMarker = new maplibregl.Marker({ element: destEl })
+            .setLngLat([item.destLng, item.destLat])
+            .setPopup(
+              new maplibregl.Popup({ offset: 10 }).setHTML(
+                `<div class="text-sm"><strong>Destino</strong></div>`,
+              ),
+            )
+            .addTo(map);
+          markersRef.current.push(destMarker);
+        }
+      });
+
+      addRouteLines(map, items);
+    }
+
+    if (m.isStyleLoaded()) {
+      render(m);
+    } else {
+      m.once("style.load", () => render(m));
+    }
+  }, [items]);
+
   return (
-    <div className="relative isolate z-0 h-full w-full rounded-lg overflow-hidden border">
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        className="h-full w-full"
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url={tileUrl}
-        />
-        {items.map((item) => (
-          <div key={item.id}>
-            {item.destLat !== undefined && item.destLng !== undefined && (
-              <Polyline
-                positions={[
-                  [item.lat, item.lng],
-                  [item.destLat, item.destLng],
-                ]}
-                color={routeColors[item.type]}
-                weight={2}
-                opacity={0.5}
-                dashArray="8 6"
-              />
-            )}
-            <Marker
-              position={[item.lat, item.lng]}
-              icon={originIcons[item.type]}
-            >
-              <Popup>
-                <div className="text-sm">
-                  <strong className="text-primary">{item.title}</strong>
-                  <p className="text-muted-foreground mt-1">{item.description}</p>
-                </div>
-              </Popup>
-            </Marker>
-            {item.destLat !== undefined && item.destLng !== undefined && (
-              <Marker
-                position={[item.destLat, item.destLng]}
-                icon={destIcons[item.type]}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <strong className="text-primary">Destino</strong>
-                    <p className="text-muted-foreground mt-1">{item.description}</p>
-                  </div>
-                </Popup>
-              </Marker>
-            )}
-          </div>
-        ))}
-      </MapContainer>
+    <div className="h-full w-full rounded-lg overflow-hidden border">
+      <div ref={containerRef} className="h-full w-full" />
     </div>
-  )
+  );
+}
+
+function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
+  const features: GeoJSON.Feature[] = [];
+
+  items.forEach((item) => {
+    if (item.destLat !== undefined && item.destLng !== undefined) {
+      features.push({
+        type: "Feature",
+        properties: { color: routeColors[item.type] },
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [item.lng, item.lat],
+            [item.destLng, item.destLat],
+          ],
+        },
+      });
+    }
+  });
+
+  if (features.length === 0) return;
+
+  const sourceId = "route-lines";
+  if (map.getSource(sourceId)) {
+    (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features,
+    });
+    return;
+  }
+
+  map.addSource(sourceId, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features },
+  });
+
+  map.addLayer({
+    id: sourceId,
+    type: "line",
+    source: sourceId,
+    paint: {
+      "line-color": ["get", "color"],
+      "line-width": 2,
+      "line-opacity": 0.5,
+      "line-dasharray": [2, 2.5],
+    },
+  });
 }
