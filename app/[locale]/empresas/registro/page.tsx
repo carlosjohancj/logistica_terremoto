@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -27,6 +26,7 @@ import { toast } from "sonner"
 import { getSupabase } from "@/lib/supabase"
 import { useEstados } from "@/lib/estados"
 import { companySchema, CompanyValues } from "@/lib/schemas/company"
+import { FormField } from "@/components/forms/shared/form-field"
 
 export default function RegistroEmpresaPage() {
   const t = useTranslations("companies")
@@ -98,185 +98,180 @@ export default function RegistroEmpresaPage() {
             <div className="space-y-4">
               <h3 className="font-semibold">{t("companyInfo")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("name")}</Label>
-                  <Input {...register("name")} />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>RIF</Label>
-                  <Input {...register("rif")} />
-                </div>
+                <FormField label={t("name")} required error={errors.name?.message}>
+                  {(field) => <Input {...field} autoComplete="organization" {...register("name")} />}
+                </FormField>
+                <FormField label="RIF">
+                  {(field) => <Input {...field} {...register("rif")} />}
+                </FormField>
               </div>
-              <div className="space-y-2">
-                <Label>{t("sector")}</Label>
-                <Controller
-                  name="sector"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("sector")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="tecnologia">Tecnología</SelectItem>
-                        <SelectItem value="salud">Salud</SelectItem>
-                        <SelectItem value="educacion">Educación</SelectItem>
-                        <SelectItem value="construccion">Construcción</SelectItem>
-                        <SelectItem value="comercio">Comercio</SelectItem>
-                        <SelectItem value="transporte">Transporte</SelectItem>
-                        <SelectItem value="alimentacion">Alimentación</SelectItem>
-                        <SelectItem value="servicios">Servicios</SelectItem>
-                        <SelectItem value="otro">Otro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.sector && (
-                  <p className="text-sm text-destructive">{errors.sector.message}</p>
+              <FormField label={t("sector")} error={errors.sector?.message}>
+                {(field) => (
+                  <Controller
+                    name="sector"
+                    control={control}
+                    render={({ field: rhf }) => (
+                      <Select value={rhf.value ?? ""} onValueChange={rhf.onChange}>
+                        <SelectTrigger
+                          id={field.id}
+                          aria-invalid={field["aria-invalid"]}
+                          aria-describedby={field["aria-describedby"]}
+                        >
+                          <SelectValue placeholder={t("sector")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="tecnologia">Tecnología</SelectItem>
+                          <SelectItem value="salud">Salud</SelectItem>
+                          <SelectItem value="educacion">Educación</SelectItem>
+                          <SelectItem value="construccion">Construcción</SelectItem>
+                          <SelectItem value="comercio">Comercio</SelectItem>
+                          <SelectItem value="transporte">Transporte</SelectItem>
+                          <SelectItem value="alimentacion">Alimentación</SelectItem>
+                          <SelectItem value="servicios">Servicios</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label>{t("description")}</Label>
-                <Textarea {...register("description")} rows={4} />
-              </div>
+              </FormField>
+              <FormField label={t("description")}>
+                {(field) => <Textarea {...field} {...register("description")} rows={4} />}
+              </FormField>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold">{t("location")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("state")}</Label>
-                  <Controller
-                    name="state"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={(v) => {
-                          field.onChange(v)
-                          setValue("municipality", "")
-                          setValue("city", "")
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("state")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {estadosLoading ? (
-                            <SelectItem value="" disabled>
-                              {tc("loading")}
-                            </SelectItem>
-                          ) : (
-                            estados.map((e) => (
-                              <SelectItem key={e.name} value={e.name}>
-                                {e.name}
+                <FormField label={t("state")}>
+                  {(field) => (
+                    <Controller
+                      name="state"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={(v) => {
+                            rhf.onChange(v)
+                            setValue("municipality", "")
+                            setValue("city", "")
+                          }}
+                        >
+                          <SelectTrigger id={field.id}>
+                            <SelectValue placeholder={t("state")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {estadosLoading ? (
+                              <SelectItem value="" disabled>
+                                {tc("loading")}
                               </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("municipality")}</Label>
-                  <Controller
-                    name="municipality"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={(v) => {
-                          field.onChange(v)
-                          setValue("city", "")
-                        }}
-                        disabled={!selectedEstado}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("municipality")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedEstado?.municipios.map((m) => (
-                            <SelectItem key={m.municipio} value={m.municipio}>
-                              {m.municipio}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("city")}</Label>
-                  <Controller
-                    name="city"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={field.onChange}
-                        disabled={!selectedEstado || !municipalityValue}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("city")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedEstado?.municipios
-                            .find((m) => m.municipio === municipalityValue)
-                            ?.ciudades.map((c) => (
-                              <SelectItem key={c} value={c}>
-                                {c}
+                            ) : (
+                              estados.map((e) => (
+                                <SelectItem key={e.name} value={e.name}>
+                                  {e.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
+                <FormField label={t("municipality")}>
+                  {(field) => (
+                    <Controller
+                      name="municipality"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={(v) => {
+                            rhf.onChange(v)
+                            setValue("city", "")
+                          }}
+                          disabled={!selectedEstado}
+                        >
+                          <SelectTrigger id={field.id}>
+                            <SelectValue placeholder={t("municipality")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedEstado?.municipios.map((m) => (
+                              <SelectItem key={m.municipio} value={m.municipio}>
+                                {m.municipio}
                               </SelectItem>
                             ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
+                <FormField label={t("city")}>
+                  {(field) => (
+                    <Controller
+                      name="city"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={rhf.onChange}
+                          disabled={!selectedEstado || !municipalityValue}
+                        >
+                          <SelectTrigger id={field.id}>
+                            <SelectValue placeholder={t("city")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedEstado?.municipios
+                              .find((m) => m.municipio === municipalityValue)
+                              ?.ciudades.map((c) => (
+                                <SelectItem key={c} value={c}>
+                                  {c}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
               </div>
-              <div className="space-y-2">
-                <Label>{t("address")}</Label>
-                <Input {...register("address")} />
-              </div>
+              <FormField label={t("address")}>
+                {(field) => <Input {...field} autoComplete="street-address" {...register("address")} />}
+              </FormField>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold">{t("contact")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("contactName")}</Label>
-                  <Input {...register("contact_name")} />
-                  {errors.contact_name && (
-                    <p className="text-sm text-destructive">{errors.contact_name.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("contactPhone")}</Label>
-                  <Input {...register("contact_phone")} />
-                </div>
+                <FormField label={t("contactName")} required error={errors.contact_name?.message}>
+                  {(field) => <Input {...field} autoComplete="name" {...register("contact_name")} />}
+                </FormField>
+                <FormField label={t("contactPhone")}>
+                  {(field) => <Input {...field} type="tel" autoComplete="tel" {...register("contact_phone")} />}
+                </FormField>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("contactEmail")}</Label>
-                  <Input type="email" {...register("contact_email")} />
-                  {errors.contact_email && (
-                    <p className="text-sm text-destructive">{errors.contact_email.message}</p>
+                <FormField label={t("contactEmail")} required error={errors.contact_email?.message}>
+                  {(field) => (
+                    <Input {...field} type="email" autoComplete="email" {...register("contact_email")} />
                   )}
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("website")}</Label>
-                  <Input type="url" {...register("website")} placeholder="https://" />
-                  {errors.website && (
-                    <p className="text-sm text-destructive">{errors.website.message}</p>
+                </FormField>
+                <FormField label={t("website")} error={errors.website?.message}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="url"
+                      autoComplete="url"
+                      {...register("website")}
+                      placeholder="https://"
+                    />
                   )}
-                </div>
+                </FormField>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>

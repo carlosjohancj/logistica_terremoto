@@ -94,8 +94,9 @@ export default function EmpleosPage() {
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input
+            aria-label={t("search")}
             placeholder={t("search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -103,7 +104,7 @@ export default function EmpleosPage() {
           />
         </div>
         <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-          <SelectTrigger className={`${SELECT_TRIGGER_CLASS} sm:w-44`}>
+          <SelectTrigger aria-label={t("filterState")} className={`${SELECT_TRIGGER_CLASS} sm:w-44`}>
             <SelectValue placeholder={t("filterState")} />
           </SelectTrigger>
           <SelectContent>
@@ -118,7 +119,7 @@ export default function EmpleosPage() {
           </SelectContent>
         </Select>
         <Select value={filterModality} onValueChange={(v) => setFilterModality(v ?? "")}>
-          <SelectTrigger className={`${SELECT_TRIGGER_CLASS} sm:w-40`}>
+          <SelectTrigger aria-label={t("filterModality")} className={`${SELECT_TRIGGER_CLASS} sm:w-40`}>
             <SelectValue placeholder={t("filterModality")} />
           </SelectTrigger>
           <SelectContent>

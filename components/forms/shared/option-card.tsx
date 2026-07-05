@@ -8,6 +8,8 @@ interface OptionCardProps {
   selected: boolean
   onClick: () => void
   className?: string
+  /** Set to "radio" when this card is one item of a mutually-exclusive RadioCardGroup. */
+  role?: "radio"
 }
 
 export function OptionCard({
@@ -17,12 +19,15 @@ export function OptionCard({
   selected,
   onClick,
   className,
+  role,
 }: OptionCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={selected}
+      role={role}
+      aria-checked={role === "radio" ? selected : undefined}
+      aria-pressed={role === "radio" ? undefined : selected}
       className={cn(
         "flex items-center justify-center gap-2 rounded-xl border text-sm font-medium transition-colors",
         Icon ? "flex-col p-4 text-center" : "h-10 px-4",

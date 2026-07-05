@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -26,6 +25,7 @@ import { toast } from "sonner"
 import { jobSchema, JobValues } from "@/lib/schemas/job"
 import { JOB_MODALITIES } from "@/lib/forms/constants"
 import { JobLocationFields } from "./location-fields"
+import { FormField } from "@/components/forms/shared/form-field"
 
 type JobFormProps = {
   companyId: string
@@ -81,21 +81,15 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
       </DialogHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>{tj("title")}</Label>
-            <Input {...register("title")} />
-            {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>{tj("description") || "Descripción"}</Label>
-            <Textarea {...register("description")} rows={3} />
-          </div>
-          <div className="space-y-2">
-            <Label>{tj("requirements")}</Label>
-            <Textarea {...register("requirements")} rows={3} />
-          </div>
+          <FormField label={tj("title")} required error={errors.title?.message}>
+            {(field) => <Input {...field} {...register("title")} />}
+          </FormField>
+          <FormField label={tj("description") || "Descripción"}>
+            {(field) => <Textarea {...field} {...register("description")} rows={3} />}
+          </FormField>
+          <FormField label={tj("requirements")}>
+            {(field) => <Textarea {...field} {...register("requirements")} rows={3} />}
+          </FormField>
 
           <JobLocationFields
             control={control}
@@ -104,44 +98,43 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{tj("modality")}</Label>
-              <Controller
-                name="modality"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={tj("modality")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {JOB_MODALITIES.map((m) => (
-                        <SelectItem key={m} value={m}>{tj(m)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.modality && (
-                <p className="text-sm text-destructive">{errors.modality.message}</p>
+            <FormField label={tj("modality")} required error={errors.modality?.message}>
+              {(field) => (
+                <Controller
+                  name="modality"
+                  control={control}
+                  render={({ field: rhf }) => (
+                    <Select value={rhf.value ?? ""} onValueChange={rhf.onChange}>
+                      <SelectTrigger
+                        id={field.id}
+                        aria-invalid={field["aria-invalid"]}
+                        aria-describedby={field["aria-describedby"]}
+                      >
+                        <SelectValue placeholder={tj("modality")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {JOB_MODALITIES.map((m) => (
+                          <SelectItem key={m} value={m}>{tj(m)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               )}
-            </div>
-            <div className="space-y-2">
-              <Label>{tj("salary")}</Label>
-              <Input {...register("salary_range")} placeholder="$" />
-            </div>
+            </FormField>
+            <FormField label={tj("salary")}>
+              {(field) => <Input {...field} {...register("salary_range")} placeholder="$" />}
+            </FormField>
           </div>
 
-          <div className="space-y-2">
-            <Label>{tj("contact")}</Label>
-            <Input type="email" {...register("contact_email")} />
-            {errors.contact_email && (
-              <p className="text-sm text-destructive">{errors.contact_email.message}</p>
+          <FormField label={tj("contact")} required error={errors.contact_email?.message}>
+            {(field) => (
+              <Input {...field} type="email" autoComplete="email" {...register("contact_email")} />
             )}
-          </div>
+          </FormField>
         </div>
         <DialogFooter>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
             {isSubmitting ? tc("loading") : tc("save")}
           </Button>
         </DialogFooter>

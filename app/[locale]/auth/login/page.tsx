@@ -7,7 +7,6 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -15,6 +14,7 @@ import { loginUser } from "@/lib/auth"
 import { createLoginSchema, type LoginFormValues } from "@/lib/schemas/auth"
 import { FIELD_CLASS, PASSWORD_FIELD_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
+import { FormField } from "@/components/forms/shared/form-field"
 
 export default function LoginPage() {
   const t = useTranslations("auth")
@@ -53,17 +53,22 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
-              <Input id="email" type="email" className={FIELD_CLASS} {...register("email")} />
-              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("password")}</Label>
-              <PasswordInput id="password" className={PASSWORD_FIELD_CLASS} {...register("password")} />
-              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-            </div>
-            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={isSubmitting}>
+            <FormField label={t("email")} required error={errors.email?.message}>
+              {(field) => (
+                <Input {...field} type="email" autoComplete="email" className={FIELD_CLASS} {...register("email")} />
+              )}
+            </FormField>
+            <FormField label={t("password")} required error={errors.password?.message}>
+              {(field) => (
+                <PasswordInput
+                  {...field}
+                  autoComplete="current-password"
+                  className={PASSWORD_FIELD_CLASS}
+                  {...register("password")}
+                />
+              )}
+            </FormField>
+            <Button type="submit" className={cn("w-full", BUTTON_HEIGHT_CLASS)} disabled={isSubmitting} aria-busy={isSubmitting}>
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>

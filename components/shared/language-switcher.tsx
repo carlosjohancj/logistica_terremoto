@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Globe } from "lucide-react";
 import {
   Select,
@@ -20,6 +21,7 @@ const languages = [
 ];
 
 export function LanguageSwitcher() {
+  const t = useTranslations("common");
   const pathname = usePathname();
 
   function switchLocale(locale: string | null) {
@@ -31,8 +33,11 @@ export function LanguageSwitcher() {
 
   return (
     <Select defaultValue="es" onValueChange={switchLocale}>
-      <SelectTrigger className="rounded-full border border-border px-2.5 py-1 h-auto text-xs font-medium hover:bg-muted transition-colors shadow-none bg-transparent w-auto gap-1">
-        <Globe className="size-3.5 shrink-0 text-muted-foreground" />
+      <SelectTrigger
+        aria-label={t("languageToggle")}
+        className="rounded-full border border-border px-2.5 py-1 h-auto text-xs font-medium hover:bg-muted transition-colors shadow-none bg-transparent w-auto gap-1"
+      >
+        <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
       </SelectTrigger>
       <SelectContent>
         {languages.map((lang) => (

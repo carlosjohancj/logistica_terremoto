@@ -25,7 +25,9 @@
     "contacto": "Kontakt",
     "terminosUso": "Nutzungsbedingungen",
     "whatsapp": "WhatsApp",
-    "email": "E-Mail"
+    "email": "E-Mail",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen"
   },
   "home": {
     "title": "Desde Cero",
@@ -94,7 +96,8 @@
     "voluntarioTipo": "Freiwilligentyp",
     "voluntarioHospedaje": "Unterkunftsfreiwilliger",
     "voluntarioGestion": "Verwaltungsfreiwilliger",
-    "voluntarioAmbos": "Beides"
+    "voluntarioAmbos": "Beides",
+    "age": "Alter"
   },
   "travelRequest": {
     "title": "Reise Anfragen",
@@ -397,7 +400,12 @@
     "themeSystem": "System",
     "select": "Auswählen",
     "authRequired": "Sie müssen angemeldet sein",
-    "tryAgain": "Versuchen Sie es erneut"
+    "tryAgain": "Versuchen Sie es erneut",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "languageToggle": "Sprache ändern",
+    "mapView": "Kartenansicht",
+    "listView": "Listenansicht"
   },
   "familyAid": {
     "title": "Familienhilfe",

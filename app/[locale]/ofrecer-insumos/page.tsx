@@ -26,6 +26,7 @@ import { getSupabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import { useEstados } from "@/lib/estados"
 import { supplySchema, SupplyValues } from "@/lib/schemas/supply"
+import { FormField } from "@/components/forms/shared/form-field"
 
 const CATEGORIES = ["camas", "comida", "ropa", "medicinas", "agua", "higiene", "electronico", "materiales", "muebles", "otros"] as const
 const CONDITIONS = ["nuevo", "usado_bueno", "usado_regular", "no_aplica"] as const
@@ -152,184 +153,179 @@ export default function OfrecerInsumosPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label>{t("title")}</Label>
-              <Input {...register("title")} placeholder={t("titlePlaceholder")} />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
-              )}
-            </div>
+            <FormField label={t("title")} required error={errors.title?.message}>
+              {(field) => <Input {...field} {...register("title")} placeholder={t("titlePlaceholder")} />}
+            </FormField>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t("category")}</Label>
-                <Controller
-                  name="category"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("category")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {t(c)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.category && (
-                  <p className="text-sm text-destructive">{errors.category.message}</p>
+              <FormField label={t("category")} required error={errors.category?.message}>
+                {(field) => (
+                  <Controller
+                    name="category"
+                    control={control}
+                    render={({ field: rhf }) => (
+                      <Select value={rhf.value ?? ""} onValueChange={rhf.onChange}>
+                        <SelectTrigger
+                          id={field.id}
+                          aria-invalid={field["aria-invalid"]}
+                          aria-describedby={field["aria-describedby"]}
+                        >
+                          <SelectValue placeholder={t("category")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {t(c)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label>{t("quantity")}</Label>
-                <Input type="number" min={0} {...register("quantity")} />
-              </div>
+              </FormField>
+              <FormField label={t("quantity")}>
+                {(field) => <Input {...field} type="number" min={0} {...register("quantity")} />}
+              </FormField>
             </div>
 
             {supplyType === "offer" && (
-              <div className="space-y-2">
-                <Label>{t("condition")}</Label>
-                <Controller
-                  name="condition"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("condition")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CONDITIONS.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {t(c)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
+              <FormField label={t("condition")}>
+                {(field) => (
+                  <Controller
+                    name="condition"
+                    control={control}
+                    render={({ field: rhf }) => (
+                      <Select value={rhf.value ?? ""} onValueChange={rhf.onChange}>
+                        <SelectTrigger id={field.id}>
+                          <SelectValue placeholder={t("condition")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CONDITIONS.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {t(c)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                )}
+              </FormField>
             )}
 
-            <div className="space-y-2">
-              <Label>{t("description")}</Label>
-              <Textarea {...register("description")} rows={4} />
-            </div>
+            <FormField label={t("description")}>
+              {(field) => <Textarea {...field} {...register("description")} rows={4} />}
+            </FormField>
 
             <div className="space-y-4">
               <h3 className="font-semibold">{t("location")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("state")}</Label>
-                  <Controller
-                    name="state"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={(v) => {
-                          field.onChange(v)
-                          setValue("municipality", "")
-                          setValue("city", "")
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("state")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {estados.map((e) => (
-                            <SelectItem key={e.name} value={e.name}>
-                              {e.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.state && (
-                    <p className="text-sm text-destructive">{errors.state.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("municipality")}</Label>
-                  <Controller
-                    name="municipality"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={(v) => {
-                          field.onChange(v)
-                          setValue("city", "")
-                        }}
-                        disabled={!selectedEstado}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("municipality")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedEstado?.municipios.map((m) => (
-                            <SelectItem key={m.municipio} value={m.municipio}>
-                              {m.municipio}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("city")}</Label>
-                  <Controller
-                    name="city"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={field.onChange}
-                        disabled={!selectedEstado || !municipalityValue}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("city")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedEstado?.municipios
-                            .find((m) => m.municipio === municipalityValue)
-                            ?.ciudades.map((c) => (
-                              <SelectItem key={c} value={c}>
-                                {c}
+                <FormField label={t("state")} required error={errors.state?.message}>
+                  {(field) => (
+                    <Controller
+                      name="state"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={(v) => {
+                            rhf.onChange(v)
+                            setValue("municipality", "")
+                            setValue("city", "")
+                          }}
+                        >
+                          <SelectTrigger
+                            id={field.id}
+                            aria-invalid={field["aria-invalid"]}
+                            aria-describedby={field["aria-describedby"]}
+                          >
+                            <SelectValue placeholder={t("state")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {estados.map((e) => (
+                              <SelectItem key={e.name} value={e.name}>
+                                {e.name}
                               </SelectItem>
                             ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
+                <FormField label={t("municipality")}>
+                  {(field) => (
+                    <Controller
+                      name="municipality"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={(v) => {
+                            rhf.onChange(v)
+                            setValue("city", "")
+                          }}
+                          disabled={!selectedEstado}
+                        >
+                          <SelectTrigger id={field.id}>
+                            <SelectValue placeholder={t("municipality")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedEstado?.municipios.map((m) => (
+                              <SelectItem key={m.municipio} value={m.municipio}>
+                                {m.municipio}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
+                <FormField label={t("city")}>
+                  {(field) => (
+                    <Controller
+                      name="city"
+                      control={control}
+                      render={({ field: rhf }) => (
+                        <Select
+                          value={rhf.value ?? ""}
+                          onValueChange={rhf.onChange}
+                          disabled={!selectedEstado || !municipalityValue}
+                        >
+                          <SelectTrigger id={field.id}>
+                            <SelectValue placeholder={t("city")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedEstado?.municipios
+                              .find((m) => m.municipio === municipalityValue)
+                              ?.ciudades.map((c) => (
+                                <SelectItem key={c} value={c}>
+                                  {c}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
+                </FormField>
               </div>
-              <div className="space-y-2">
-                <Label>{t("address")}</Label>
-                <Input {...register("address")} />
-              </div>
+              <FormField label={t("address")}>
+                {(field) => <Input {...field} autoComplete="street-address" {...register("address")} />}
+              </FormField>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold">{t("contact")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("contactName")}</Label>
-                  <Input {...register("contact_name")} />
-                  {errors.contact_name && (
-                    <p className="text-sm text-destructive">{errors.contact_name.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("contactPhone")}</Label>
-                  <Input {...register("contact_phone")} />
-                </div>
+                <FormField label={t("contactName")} required error={errors.contact_name?.message}>
+                  {(field) => <Input {...field} autoComplete="name" {...register("contact_name")} />}
+                </FormField>
+                <FormField label={t("contactPhone")}>
+                  {(field) => <Input {...field} type="tel" autoComplete="tel" {...register("contact_phone")} />}
+                </FormField>
               </div>
             </div>
 
@@ -345,7 +341,13 @@ export default function OfrecerInsumosPage() {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full md:w-auto"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>

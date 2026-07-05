@@ -428,7 +428,7 @@ export default function AdminPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowDialog(false)}>{tc("cancel")}</Button>
-              <Button onClick={saveProvider} disabled={saving}>
+              <Button onClick={saveProvider} disabled={saving} aria-busy={saving}>
                 {saving ? "Guardando..." : tc("save")}
               </Button>
             </div>

@@ -25,7 +25,9 @@
     "contacto": "Contact",
     "terminosUso": "Conditions d'utilisation",
     "whatsapp": "WhatsApp",
-    "email": "Email"
+    "email": "Email",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   },
   "home": {
     "title": "Desde Cero",
@@ -94,7 +96,8 @@
     "voluntarioTipo": "Type de bénévole",
     "voluntarioHospedaje": "Bénévole d'hébergement",
     "voluntarioGestion": "Bénévole de gestion",
-    "voluntarioAmbos": "Les deux"
+    "voluntarioAmbos": "Les deux",
+    "age": "Âge"
   },
   "travelRequest": {
     "title": "Demander un Trajet",
@@ -397,7 +400,12 @@
     "themeSystem": "Système",
     "select": "Sélectionner",
     "authRequired": "Vous devez être connecté",
-    "tryAgain": "Réessayez"
+    "tryAgain": "Réessayez",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "languageToggle": "Changer de langue",
+    "mapView": "Vue carte",
+    "listView": "Vue liste"
   },
   "familyAid": {
     "title": "Aide Familiale",

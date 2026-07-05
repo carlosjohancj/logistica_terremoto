@@ -35,6 +35,7 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
   const openCardsRef = useRef<Set<string>>(new Set())
   const anyOpenRef = useRef(false)
   const hoveringRef = useRef(false)
+  const focusedRef = useRef(false)
   const singleSetWidth = estados.length * STEP
 
   function markInteracting() {
@@ -55,6 +56,10 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
 
   // Auto-scroll loop
   useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return
+    }
+
     let raf = 0
     let lastTime: number | null = null
     const searching = search.trim().length > 0
@@ -65,7 +70,15 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
       lastTime = time
 
       const el = containerRef.current
-      if (el && !searching && !interactingRef.current && !anyOpenRef.current && !hoveringRef.current && singleSetWidth > 0) {
+      if (
+        el &&
+        !searching &&
+        !interactingRef.current &&
+        !anyOpenRef.current &&
+        !hoveringRef.current &&
+        !focusedRef.current &&
+        singleSetWidth > 0
+      ) {
         el.scrollLeft += SPEED * dt
       }
       raf = requestAnimationFrame(tick)
@@ -156,6 +169,14 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
       hoveringRef.current = false
     }
 
+    function onFocusIn() {
+      focusedRef.current = true
+    }
+
+    function onFocusOut(e: FocusEvent) {
+      if (!el!.contains(e.relatedTarget as Node)) focusedRef.current = false
+    }
+
     el.addEventListener("scroll", onScroll)
     el.addEventListener("wheel", onWheel, { passive: false })
     el.addEventListener("pointerdown", onPointerDown)
@@ -166,6 +187,8 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
     el.addEventListener("touchstart", onTouchStart, { passive: true })
     el.addEventListener("mouseenter", onMouseEnter)
     el.addEventListener("mouseleave", onMouseLeave)
+    el.addEventListener("focusin", onFocusIn)
+    el.addEventListener("focusout", onFocusOut)
 
     return () => {
       el.removeEventListener("scroll", onScroll)
@@ -178,6 +201,8 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
       el.removeEventListener("touchstart", onTouchStart)
       el.removeEventListener("mouseenter", onMouseEnter)
       el.removeEventListener("mouseleave", onMouseLeave)
+      el.removeEventListener("focusin", onFocusIn)
+      el.removeEventListener("focusout", onFocusOut)
       if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
     }
   }, [singleSetWidth])
@@ -201,6 +226,8 @@ export function StatesMarquee({ estados, citiesByState, housingByCity, search }:
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="Estados de Venezuela"
       className="flex gap-4 overflow-x-auto px-4 pb-1 cursor-grab select-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
     >
       {loopItems.map((e, i) => {

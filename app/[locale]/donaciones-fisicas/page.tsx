@@ -115,26 +115,29 @@ export default function DonacionesFisicasPage() {
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
+              aria-label={t("search")}
               placeholder={t("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-10 pl-9 pr-4"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div role="group" aria-label={t("all")} className="flex flex-wrap gap-2">
             <Button
               variant={filterType === "all" ? "default" : "outline"}
               className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
               onClick={() => setFilterType("all")}
+              aria-pressed={filterType === "all"}
             >
-              <ArrowDownUp className="h-3 w-3 mr-1" /> {t("all")}
+              <ArrowDownUp className="h-3 w-3 mr-1" aria-hidden="true" /> {t("all")}
             </Button>
             <Button
               variant={filterType === "offer" ? "default" : "outline"}
               className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
               onClick={() => setFilterType("offer")}
+              aria-pressed={filterType === "offer"}
             >
               {t("iOffer")}
             </Button>
@@ -142,12 +145,13 @@ export default function DonacionesFisicasPage() {
               variant={filterType === "request" ? "default" : "outline"}
               className={cn(BUTTON_HEIGHT_CLASS, "px-4")}
               onClick={() => setFilterType("request")}
+              aria-pressed={filterType === "request"}
             >
               {t("iNeed")}
             </Button>
           </div>
           <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v ?? "")}>
-            <SelectTrigger className={cn(SELECT_TRIGGER_CLASS, "sm:w-36")}>
+            <SelectTrigger aria-label={t("category")} className={cn(SELECT_TRIGGER_CLASS, "sm:w-36")}>
               <SelectValue placeholder={t("category")} />
             </SelectTrigger>
             <SelectContent>
@@ -158,7 +162,7 @@ export default function DonacionesFisicasPage() {
             </SelectContent>
           </Select>
           <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-            <SelectTrigger className={cn(SELECT_TRIGGER_CLASS, "sm:w-40")}>
+            <SelectTrigger aria-label={t("state")} className={cn(SELECT_TRIGGER_CLASS, "sm:w-40")}>
               <SelectValue placeholder={t("state")} />
             </SelectTrigger>
             <SelectContent>

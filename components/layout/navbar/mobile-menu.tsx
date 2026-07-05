@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ChevronRight, ChevronLeft, LogOut, X } from "lucide-react";
@@ -27,10 +27,25 @@ export function NavMobileMenu({
   const t = useTranslations("nav");
   const th = useTranslations("home");
   const [group, setGroup] = useState<Group | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!open) setGroup(null);
-  }, [open]);
+    if (!open) {
+      setGroup(null);
+      previouslyFocusedRef.current?.focus();
+      return;
+    }
+
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
 
   const rootLinks = [
     { href: `/${locale}/empiezo-desde-cero`, label: th("ctaEmpiezo") },
@@ -70,6 +85,10 @@ export function NavMobileMenu({
       />
 
       <div
+        id="mobile-nav-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("openMenu")}
         className={cn(
           "fixed right-0 top-0 z-50 flex h-dvh w-full max-w-sm flex-col bg-background shadow-xl transition-transform duration-500 ease-in-out lg:hidden",
           open ? "translate-x-0" : "translate-x-full"
@@ -81,8 +100,8 @@ export function NavMobileMenu({
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
-          <button aria-label="Cerrar menú" onClick={onClose} className="p-1">
-            <X className="h-5 w-5" />
+          <button ref={closeButtonRef} aria-label={t("closeMenu")} onClick={onClose} className="p-1">
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -103,18 +122,24 @@ export function NavMobileMenu({
                   </Link>
                 ))}
                 <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={false}
                   className="flex items-center justify-between py-2.5 text-xs font-semibold tracking-wide uppercase text-muted-foreground transition-colors hover:text-primary"
                   onClick={() => setGroup("ofrecer")}
                 >
                   {ofrecerLabel}
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={false}
                   className="flex items-center justify-between py-2.5 text-xs font-semibold tracking-wide uppercase text-muted-foreground transition-colors hover:text-primary"
                   onClick={() => setGroup("mas")}
                 >
                   {masLabel}
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </nav>
 
@@ -129,13 +154,14 @@ export function NavMobileMenu({
                     {t("perfil")}
                   </Link>
                   <button
+                    type="button"
                     className="-ml-3 mt-2 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                     onClick={async () => {
                       await getSupabase().auth.signOut();
                       window.location.href = `/${locale}`;
                     }}
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
                     {t("cerrarSesion")}
                   </button>
                 </div>
@@ -153,10 +179,11 @@ export function NavMobileMenu({
           ) : (
             <div>
               <button
+                type="button"
                 className="mb-6 flex items-center gap-2 text-sm font-medium text-foreground"
                 onClick={() => setGroup(null)}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 {groupLabel}
               </button>
               <nav className="flex flex-col">

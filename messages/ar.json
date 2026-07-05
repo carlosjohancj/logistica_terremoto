@@ -25,7 +25,9 @@
     "contacto": "اتصال",
     "terminosUso": "شروط الاستخدام",
     "whatsapp": "واتساب",
-    "email": "بريد إلكتروني"
+    "email": "بريد إلكتروني",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة"
   },
   "home": {
     "title": "من الصفر",
@@ -94,7 +96,8 @@
     "voluntarioTipo": "نوع المتطوع",
     "voluntarioHospedaje": "متطوع إيواء",
     "voluntarioGestion": "متطوع إدارة",
-    "voluntarioAmbos": "كلاهما"
+    "voluntarioAmbos": "كلاهما",
+    "age": "العمر"
   },
   "travelRequest": {
     "title": "طلب رحلة",
@@ -397,7 +400,12 @@
     "themeSystem": "النظام",
     "select": "اختيار",
     "authRequired": "يجب تسجيل الدخول",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "languageToggle": "تغيير اللغة",
+    "mapView": "عرض الخريطة",
+    "listView": "عرض القائمة"
   },
   "familyAid": {
     "title": "مساعدة عائلية",

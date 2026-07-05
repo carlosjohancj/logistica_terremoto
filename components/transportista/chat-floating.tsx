@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getSupabase } from "@/lib/supabase"
 import { toast } from "sonner"
+import { MessageCircle, X } from "lucide-react"
 
 type Match = {
   id: string
@@ -96,14 +97,18 @@ export default function ChatFloating() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center text-2xl"
+        aria-expanded={open}
+        aria-controls="chat-floating-panel"
+        aria-label={open ? "Cerrar chat" : "Abrir chat"}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center"
       >
-        {open ? "✕" : "💬"}
+        {open ? <X className="h-6 w-6" aria-hidden="true" /> : <MessageCircle className="h-6 w-6" aria-hidden="true" />}
       </button>
 
       {open && (
-        <Card className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] shadow-xl flex flex-col">
+        <Card id="chat-floating-panel" role="region" aria-label="Mensajes" className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] shadow-xl flex flex-col">
           <CardHeader className="p-3 pb-0">
             <CardTitle className="text-sm">Mensajes</CardTitle>
           </CardHeader>
@@ -113,7 +118,9 @@ export default function ChatFloating() {
                   {matches.map((m) => (
                     <button
                       key={m.id}
+                      type="button"
                       onClick={() => setSelectedMatch(m)}
+                      aria-pressed={selectedMatch?.id === m.id}
                       className={`w-full text-left px-2 py-1.5 rounded text-xs ${
                         selectedMatch?.id === m.id ? "bg-accent" : "hover:bg-accent/50"
                       }`}
