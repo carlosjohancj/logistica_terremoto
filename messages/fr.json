@@ -253,6 +253,7 @@
     "apply": "Postuler",
     "applyEmail": "Envoyer CV par email",
     "postedDate": "Publié",
+    "description": "Description",
     "noDescription": "Aucune description",
     "newJob": "Nouvel emploi"
   },

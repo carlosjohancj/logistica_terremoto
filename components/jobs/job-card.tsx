@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { Building2, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -55,14 +54,14 @@ function timeAgo(dateStr?: string) {
   return `Publicado hace ${months} ${months === 1 ? "mes" : "meses"}`
 }
 
-export function JobCard({ job, index }: { job: Job; index: number }) {
+export function JobCard({ job, index, onSelect }: { job: Job; index: number; onSelect: (id: string) => void }) {
   const palette = MODALITY_PALETTE[job.modality] ?? DEFAULT_PALETTE
   const companyName = job.company?.name || "Empresa"
   const rotate = index % 2 === 0 ? "hover:-rotate-1" : "hover:rotate-1"
   const posted = timeAgo(job.created_at)
 
   return (
-    <Link href={`/empleos/${job.id}`} className="block h-full">
+    <button type="button" onClick={() => onSelect(job.id)} className="block h-full text-left w-full">
       <div
         className={cn(
           "group relative flex h-full flex-col gap-3 rounded-2xl border-2 p-5 shadow-sm transition-all duration-300 cursor-pointer",
@@ -108,6 +107,6 @@ export function JobCard({ job, index }: { job: Job; index: number }) {
           </p>
         )}
       </div>
-    </Link>
+    </button>
   )
 }

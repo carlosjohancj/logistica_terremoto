@@ -255,6 +255,7 @@
     "apply": "Apply",
     "applyEmail": "Send CV by email",
     "postedDate": "Posted",
+    "description": "Description",
     "noDescription": "No description",
     "newJob": "New Job"
   },
