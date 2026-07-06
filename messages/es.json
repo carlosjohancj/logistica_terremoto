@@ -231,9 +231,14 @@
     "reachDesc": "Operamos en los 23 estados de Venezuela, llegando a donde más se necesita.",
     "joinUs": "Únete a la Causa",
     "joinUsDesc": "Hay muchas formas de ayudar. Ya sea ofreciendo transporte, hospedaje o recursos, tu apoyo hace la diferencia.",
-    "requestTrip": "Solicitar Viaje",
-    "offerTransport": "Ofrecer Transporte",
-    "offerHousing": "Ofrecer Hospedaje"
+    "ctaButton": "Comenzar ahora",
+    "teamTitle": "El equipo",
+    "teamSubtitle": "Las personas que construyen y mantienen esta plataforma",
+    "roleFullStack": "Full Stack Developer",
+    "carlosBio": "Desarrolla y mantiene la infraestructura técnica que conecta a voluntarios, transportistas y damnificados.",
+    "danielBio": "Lidera el desarrollo de la plataforma, desde la arquitectura hasta cada detalle de la experiencia.",
+    "connect": "Conectar",
+    "viewOnGithub": "Ver perfil de GitHub"
   },
   "jobs": {
     "title": "Empleos",

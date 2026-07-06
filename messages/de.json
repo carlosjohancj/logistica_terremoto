@@ -229,9 +229,14 @@
     "reachDesc": "Wir sind in allen 23 Bundesstaaten Venezuelas tätig und erreichen die Orte, an denen Hilfe am meisten benötigt wird.",
     "joinUs": "Mach mit",
     "joinUsDesc": "Es gibt viele Möglichkeiten zu helfen. Ob durch Transport, Unterkunft oder Ressourcen – Ihre Unterstützung macht einen Unterschied.",
-    "requestTrip": "Reise anfragen",
-    "offerTransport": "Transport anbieten",
-    "offerHousing": "Unterkunft anbieten"
+    "ctaButton": "Jetzt loslegen",
+    "teamTitle": "Das Team",
+    "teamSubtitle": "Die Menschen, die diese Plattform aufbauen und pflegen",
+    "roleFullStack": "Full-Stack-Entwickler",
+    "carlosBio": "Entwickelt und pflegt die technische Infrastruktur, die Freiwillige, Fahrer und Betroffene verbindet.",
+    "danielBio": "Leitet die Entwicklung der Plattform, von der Architektur bis ins kleinste Detail der Erfahrung.",
+    "connect": "Vernetzen",
+    "viewOnGithub": "GitHub-Profil ansehen"
   },
   "jobs": {
     "title": "Jobs",
