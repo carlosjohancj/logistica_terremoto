@@ -20,6 +20,21 @@ export const HELP_TYPES = [
   "otros",
 ] as const;
 
+export const SUPPLY_CATEGORIES = [
+  "camas",
+  "comida",
+  "ropa",
+  "medicinas",
+  "agua",
+  "higiene",
+  "electronico",
+  "materiales",
+  "muebles",
+  "otros",
+] as const;
+
+export const SUPPLY_CONDITIONS = ["nuevo", "usado_bueno", "usado_regular", "no_aplica"] as const;
+
 export const AMENITY_TOGGLE_FIELDS = [
   { field: "has_furniture" as const, labelKey: "hasFurniture" },
   { field: "has_kitchen" as const, labelKey: "hasKitchen" },
