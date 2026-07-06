@@ -1,6 +1,7 @@
 import { z } from "zod/v3"
 
 export const supplySchema = z.object({
+  type: z.enum(["offer", "request"]),
   title: z.string().min(1),
   description: z.string().optional(),
   category: z.string().min(1),
