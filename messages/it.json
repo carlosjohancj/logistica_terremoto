@@ -413,6 +413,8 @@
     "delete": "Elimina",
     "edit": "Modifica",
     "view": "Vedi",
+    "previous": "Precedente",
+    "next": "Successivo",
     "back": "Indietro",
     "confirm": "Conferma",
     "search": "Cerca",

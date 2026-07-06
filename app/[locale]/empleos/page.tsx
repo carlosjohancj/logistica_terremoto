@@ -19,14 +19,7 @@ import { SkeletonGrid } from "@/components/ui/skeleton"
 import { useEstados } from "@/lib/estados"
 import { JobCard, type Job } from "@/components/jobs/job-card"
 import { FIELD_CLASS, SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
+import { NumberedPagination } from "@/components/shared/numbered-pagination"
 
 const PAGE_SIZE = 15
 
@@ -142,50 +135,8 @@ export default function EmpleosPage() {
         ))}
       </div>
 
-      {!loading && totalPages > 1 && (
-        <Pagination className="mt-10">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                className="rounded-full"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setPage((p) => Math.max(1, p - 1))
-                }}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <PaginationItem key={n}>
-                <PaginationLink
-                  href="#"
-                  isActive={n === currentPage}
-                  className={
-                    n === currentPage
-                      ? "rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "rounded-full"
-                  }
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setPage(n)
-                  }}
-                >
-                  {n}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                className="rounded-full"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setPage((p) => Math.min(totalPages, p + 1))
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+      {!loading && (
+        <NumberedPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
       )}
     </div>
   )
