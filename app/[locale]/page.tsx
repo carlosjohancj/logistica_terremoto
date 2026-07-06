@@ -8,6 +8,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { StepCard } from "@/components/ui/step-card";
 import { ImageTextCarousel, type ImageTextCarouselItem } from "@/components/shared/image-text-carousel";
 import { BrandBannerStack, BannerHighlight, type BrandBannerItem } from "@/components/shared/brand-banner-stack";
+import { FaqSection } from "@/components/shared/faq-section";
 import { getSupabase, TABLES } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 
@@ -117,6 +118,11 @@ export default function HomePage() {
     { value: counts.organizaciones ?? "-", label: t("statsOrganizaciones"), desc: t("statsOrganizacionesDesc") },
   ];
 
+  const faqItems = Array.from({ length: 9 }, (_, i) => ({
+    question: t(`faq${i + 1}Q`),
+    answer: t(`faq${i + 1}A`),
+  }));
+
   return (
     <div className="flex flex-col">
       <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-stone-50 overflow-hidden px-4">
@@ -198,6 +204,12 @@ export default function HomePage() {
           <BrandBannerStack items={brandBanners} />
         </div>
       </section>
+
+      <FaqSection
+        title={t("faqTitle")}
+        subtitle={t("faqSubtitle")}
+        items={faqItems}
+      />
 
     </div>
   );

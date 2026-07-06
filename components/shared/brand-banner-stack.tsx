@@ -58,7 +58,7 @@ function BannerCard({
     <div
       ref={ref}
       className={cn(
-        "relative h-64 overflow-hidden rounded-2xl shadow-lg transition-all duration-700 ease-out sm:h-72",
+        "relative h-72 overflow-hidden rounded-2xl shadow-lg transition-all duration-700 ease-out sm:h-80",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
       )}
       style={{ transitionDelay: visible ? `${index * 120}ms` : "0ms" }}
@@ -68,22 +68,22 @@ function BannerCard({
         src={item.image}
         alt={item.alt ?? item.title}
         className="absolute inset-0 h-full w-full object-cover"
-        style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined}
+        style={{ objectPosition: item.imagePosition ?? "center" }}
       />
 
-      <div className="relative flex h-full flex-col justify-center gap-3 px-6 py-8 sm:px-10">
-        <div className="flex items-center gap-1.5 pb-4 border-b border-white/20">
-          <span className="text-sm font-extrabold tracking-wide text-white">
+      <div className="relative flex h-full flex-col justify-center gap-2.5 px-5 py-6 sm:px-6">
+        <div className="flex items-center gap-1.5 pb-3 border-b border-white/20">
+          <span className="text-xs font-extrabold tracking-wide text-white sm:text-sm">
             {brandStart}
           </span>
-          <span className="text-sm font-extrabold tracking-wide text-emerald-400">
+          <span className="text-xs font-extrabold tracking-wide text-emerald-400 sm:text-sm">
             {brandHighlight}
           </span>
         </div>
-        <h3 className="text-2xl font-extrabold uppercase text-white sm:text-4xl">
+        <h3 className="text-xl font-extrabold uppercase text-white sm:text-2xl">
           {item.title}
         </h3>
-        <p className="text-base leading-snug text-white/90 sm:text-lg">
+        <p className="text-sm leading-snug text-white/90 sm:text-base">
           {item.subtitle}
         </p>
       </div>
@@ -98,7 +98,7 @@ export function BrandBannerStack({
   className,
 }: BrandBannerStackProps) {
   return (
-    <div className={cn("flex flex-col gap-6", className)}>
+    <div className={cn("grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {items.map((item, i) => (
         <BannerCard
           key={i}
