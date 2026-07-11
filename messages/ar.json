@@ -473,5 +473,26 @@
     "legal": "مساعدة قانونية",
     "psicologico": "دعم نفسي",
     "otros": "أخرى"
+  },
+  "accessibility": {
+    "toggleOpen": "فتح قائمة إمكانية الوصول",
+    "toggleClose": "إغلاق قائمة إمكانية الوصول",
+    "title": "إمكانية الوصول",
+    "reset": "إعادة تعيين",
+    "fontSize": "حجم النص",
+    "increaseFont": "زيادة حجم النص",
+    "decreaseFont": "تقليل حجم النص",
+    "highContrast": "تباين عالٍ",
+    "highContrastDesc": "يزيد من تباين الألوان والنص",
+    "grayscale": "تدرج الرمادي",
+    "grayscaleDesc": "يقلل من تشبع الألوان",
+    "reduceMotion": "إيقاف الحركة",
+    "reduceMotionDesc": "يوقف الانتقالات والحركة على الشاشة",
+    "dyslexiaFriendly": "خط مناسب لعسر القراءة",
+    "dyslexiaFriendlyDesc": "يزيد المسافة بين الأحرف والأسطر",
+    "highlightLinks": "تمييز الروابط",
+    "highlightLinksDesc": "يبرز جميع الروابط في الصفحة",
+    "readingGuide": "دليل القراءة",
+    "readingGuideDesc": "خط يتبع المؤشر لتسهيل القراءة"
   }
 }

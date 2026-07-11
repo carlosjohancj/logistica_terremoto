@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { getSupabase } from "@/lib/supabase"
 import Indicators from "@/components/transportista/indicators"
 import RequestManager from "@/components/transportista/request-manager"
 import Timeline from "@/components/transportista/timeline"
+import { SkeletonGrid } from "@/components/ui/skeleton"
+import { ClipboardList, History } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -34,6 +36,8 @@ type TimelineEntry = {
 
 export default function TransportistaPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = pathname.split("/")[1] || "es"
   const [kmTotal, setKmTotal] = useState(0)
   const [viajesRealizados, setViajesRealizados] = useState(0)
   const [familiasAyudadas, setFamiliasAyudadas] = useState(0)
@@ -130,21 +134,26 @@ export default function TransportistaPage() {
   }
 
   function handleTakeRequest(req: Record<string, any>) {
-    router.push(`/transportista/ruta?requestId=${req.id}`)
+    router.push(`/${locale}/transportista/ruta?requestId=${req.id}`)
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-muted-foreground">Cargando dashboard...</p>
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <div className="h-7 w-64 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-80 animate-pulse rounded bg-muted" />
+        </div>
+        <SkeletonGrid cols={4} count={4} />
+        <SkeletonGrid cols={3} count={3} />
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-bold">Panel de Transportista</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Panel de Transportista</h1>
         <p className="text-muted-foreground">Gestiona tus rutas, solicitudes y comunicaciones</p>
       </div>
 
@@ -156,7 +165,15 @@ export default function TransportistaPage() {
       />
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">Solicitudes disponibles</h2>
+        <div className="mb-4 flex items-center gap-2">
+          <ClipboardList className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold">Solicitudes disponibles</h2>
+          {requests.length > 0 && (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+              {requests.length}
+            </span>
+          )}
+        </div>
         <RequestManager
           requests={requests}
           profiles={profiles}
@@ -165,7 +182,10 @@ export default function TransportistaPage() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">Historial de viajes</h2>
+        <div className="mb-4 flex items-center gap-2">
+          <History className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold">Historial de viajes</h2>
+        </div>
         <Timeline entries={timeline} />
       </section>
     </div>

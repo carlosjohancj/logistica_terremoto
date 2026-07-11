@@ -157,3 +157,86 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Accessibility widget */
+:root {
+  --a11y-font-scale: 1;
+}
+
+html {
+  font-size: calc(100% * var(--a11y-font-scale, 1));
+}
+
+.a11y-reduce-motion,
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+.a11y-grayscale {
+  filter: grayscale(1);
+}
+
+.a11y-dyslexia,
+.a11y-dyslexia * {
+  font-family: Verdana, Tahoma, "Trebuchet MS", sans-serif !important;
+  letter-spacing: 0.03em !important;
+  word-spacing: 0.12em !important;
+  line-height: 1.7 !important;
+}
+
+.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 2px !important;
+  background-color: color-mix(in oklch, var(--primary) 18%, transparent) !important;
+  border-radius: 2px;
+}
+
+.a11y-high-contrast {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.2 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.92 0 0);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.92 0 0);
+  --muted-foreground: oklch(0.15 0 0);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.4 0.2 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0 0 0);
+  --input: oklch(0 0 0);
+  --ring: oklch(0.2 0 0);
+}
+
+.dark.a11y-high-contrast {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.15 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.12 0 0);
+  --muted-foreground: oklch(0.95 0 0);
+  --accent: oklch(1 0 0);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.7 0.2 27);
+  --destructive-foreground: oklch(0 0 0);
+  --border: oklch(1 0 0);
+  --input: oklch(1 0 0);
+  --ring: oklch(1 0 0);
+}

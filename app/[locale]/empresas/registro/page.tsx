@@ -27,6 +27,13 @@ import { getSupabase } from "@/lib/supabase"
 import { useEstados } from "@/lib/estados"
 import { companySchema, CompanyValues } from "@/lib/schemas/company"
 import { FormField } from "@/components/forms/shared/form-field"
+import {
+  FIELD_CLASS,
+  SELECT_TRIGGER_CLASS,
+  TEXTAREA_CLASS,
+  BUTTON_HEIGHT_CLASS,
+} from "@/components/shared/field-styles"
+import { cn } from "@/lib/utils"
 
 export default function RegistroEmpresaPage() {
   const t = useTranslations("companies")
@@ -99,13 +106,15 @@ export default function RegistroEmpresaPage() {
               <h3 className="font-semibold">{t("companyInfo")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField label={t("name")} required error={errors.name?.message}>
-                  {(field) => <Input {...field} autoComplete="organization" {...register("name")} />}
+                  {(field) => (
+                    <Input {...field} autoComplete="organization" className={FIELD_CLASS} {...register("name")} />
+                  )}
                 </FormField>
                 <FormField label="RIF">
-                  {(field) => <Input {...field} {...register("rif")} />}
+                  {(field) => <Input {...field} className={FIELD_CLASS} {...register("rif")} />}
                 </FormField>
               </div>
-              <FormField label={t("sector")} error={errors.sector?.message}>
+              <FormField label={t("sector")} required error={errors.sector?.message}>
                 {(field) => (
                   <Controller
                     name="sector"
@@ -116,6 +125,7 @@ export default function RegistroEmpresaPage() {
                           id={field.id}
                           aria-invalid={field["aria-invalid"]}
                           aria-describedby={field["aria-describedby"]}
+                          className={SELECT_TRIGGER_CLASS}
                         >
                           <SelectValue placeholder={t("sector")} />
                         </SelectTrigger>
@@ -136,14 +146,16 @@ export default function RegistroEmpresaPage() {
                 )}
               </FormField>
               <FormField label={t("description")}>
-                {(field) => <Textarea {...field} {...register("description")} rows={4} />}
+                {(field) => (
+                  <Textarea {...field} className={TEXTAREA_CLASS} {...register("description")} rows={4} />
+                )}
               </FormField>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold">{t("location")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <FormField label={t("state")}>
+                <FormField label={t("state")} required error={errors.state?.message}>
                   {(field) => (
                     <Controller
                       name="state"
@@ -157,7 +169,12 @@ export default function RegistroEmpresaPage() {
                             setValue("city", "")
                           }}
                         >
-                          <SelectTrigger id={field.id}>
+                          <SelectTrigger
+                            id={field.id}
+                            aria-invalid={field["aria-invalid"]}
+                            aria-describedby={field["aria-describedby"]}
+                            className={SELECT_TRIGGER_CLASS}
+                          >
                             <SelectValue placeholder={t("state")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -178,7 +195,7 @@ export default function RegistroEmpresaPage() {
                     />
                   )}
                 </FormField>
-                <FormField label={t("municipality")}>
+                <FormField label={t("municipality")} required error={errors.municipality?.message}>
                   {(field) => (
                     <Controller
                       name="municipality"
@@ -192,7 +209,12 @@ export default function RegistroEmpresaPage() {
                           }}
                           disabled={!selectedEstado}
                         >
-                          <SelectTrigger id={field.id}>
+                          <SelectTrigger
+                            id={field.id}
+                            aria-invalid={field["aria-invalid"]}
+                            aria-describedby={field["aria-describedby"]}
+                            className={SELECT_TRIGGER_CLASS}
+                          >
                             <SelectValue placeholder={t("municipality")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -207,7 +229,7 @@ export default function RegistroEmpresaPage() {
                     />
                   )}
                 </FormField>
-                <FormField label={t("city")}>
+                <FormField label={t("city")} required error={errors.city?.message}>
                   {(field) => (
                     <Controller
                       name="city"
@@ -218,7 +240,12 @@ export default function RegistroEmpresaPage() {
                           onValueChange={rhf.onChange}
                           disabled={!selectedEstado || !municipalityValue}
                         >
-                          <SelectTrigger id={field.id}>
+                          <SelectTrigger
+                            id={field.id}
+                            aria-invalid={field["aria-invalid"]}
+                            aria-describedby={field["aria-describedby"]}
+                            className={SELECT_TRIGGER_CLASS}
+                          >
                             <SelectValue placeholder={t("city")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -236,8 +263,15 @@ export default function RegistroEmpresaPage() {
                   )}
                 </FormField>
               </div>
-              <FormField label={t("address")}>
-                {(field) => <Input {...field} autoComplete="street-address" {...register("address")} />}
+              <FormField label={t("address")} required error={errors.address?.message}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    autoComplete="street-address"
+                    className={FIELD_CLASS}
+                    {...register("address")}
+                  />
+                )}
               </FormField>
             </div>
 
@@ -245,16 +279,32 @@ export default function RegistroEmpresaPage() {
               <h3 className="font-semibold">{t("contact")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField label={t("contactName")} required error={errors.contact_name?.message}>
-                  {(field) => <Input {...field} autoComplete="name" {...register("contact_name")} />}
+                  {(field) => (
+                    <Input {...field} autoComplete="name" className={FIELD_CLASS} {...register("contact_name")} />
+                  )}
                 </FormField>
-                <FormField label={t("contactPhone")}>
-                  {(field) => <Input {...field} type="tel" autoComplete="tel" {...register("contact_phone")} />}
+                <FormField label={t("contactPhone")} required error={errors.contact_phone?.message}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      type="tel"
+                      autoComplete="tel"
+                      className={FIELD_CLASS}
+                      {...register("contact_phone")}
+                    />
+                  )}
                 </FormField>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField label={t("contactEmail")} required error={errors.contact_email?.message}>
                   {(field) => (
-                    <Input {...field} type="email" autoComplete="email" {...register("contact_email")} />
+                    <Input
+                      {...field}
+                      type="email"
+                      autoComplete="email"
+                      className={FIELD_CLASS}
+                      {...register("contact_email")}
+                    />
                   )}
                 </FormField>
                 <FormField label={t("website")} error={errors.website?.message}>
@@ -263,6 +313,7 @@ export default function RegistroEmpresaPage() {
                       {...field}
                       type="url"
                       autoComplete="url"
+                      className={FIELD_CLASS}
                       {...register("website")}
                       placeholder="https://"
                     />
@@ -271,7 +322,12 @@ export default function RegistroEmpresaPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
+            <Button
+              type="submit"
+              className={cn("w-full", BUTTON_HEIGHT_CLASS)}
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {isSubmitting ? tc("loading") : t("submit")}
             </Button>
           </form>
