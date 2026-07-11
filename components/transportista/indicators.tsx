@@ -1,6 +1,6 @@
 "use client"
 
-import { Gauge, Route, Users, ClipboardList } from "lucide-react"
+import { Route, Gauge, Users, ClipboardList } from "lucide-react"
 
 type IndicatorsProps = {
   kmTotal: number
@@ -12,31 +12,27 @@ type IndicatorsProps = {
 const cards = [
   {
     label: "Kilómetros recorridos",
-    value: (km: number) => `${km.toFixed(0)} km`,
+    value: (n: number) => `${n.toFixed(0)} km`,
     icon: Route,
     gradient: "from-green-500 to-emerald-600",
-    lightBg: "bg-green-50 dark:bg-green-950/30",
   },
   {
     label: "Viajes realizados",
-    value: (km: number) => String(km),
+    value: (n: number) => String(n),
     icon: Gauge,
     gradient: "from-blue-500 to-indigo-600",
-    lightBg: "bg-blue-50 dark:bg-blue-950/30",
   },
   {
     label: "Familias ayudadas",
-    value: (km: number) => String(km),
+    value: (n: number) => String(n),
     icon: Users,
     gradient: "from-amber-500 to-orange-600",
-    lightBg: "bg-amber-50 dark:bg-amber-950/30",
   },
   {
     label: "Solicitudes pendientes",
-    value: (km: number) => String(km),
+    value: (n: number) => String(n),
     icon: ClipboardList,
     gradient: "from-purple-500 to-violet-600",
-    lightBg: "bg-purple-50 dark:bg-purple-950/30",
   },
 ]
 
@@ -51,15 +47,25 @@ export default function Indicators({ kmTotal, viajesRealizados, familiasAyudadas
         return (
           <div
             key={c.label}
-            className={`relative rounded-xl border overflow-hidden ${c.lightBg}`}
+            className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
           >
-            <div className={`absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6 rounded-full bg-gradient-to-br ${c.gradient} opacity-10`} />
-            <div className="p-4 relative">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{c.label}</span>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+            <div
+              className={`absolute -top-8 -right-8 h-28 w-28 rounded-full bg-gradient-to-br ${c.gradient} opacity-10 blur-2xl transition-opacity group-hover:opacity-20`}
+            />
+            <div className="relative flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground leading-snug">
+                  {c.label}
+                </p>
+                <p className="mt-2 text-2xl font-bold whitespace-nowrap text-foreground tabular-nums sm:text-3xl">
+                  {val}
+                </p>
               </div>
-              <p className="text-2xl font-bold">{val}</p>
+              <div
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${c.gradient} text-white shadow-sm`}
+              >
+                <Icon className="h-4 w-4" />
+              </div>
             </div>
           </div>
         )
