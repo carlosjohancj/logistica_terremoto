@@ -53,6 +53,13 @@ function rewriteStyleUrls(style: Record<string, unknown>, baseUrl: string): Reco
   function rewrite(url: string): string {
     if (url.startsWith(baseUrl)) return url.replace(baseUrl, proxyBase)
     if (url.startsWith("/")) return `${proxyBase}${url}`
+    if (isExternalMapAsset(url)) {
+      try {
+        return `${proxyBase}${new URL(url).pathname}`
+      } catch {
+        return url
+      }
+    }
     return url
   }
 
@@ -73,4 +80,12 @@ function rewriteStyleUrls(style: Record<string, unknown>, baseUrl: string): Reco
   if (typeof style.sprite === "string") style.sprite = rewrite(style.sprite)
 
   return style
+}
+
+function isExternalMapAsset(url: string): boolean {
+  return (
+    url.includes("openmaptiles.org") ||
+    url.includes("maptiler.com") ||
+    url.includes("maplibre.org")
+  )
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
+import { MAP_STYLE_URL } from "@/lib/maps/constants";
 
 export type ListItem = {
   id: string;
@@ -12,6 +13,8 @@ export type ListItem = {
   destLat?: number;
   destLng?: number;
   description: string;
+  routeGeometry?: [number, number][];
+  routeApproximate?: boolean;
 };
 
 type MapViewProps = {
@@ -38,10 +41,6 @@ const routeColors: Record<string, string> = {
   housing: "#4A7C59",
 };
 
-const styleUrl =
-  process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-  "https://demotiles.maplibre.org/style.json";
-
 export function MapView({
   items,
   center = [9.5, -66.5],
@@ -50,18 +49,25 @@ export function MapView({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
+  const [mapError, setMapError] = useState(false);
+  const [degradedRouting, setDegradedRouting] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: styleUrl,
+      style: MAP_STYLE_URL,
       center: [center[1], center[0]],
       zoom,
     });
 
     map.addControl(new maplibregl.NavigationControl(), "top-right");
+    map.on("error", (e) => {
+      if (e.error?.message?.includes("Failed to load")) {
+        setMapError(true);
+      }
+    });
     mapRef.current = map;
 
     return () => {
@@ -109,6 +115,13 @@ export function MapView({
       });
 
       addRouteLines(map, items);
+      setDegradedRouting(
+        items.some(
+          (item) =>
+            item.destLat !== undefined &&
+            item.routeApproximate === true,
+        ),
+      );
     }
 
     if (m.isStyleLoaded()) {
@@ -119,7 +132,21 @@ export function MapView({
   }, [items]);
 
   return (
-    <div className="h-full w-full rounded-lg overflow-hidden border">
+    <div className="relative h-full w-full rounded-lg overflow-hidden border">
+      {(mapError || degradedRouting) && (
+        <div className="absolute top-2 left-2 right-2 z-10 flex flex-col gap-1">
+          {mapError && (
+            <p className="rounded-md bg-destructive/90 px-3 py-1.5 text-xs text-white shadow">
+              No se pudo cargar el mapa. Verifica que tileserver esté activo.
+            </p>
+          )}
+          {degradedRouting && !mapError && (
+            <p className="rounded-md bg-amber-600/90 px-3 py-1.5 text-xs text-white shadow">
+              Algunas rutas se muestran en línea recta (Valhalla no disponible).
+            </p>
+          )}
+        </div>
+      )}
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );
@@ -129,19 +156,27 @@ function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
   const features: GeoJSON.Feature[] = [];
 
   items.forEach((item) => {
-    if (item.destLat !== undefined && item.destLng !== undefined) {
-      features.push({
-        type: "Feature",
-        properties: { color: routeColors[item.type] },
-        geometry: {
-          type: "LineString",
-          coordinates: [
+    if (item.destLat === undefined || item.destLng === undefined) return;
+
+    const coords =
+      item.routeGeometry && item.routeGeometry.length > 1
+        ? item.routeGeometry
+        : [
             [item.lng, item.lat],
             [item.destLng, item.destLat],
-          ],
-        },
-      });
-    }
+          ];
+
+    features.push({
+      type: "Feature",
+      properties: {
+        color: routeColors[item.type],
+        approximate: item.routeApproximate ?? !item.routeGeometry,
+      },
+      geometry: {
+        type: "LineString",
+        coordinates: coords,
+      },
+    });
   });
 
   if (features.length === 0) return;
@@ -161,9 +196,22 @@ function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
   });
 
   map.addLayer({
-    id: sourceId,
+    id: "route-lines-road",
     type: "line",
     source: sourceId,
+    filter: ["!", ["get", "approximate"]],
+    paint: {
+      "line-color": ["get", "color"],
+      "line-width": 3,
+      "line-opacity": 0.85,
+    },
+  });
+
+  map.addLayer({
+    id: "route-lines-approx",
+    type: "line",
+    source: sourceId,
+    filter: ["get", "approximate"],
     paint: {
       "line-color": ["get", "color"],
       "line-width": 2,

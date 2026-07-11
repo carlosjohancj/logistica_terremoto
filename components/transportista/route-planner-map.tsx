@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useCallback } from "react"
 import maplibregl from "maplibre-gl"
+import { MAP_STYLE_URL } from "@/lib/maps/constants"
 
 type SegmentDisplay = {
   order: number
@@ -22,8 +23,6 @@ type Props = {
   onClick: (lat: number, lng: number) => void
 }
 
-const styleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL || "https://demotiles.maplibre.org/style.json"
-
 export default function RoutePlannerMap({ originCoord, destCoord, segments, onClick }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -38,7 +37,7 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: styleUrl,
+      style: MAP_STYLE_URL,
       center: originCoord ? [originCoord[1], originCoord[0]] : [-66.5, 9.5],
       zoom: 8,
     })

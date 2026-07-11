@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { getSupabase } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
+import { fetchRoute } from "@/lib/maps/fetch-route"
 
 const MapWithNoSSR = dynamic(
   () => import("./route-planner-map"),
@@ -36,22 +37,6 @@ type Props = {
   destCity: string
   destState: string
   onComplete: () => void
-}
-
-async function fetchRoute(fromLng: number, fromLat: number, toLng: number, toLat: number): Promise<{ geometry: [number, number][]; distanceKm: number } | null> {
-  try {
-    const res = await fetch("/api/osrm-route", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fromLng, fromLat, toLng, toLat }),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (data.error) return null
-    return { geometry: data.geometry, distanceKm: data.distanceKm }
-  } catch {
-    return null
-  }
 }
 
 export default function RoutePlanner({ travelRequestId, originCity, originState, destCity, destState, onComplete }: Props) {

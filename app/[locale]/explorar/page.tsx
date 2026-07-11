@@ -19,7 +19,7 @@ import { SkeletonGrid } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
 import { getEstados, getCoords, getCityCoord } from "@/lib/estados"
-import type { Estado } from "@/lib/estados"
+import { fetchRoutesBatch } from "@/lib/maps/fetch-route"
 
 const MapView = dynamic(
   () => import("@/components/maps/map-view").then((m) => ({ default: m.MapView })),
@@ -138,6 +138,47 @@ export default function ExplorarPage() {
       }
 
       setItems(allItems)
+
+      const routePairs = allItems
+        .filter((item) => item.destLat !== undefined && item.destLng !== undefined)
+        .map((item) => ({
+          id: item.id,
+          fromLng: item.lng,
+          fromLat: item.lat,
+          toLng: item.destLng!,
+          toLat: item.destLat!,
+        }))
+
+      if (routePairs.length > 0) {
+        const routes = await fetchRoutesBatch(routePairs, 5)
+        if (routes.size > 0) {
+          setItems((prev) =>
+            prev.map((item) => {
+              const route = routes.get(item.id)
+              if (!route) {
+                if (item.destLat !== undefined) {
+                  return { ...item, routeApproximate: true }
+                }
+                return item
+              }
+              return {
+                ...item,
+                routeGeometry: route.geometry,
+                routeApproximate: false,
+              }
+            }),
+          )
+        } else {
+          setItems((prev) =>
+            prev.map((item) =>
+              item.destLat !== undefined
+                ? { ...item, routeApproximate: true }
+                : item,
+            ),
+          )
+        }
+      }
+
       setLoading(false)
     }
     fetchData()
