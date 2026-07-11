@@ -1,24 +1,25 @@
 #!/bin/sh
 set -e
 
-PBF_FILE="/data/venezuela-latest.osm.pbf"
-MBTILES_FILE="/data/venezuela.mbtiles"
+PBF="/data/venezuela-latest.osm.pbf"
+MBTILES="/data/venezuela.mbtiles"
+HASH_FILE="/data/.tilemaker-hash"
 
-echo "Waiting for PBF file from Valhalla..."
-while [ ! -f "$PBF_FILE" ]; do
-  sleep 30
-done
-echo "PBF file found: $PBF_FILE"
+NEW_HASH=$(md5sum /config/config.json /config/process.lua | md5sum | cut -d' ' -f1)
+OLD_HASH=$(cat "$HASH_FILE" 2>/dev/null || echo "")
 
-if [ -f "$MBTILES_FILE" ]; then
-  echo "MBTiles already exists, skipping tilemaker"
-  exit 0
+if [ ! -f "$PBF" ]; then
+  echo "Waiting for PBF file from Valhalla..."
+  while [ ! -f "$PBF" ]; do sleep 30; done
 fi
 
-echo "Starting tilemaker conversion..."
-tilemaker "$PBF_FILE" \
-          --output "$MBTILES_FILE" \
-          --config /config/config.json \
-          --process /config/process.lua
-
-echo "Tilemaker complete: $MBTILES_FILE"
+if [ "$NEW_HASH" != "$OLD_HASH" ] || [ ! -f "$MBTILES" ]; then
+  echo "Config changed or missing MBTiles. Regenerating..."
+  rm -f "$MBTILES"
+  /usr/src/app/tilemaker "$PBF" \
+    --output "$MBTILES" \
+    --config /config/config.json \
+    --process /config/process.lua
+  echo "$NEW_HASH" > "$HASH_FILE"
+  echo "MBTiles regeneration complete"
+fi

@@ -47,9 +47,7 @@ services:
     volumes:
       - osm_data:/data
       - ./tilemaker-config:/config:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - "while [ ! -f /data/venezuela-latest.osm.pbf ]; do sleep 30; done; if [ -f /data/venezuela.mbtiles ]; then exit 0; fi; exec /usr/src/app/tilemaker /data/venezuela-latest.osm.pbf --output /data/venezuela.mbtiles --config /config/config.json --process /config/process.lua"
+    entrypoint: ["/bin/sh", "/config/entrypoint.sh"]
     depends_on:
       valhalla:
         condition: service_started
