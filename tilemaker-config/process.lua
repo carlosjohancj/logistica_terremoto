@@ -4,7 +4,7 @@ relation_keys = { "boundary", "admin_level", "type", "name" }
 
 function node_function(node)
   local place = Find("place")
-  if place == "city" or place == "town" or place == "village" then
+  if place == "city" or place == "town" or place == "village" or place == "hamlet" then
     local pop = tonumber(Find("population")) or 0
     Layer("places", false)
     Attribute("name", Find("name") or "")
@@ -15,7 +15,9 @@ end
 
 function way_function(way)
   local highway = Find("highway")
-  if highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" then
+  if highway == "motorway" or highway == "trunk" or highway == "primary"
+     or highway == "secondary" or highway == "tertiary"
+     or highway == "unclassified" or highway == "residential" then
     Layer("transportation", false)
     Attribute("class", highway)
     Attribute("name", Find("name") or "")

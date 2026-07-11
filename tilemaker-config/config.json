@@ -1,32 +1,32 @@
 {
   "layers": {
     "transportation": {
-      "minzoom": 4,
-      "maxzoom": 14,
+      "minzoom": 6,
+      "maxzoom": 12,
       "simplify_below": 12,
       "simplify_ratio": 2,
       "write_to": "transportation"
     },
     "places": {
-      "minzoom": 4,
-      "maxzoom": 14,
+      "minzoom": 6,
+      "maxzoom": 12,
       "write_to": "places"
     },
     "water": {
       "minzoom": 4,
-      "maxzoom": 14,
+      "maxzoom": 12,
       "write_to": "water"
     },
     "boundaries": {
       "minzoom": 4,
-      "maxzoom": 14,
+      "maxzoom": 12,
       "write_to": "boundaries"
     }
   },
   "settings": {
     "minzoom": 4,
-    "maxzoom": 14,
-    "basezoom": 14,
+    "maxzoom": 12,
+    "basezoom": 12,
     "include_ids": false,
     "compress": "gzip",
     "name": "Logistica Terremoto",

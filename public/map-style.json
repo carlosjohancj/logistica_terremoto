@@ -1,0 +1,80 @@
+{
+  "version": 8,
+  "name": "Logistica Terremoto",
+  "sources": {
+    "logistica": {
+      "type": "vector",
+      "tiles": ["/api/map/data/venezuela/{z}/{x}/{y}.pbf"],
+      "maxzoom": 12
+    }
+  },
+  "glyphs": "/api/map/fonts/{fontstack}/{range}.pbf",
+  "sprite": "/api/map/sprites/sprite",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#f8f4f0" }
+    },
+    {
+      "id": "water",
+      "source": "logistica",
+      "source-layer": "water",
+      "type": "fill",
+      "paint": { "fill-color": "#c8dce8" }
+    },
+    {
+      "id": "boundaries",
+      "source": "logistica",
+      "source-layer": "boundaries",
+      "type": "line",
+      "minzoom": 6,
+      "paint": {
+        "line-color": "#aaa",
+        "line-width": 1,
+        "line-dasharray": [3, 2]
+      }
+    },
+    {
+      "id": "roads",
+      "source": "logistica",
+      "source-layer": "transportation",
+      "type": "line",
+      "minzoom": 8,
+      "paint": {
+        "line-color": "#e0ddd8",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 12, 3]
+      }
+    },
+    {
+      "id": "roads-outline",
+      "source": "logistica",
+      "source-layer": "transportation",
+      "type": "line",
+      "minzoom": 8,
+      "paint": {
+        "line-color": "#888",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 12, 1.5]
+      }
+    },
+    {
+      "id": "place-labels",
+      "source": "logistica",
+      "source-layer": "places",
+      "type": "symbol",
+      "minzoom": 6,
+      "layout": {
+        "text-field": "{name}",
+        "text-size": ["match", ["get", "place"], "city", 12, "town", 10, "village", 9, 8],
+        "text-anchor": "top",
+        "text-offset": [0, 0.3],
+        "text-max-width": 10
+      },
+      "paint": {
+        "text-color": "#333",
+        "text-halo-color": "#fff",
+        "text-halo-width": 1.5
+      }
+    }
+  ]
+}
