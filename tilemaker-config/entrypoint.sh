@@ -16,7 +16,7 @@ if [ -f "$MBTILES_FILE" ]; then
 fi
 
 echo "Starting tilemaker conversion..."
-tilemaker --input "$PBF_FILE" \
+tilemaker "$PBF_FILE" \
           --output "$MBTILES_FILE" \
           --config /config/config.json \
           --process /config/process.lua

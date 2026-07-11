@@ -42,7 +42,7 @@ services:
       - mapa_net
 
   tilemaker:
-    image: ghcr.io/systemed/tilemaker:latest
+    image: ghcr.io/systemed/tilemaker:master
     restart: "no"
     volumes:
       - osm_data:/data
