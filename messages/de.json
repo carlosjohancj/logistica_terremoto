@@ -473,5 +473,26 @@
     "legal": "Rechtshilfe",
     "psicologico": "Psychologische Unterstützung",
     "otros": "Andere"
+  },
+  "accessibility": {
+    "toggleOpen": "Barrierefreiheitsmenü öffnen",
+    "toggleClose": "Barrierefreiheitsmenü schließen",
+    "title": "Barrierefreiheit",
+    "reset": "Zurücksetzen",
+    "fontSize": "Textgröße",
+    "increaseFont": "Textgröße erhöhen",
+    "decreaseFont": "Textgröße verringern",
+    "highContrast": "Hoher Kontrast",
+    "highContrastDesc": "Erhöht den Farb- und Textkontrast",
+    "grayscale": "Graustufen",
+    "grayscaleDesc": "Reduziert die Farbsättigung",
+    "reduceMotion": "Animationen pausieren",
+    "reduceMotionDesc": "Stoppt Übergänge und Bewegungen auf dem Bildschirm",
+    "dyslexiaFriendly": "Schriftart für Legasthenie",
+    "dyslexiaFriendlyDesc": "Erhöht den Buchstaben- und Zeilenabstand",
+    "highlightLinks": "Links hervorheben",
+    "highlightLinksDesc": "Markiert alle Links auf der Seite",
+    "readingGuide": "Lesehilfe",
+    "readingGuideDesc": "Eine Linie folgt Ihrem Cursor, um das Lesen zu erleichtern"
   }
 }

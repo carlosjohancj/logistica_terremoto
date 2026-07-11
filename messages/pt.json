@@ -473,5 +473,26 @@
     "legal": "Assistência jurídica",
     "psicologico": "Apoio psicológico",
     "otros": "Outros"
+  },
+  "accessibility": {
+    "toggleOpen": "Abrir menu de acessibilidade",
+    "toggleClose": "Fechar menu de acessibilidade",
+    "title": "Acessibilidade",
+    "reset": "Redefinir",
+    "fontSize": "Tamanho do texto",
+    "increaseFont": "Aumentar tamanho do texto",
+    "decreaseFont": "Diminuir tamanho do texto",
+    "highContrast": "Alto contraste",
+    "highContrastDesc": "Aumenta o contraste de cores e texto",
+    "grayscale": "Escala de cinza",
+    "grayscaleDesc": "Reduz a saturação das cores",
+    "reduceMotion": "Pausar animações",
+    "reduceMotionDesc": "Interrompe transições e movimento na tela",
+    "dyslexiaFriendly": "Fonte para dislexia",
+    "dyslexiaFriendlyDesc": "Aumenta o espaçamento entre letras e linhas",
+    "highlightLinks": "Destacar links",
+    "highlightLinksDesc": "Marca todos os links da página",
+    "readingGuide": "Guia de leitura",
+    "readingGuideDesc": "Uma linha segue o cursor para facilitar a leitura"
   }
 }

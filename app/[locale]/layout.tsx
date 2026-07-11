@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { AccessibilityWidget } from "@/components/shared/accessibility-widget";
 
 export default async function LocaleLayout({
   children,
@@ -19,6 +20,7 @@ export default async function LocaleLayout({
         <Footer />
       </div>
       <Toaster />
+      <AccessibilityWidget />
     </NextIntlClientProvider>
   );
 }
