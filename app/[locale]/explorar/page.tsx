@@ -164,6 +164,7 @@ export default function ExplorarPage() {
               return {
                 ...item,
                 routeGeometry: route.geometry,
+                routeDistance: route.distanceKm,
                 routeApproximate: false,
               }
             }),

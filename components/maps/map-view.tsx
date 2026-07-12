@@ -15,6 +15,7 @@ export type ListItem = {
   description: string;
   routeGeometry?: [number, number][];
   routeApproximate?: boolean;
+  routeDistance?: number;
 };
 
 type MapViewProps = {
@@ -51,6 +52,8 @@ export function MapView({
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const [mapError, setMapError] = useState(false);
   const [degradedRouting, setDegradedRouting] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedItem = items.find((i) => i.id === selectedId);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -115,6 +118,7 @@ export function MapView({
       });
 
       addRouteLines(map, items);
+      addRouteClickHandlers(map, setSelectedId);
       setDegradedRouting(
         items.some(
           (item) =>
@@ -130,6 +134,17 @@ export function MapView({
       m.once("style.load", () => render(m));
     }
   }, [items]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!map.getLayer("route-lines-selected")) return;
+    if (selectedId) {
+      map.setFilter("route-lines-selected", ["==", ["get", "id"], selectedId]);
+    } else {
+      map.setFilter("route-lines-selected", ["==", "id", ""]);
+    }
+  }, [selectedId]);
 
   return (
     <div className="relative h-full w-full rounded-lg overflow-hidden border">
@@ -147,9 +162,73 @@ export function MapView({
           )}
         </div>
       )}
+      {selectedItem && (
+        <div className="absolute bottom-4 left-4 right-4 z-10 mx-auto max-w-sm">
+          <div className="rounded-lg border bg-card p-4 shadow-lg">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span
+                  className={
+                    "inline-block rounded-md border px-2 py-0.5 text-xs font-medium " +
+                    (selectedItem.type === "travel"
+                      ? "border-primary text-primary"
+                      : selectedItem.type === "transport"
+                        ? "border-accent text-accent"
+                        : "border-green-600 text-green-600")
+                  }
+                >
+                  {selectedItem.type === "travel"
+                    ? "Viaje"
+                    : selectedItem.type === "transport"
+                      ? "Transporte"
+                      : "Hospedaje"}
+                </span>
+                <p className="mt-2 text-sm font-medium">
+                  {selectedItem.description}
+                </p>
+                {selectedItem.routeDistance && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {Math.round(selectedItem.routeDistance)} km
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedId(null)}
+                className="shrink-0 text-muted-foreground hover:text-foreground"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );
+}
+
+function addRouteClickHandlers(
+  map: maplibregl.Map,
+  setSelectedId: (id: string | null) => void,
+) {
+  const layers = ["route-lines-road", "route-lines-approx"];
+  for (const layerId of layers) {
+    map.on("click", layerId, (e) => {
+      const id = e.features?.[0]?.properties?.id;
+      if (id) setSelectedId(id);
+    });
+    map.on("mouseenter", layerId, () => {
+      map.getCanvas().style.cursor = "pointer";
+    });
+    map.on("mouseleave", layerId, () => {
+      map.getCanvas().style.cursor = "";
+    });
+  }
+  map.on("click", (e) => {
+    const features = map.queryRenderedFeatures(e.point, { layers });
+    if (features.length === 0) setSelectedId(null);
+  });
 }
 
 function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
@@ -169,8 +248,10 @@ function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
     features.push({
       type: "Feature",
       properties: {
+        id: item.id,
         color: routeColors[item.type],
         approximate: item.routeApproximate ?? !item.routeGeometry,
+        distance: item.routeDistance,
       },
       geometry: {
         type: "LineString",
@@ -217,6 +298,19 @@ function addRouteLines(map: maplibregl.Map, items: ListItem[]) {
       "line-width": 2,
       "line-opacity": 0.5,
       "line-dasharray": [2, 2.5],
+    },
+  });
+
+  map.addLayer({
+    id: "route-lines-selected",
+    type: "line",
+    source: sourceId,
+    filter: ["==", "id", ""],
+    paint: {
+      "line-color": "#3B82F6",
+      "line-width": 5,
+      "line-opacity": 1.0,
+      "line-blur": 1.5,
     },
   });
 }
