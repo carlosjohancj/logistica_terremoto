@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import polyline from "@mapbox/polyline"
 
 type RouteBody = {
   fromLng: number
@@ -11,27 +12,24 @@ export async function POST(request: Request) {
   try {
     const { fromLng, fromLat, toLng, toLat } = await request.json() as RouteBody
 
-    if (fromLng === undefined || fromLat === undefined || toLng === undefined || toLat === undefined) {
+    if ([fromLng, fromLat, toLng, toLat].some(v => v === undefined)) {
       return NextResponse.json({ error: "Missing coordinates" }, { status: 400 })
     }
 
     const valhallaUrl = process.env.VALHALLA_URL || "http://valhalla:8002"
 
-    const body = {
-      locations: [
-        { lat: fromLat, lon: fromLng, type: "break" },
-        { lat: toLat, lon: toLng, type: "break" },
-      ],
-      costing: "auto",
-      directions_options: { units: "kilometers" },
-      format: "geojson",
-    }
-
     const res = await fetch(`${valhallaUrl}/route`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(10000),
+      body: JSON.stringify({
+        locations: [
+          { lat: fromLat, lon: fromLng, type: "break" },
+          { lat: toLat, lon: toLng, type: "break" },
+        ],
+        costing: "auto",
+        directions_options: { units: "kilometers" },
+      }),
+      signal: AbortSignal.timeout(30000),
     })
 
     if (!res.ok) {
@@ -39,17 +37,15 @@ export async function POST(request: Request) {
     }
 
     const data = await res.json()
+    const leg = data.trip?.legs?.[0]
 
-    const feature = data.features?.[0]
-    if (!feature?.geometry?.coordinates) {
+    if (!leg?.shape) {
       return NextResponse.json({ error: "Valhalla returned no route" }, { status: 502 })
     }
 
-    const geometry: [number, number][] = feature.geometry.coordinates.map(
-      (c: number[]) => [c[0], c[1]]
-    )
-
-    const distanceKm = Math.round((feature.properties?.summary?.length || 0) * 10) / 10
+    const decoded = polyline.decode(leg.shape, 6) as [number, number][]
+    const geometry: [number, number][] = decoded.map(([lat, lng]) => [lng, lat])
+    const distanceKm = Math.round((leg.summary?.length || 0) * 10) / 10
 
     return NextResponse.json({ geometry, distanceKm })
   } catch (err) {
