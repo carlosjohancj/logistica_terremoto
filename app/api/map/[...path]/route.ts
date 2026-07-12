@@ -89,6 +89,7 @@ function rewriteStyleUrls(style: Record<string, unknown>, baseUrl: string): Reco
 
 function isExternalMapAsset(url: string): boolean {
   return (
+    url.includes("openfreemap.org") ||
     url.includes("openmaptiles.org") ||
     url.includes("maptiler.com") ||
     url.includes("maplibre.org")
