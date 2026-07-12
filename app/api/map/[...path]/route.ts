@@ -74,6 +74,13 @@ function rewriteStyleUrls(style: Record<string, unknown>, baseUrl: string): Reco
     }
   }
 
+  if (Array.isArray(style.tiles)) {
+    style.tiles = (style.tiles as string[]).map(rewrite)
+  }
+  if (typeof style.data === "string") {
+    style.data = rewrite(style.data)
+  }
+
   if (typeof style.glyphs === "string") style.glyphs = rewrite(style.glyphs)
   if (typeof style.sprite === "string") style.sprite = rewrite(style.sprite)
 
