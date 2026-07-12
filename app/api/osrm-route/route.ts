@@ -17,6 +17,8 @@ export async function POST(request: Request) {
     }
 
     const valhallaUrl = process.env.VALHALLA_URL || "http://valhalla:8002"
+    console.log("[osrm-route] calling Valhalla at", valhallaUrl)
+    console.log("[osrm-route] from", fromLat, fromLng, "to", toLat, toLng)
 
     const res = await fetch(`${valhallaUrl}/route`, {
       method: "POST",
@@ -33,13 +35,16 @@ export async function POST(request: Request) {
     })
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Valhalla request failed" }, { status: 502 })
+      const body = await res.text().catch(() => "")
+      console.error("[osrm-route] Valhalla responded", res.status, body.slice(0, 500))
+      return NextResponse.json({ error: `Valhalla request failed: ${res.status}` }, { status: 502 })
     }
 
     const data = await res.json()
     const leg = data.trip?.legs?.[0]
 
     if (!leg?.shape) {
+      console.error("[osrm-route] Valhalla returned no shape in trip", JSON.stringify(data.trip).slice(0, 500))
       return NextResponse.json({ error: "Valhalla returned no route" }, { status: 502 })
     }
 
@@ -47,8 +52,10 @@ export async function POST(request: Request) {
     const geometry: [number, number][] = decoded.map(([lat, lng]) => [lng, lat])
     const distanceKm = Math.round((leg.summary?.length || 0) * 10) / 10
 
+    console.log("[osrm-route] success, distance", distanceKm, "km,", geometry.length, "points")
     return NextResponse.json({ geometry, distanceKm })
   } catch (err) {
+    console.error("[osrm-route] exception:", err)
     return NextResponse.json({ error: String(err) }, { status: 502 })
   }
 }

@@ -9,7 +9,7 @@ services:
     environment:
       - NODE_ENV=production
       - VALHALLA_URL=${VALHALLA_URL:-http://valhalla:8002}
-       - TILE_SERVER_URL=${TILE_SERVER_URL:-http://martin:3000}
+      - TILE_SERVER_URL=${TILE_SERVER_URL:-http://martin:3000}
       - NEXT_PUBLIC_MAP_STYLE_URL=${MAP_STYLE_URL:-/map-style.json}
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL:-http://backend.desdecerovenezuela.org:8000}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:?required}
