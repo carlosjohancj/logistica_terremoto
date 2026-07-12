@@ -33,6 +33,7 @@ import EmpresaPanel from "./empresa-panel"
 import MensajesPanel from "./mensajes-panel"
 import { PublicationSection } from "@/components/perfil/publication-section"
 import { PublicationDetailDialog } from "@/components/perfil/publication-detail-dialog"
+import { StatusBadge } from "@/components/perfil/status-badge"
 import type { Publication } from "@/components/perfil/publication-types"
 
 const TAB_ICONS: Record<string, LucideIcon> = {
@@ -600,14 +601,6 @@ export default function PerfilPage() {
   }
 
   function renderConexionesTab() {
-    const statusMeta: Record<string, { label: string; dot: string; badge: string }> = {
-      pending: { label: "Pendiente", dot: "bg-amber-500", badge: "border-amber-200 bg-amber-50 text-amber-700" },
-      confirmed: { label: "Confirmado", dot: "bg-blue-500", badge: "border-blue-200 bg-blue-50 text-blue-700" },
-      in_progress: { label: "En progreso", dot: "bg-sky-500", badge: "border-sky-200 bg-sky-50 text-sky-700" },
-      completed: { label: "Completado", dot: "bg-emerald-500", badge: "border-emerald-200 bg-emerald-50 text-emerald-700" },
-      cancelled: { label: "Cancelado", dot: "bg-gray-400", badge: "border-gray-200 bg-gray-50 text-gray-600" },
-    }
-
     if (matches.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
@@ -627,7 +620,6 @@ export default function PerfilPage() {
         {matches.map((match) => {
           const counterpartId = match.user_id === currentUserId ? match.travel_requests?.user_id : match.user_id
           const counterpart = counterpartId ? matchProfiles[counterpartId] : undefined
-          const meta = statusMeta[match.status] ?? statusMeta.pending
 
           return (
             <Card key={match.id} className="flex flex-col transition-shadow hover:shadow-md">
@@ -644,15 +636,7 @@ export default function PerfilPage() {
                       </p>
                     </div>
                   </div>
-                  <span
-                    className={cn(
-                      "inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                      meta.badge
-                    )}
-                  >
-                    <span className={cn("h-1.5 w-1.5 rounded-full", meta.dot)} />
-                    {meta.label}
-                  </span>
+                  <StatusBadge status={match.status} className="mt-0.5" />
                 </div>
 
                 {match.travel_requests && (
