@@ -2,10 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -13,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Select,
@@ -23,9 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { NumberedPagination } from "@/components/shared/numbered-pagination"
 import { getSupabase } from "@/lib/supabase"
 import { getCitiesByState } from "@/lib/estados"
+import { getInitials } from "@/lib/utils"
 import { toast } from "sonner"
+import { ArrowRight, Users, Phone, PackageSearch } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -45,6 +45,8 @@ type Profile = {
   phone: string
 }
 
+const PAGE_SIZE = 9
+
 export default function SolicitudesPanel({
   availableReqs,
   availableProfiles,
@@ -54,7 +56,7 @@ export default function SolicitudesPanel({
   availableProfiles: Record<string, Profile>
   transportOfferCount: number
 }) {
-  const [takingId, setTakingId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedReq, setSelectedReq] = useState<TravelRequest | null>(null)
   const [mode, setMode] = useState<"full" | "partial">("full")
@@ -63,6 +65,9 @@ export default function SolicitudesPanel({
   const [originCities, setOriginCities] = useState<string[]>([])
   const [destCities, setDestCities] = useState<string[]>([])
   const [sending, setSending] = useState(false)
+
+  const totalPages = Math.max(1, Math.ceil(availableReqs.length / PAGE_SIZE))
+  const visible = availableReqs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function openDialog(req: TravelRequest) {
     setSelectedReq(req)
@@ -90,7 +95,7 @@ export default function SolicitudesPanel({
       if (!user) throw new Error("No autenticado")
 
       let originCity = selectedReq.origin_city
-      let originState = selectedReq.origin_state
+      const originState = selectedReq.origin_state
       let destCity = selectedReq.destination_city
       let destState = selectedReq.destination_state
       let isFull = true
@@ -137,9 +142,13 @@ export default function SolicitudesPanel({
     return (
       <section>
         <h2 className="text-xl font-semibold mb-2">Solicitudes disponibles en tu zona</h2>
-        <p className="text-muted-foreground">
-          No hay solicitudes abiertas por el momento.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+          <PackageSearch className="h-8 w-8 text-muted-foreground" />
+          <p className="font-medium">No hay solicitudes disponibles</p>
+          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+            No hay solicitudes abiertas por el momento. Vuelve más tarde.
+          </p>
+        </div>
       </section>
     )
   }
@@ -152,36 +161,53 @@ export default function SolicitudesPanel({
           ? "Coinciden con tus rutas de transporte registradas"
           : "Mostrando todas las solicitudes abiertas — registra una oferta de transporte para filtrar por zona"}
       </p>
-      <div className="space-y-3">
-        {availableReqs.map((req) => {
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {visible.map((req) => {
           const profile = availableProfiles[req.user_id]
           return (
-            <Card key={req.id}>
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="font-medium">
-                      {req.origin_city || req.origin_state} → {req.destination_city || req.destination_state || "Sin destino"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {req.people_to_move} pers. · {req.notes || "Sin notas"}
-                    </p>
-                    {profile && (
-                      <div className="mt-2 text-sm">
-                        <span className="font-medium">Contacto:</span>{" "}
-                        {profile.name} — {profile.phone || "sin teléfono"}
-                      </div>
-                    )}
+            <Card key={req.id} className="flex flex-col transition-shadow hover:shadow-md">
+              <CardContent className="flex flex-1 flex-col gap-3 p-5">
+                <p className="text-base font-bold leading-snug">
+                  {req.origin_city || req.origin_state}{" "}
+                  <ArrowRight className="inline h-4 w-4 text-muted-foreground" />{" "}
+                  {req.destination_city || req.destination_state || "Sin destino"}
+                </p>
+
+                <Badge variant="outline" className="w-fit gap-1 font-normal">
+                  <Users className="h-3 w-3" />
+                  {req.people_to_move} pers.
+                </Badge>
+
+                <p className="line-clamp-2 flex-1 text-sm text-muted-foreground">
+                  {req.notes || "Sin notas"}
+                </p>
+
+                {profile && (
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold uppercase text-primary">
+                      {getInitials(profile.name || "?")}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{profile.name}</p>
+                      <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3 shrink-0" />
+                        {profile.phone || "sin teléfono"}
+                      </p>
+                    </div>
                   </div>
-                  <Button size="sm" onClick={() => openDialog(req)}>
-                    Tomar solicitud
-                  </Button>
-                </div>
+                )}
+
+                <Button className="mt-1 w-full" onClick={() => openDialog(req)}>
+                  Tomar solicitud
+                </Button>
               </CardContent>
             </Card>
           )
         })}
       </div>
+
+      <NumberedPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} className="mt-6" />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">

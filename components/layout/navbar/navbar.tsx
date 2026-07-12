@@ -8,20 +8,12 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { getSupabase } from "@/lib/supabase";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { NavDropdown } from "./dropdown";
 import { DropdownLink } from "./dropdown-link";
 import { NavMobileMenu } from "./mobile-menu";
-
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-}
 
 export function Navbar() {
   const t = useTranslations("nav");
