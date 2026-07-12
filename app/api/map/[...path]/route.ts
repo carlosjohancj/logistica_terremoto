@@ -25,9 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
       const text = await res.text()
       let json = JSON.parse(text)
 
-      if (mapPath.endsWith("style.json")) {
-        json = rewriteStyleUrls(json, tileServerUrl)
-      }
+      json = rewriteStyleUrls(json, tileServerUrl)
 
       return NextResponse.json(json, {
         headers: { "Cache-Control": cacheControl },
