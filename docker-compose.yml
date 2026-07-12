@@ -34,14 +34,15 @@ services:
     networks:
       - mapa_net
 
-  tileserver:
-    image: maptiler/tileserver-gl:latest
+  martin:
+    image: maplibre/martin:latest
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:3000"
+    environment:
+      MBTILES: /data
     volumes:
       - ${DATA_DIR:-/root}:/data
-    command: ["--file", "/data/v3.mbtiles", "--verbose"]
     networks:
       - mapa_net
 
