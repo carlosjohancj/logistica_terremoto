@@ -41,7 +41,7 @@ services:
       - "8080:8080"
     volumes:
       - ${DATA_DIR:-/root}:/data
-    command: ["--file", "/data/venezuela.mbtiles", "--verbose"]
+    command: ["--file", "/data/v3.mbtiles", "--verbose"]
     networks:
       - mapa_net
 
