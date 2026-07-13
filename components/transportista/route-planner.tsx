@@ -64,8 +64,8 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
   }, [originState, originCity, destState, destCity])
 
   useEffect(() => {
-    loadSegments()
-  }, [travelRequestId])
+    if (currentUserId) loadSegments()
+  }, [travelRequestId, currentUserId])
 
   async function loadSegments() {
     try {
