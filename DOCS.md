@@ -346,7 +346,7 @@ Actualmente no hay un botón de auto-eliminación. Contacta al administrador par
 ┌─────────────────────────────────────────────────────────┐
 │  Servicios Docker Internos                              │
 │  │  Valhalla (ruteo, puerto 8002)                       │
-│  │  tileserver-gl (tiles vectoriales, puerto 8080)       │
+│  │  (los tiles son raster desde tile.openstreetmap.org)   │
 │  └──────────────────────────────────────────────────────┘
 │              │
 │              ▼
@@ -381,8 +381,7 @@ logistica_terremoto/
 │   │   ├── organizations/     # GET/POST - crear/listar org
 │   │   │   └── members/       # POST - agregar miembro
 │   │   ├── route-segments/    # POST - crear segmento de ruta
-│   │   ├── map/[...path]/     # GET - proxy tileserver-gl (tiles, style.json)
-│   │   ├── map/[...path]/   # GET - proxy tileserver (style.json + tiles)
+│   │   ├── osrm-route/        # POST - proxy a Valhalla
 │   │   └── webhooks/
 │       ├── telegram/      # POST - webhook Telegram (n8n)
 │       └── whatsapp/      # POST - webhook WhatsApp (n8n)
@@ -789,10 +788,11 @@ const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) 
 #### 12.4 Mapas
 
 - **Librería**: MapLibre GL JS (imperativo, vía `maplibre-gl`). Sin wrapper React.
-- **Tiles**: Servidor privado tileserver-gl en Docker, proxy vía `/api/map/[...path]` en Next.js.
-- **Style**: `NEXT_PUBLIC_MAP_STYLE_URL=/api/map/styles/basic/style.json` — el proxy reescribe URLs absolutas/relativas del style.json.
+- **Tiles**: Raster desde `tile.openstreetmap.org` (OSM público). Sin servidor propio.
+- **Style**: Inline `OSM_RASTER_STYLE` en `lib/maps/constants.ts` — fuente raster apuntando a OSM.
+- **Atribución**: OSM attribution en el mapa (automático vía MapLibre) y en el footer.
 - **Marcadores**: `maplibregl.Marker` con elementos DOM custom (div con estilo inline).
-- **Polylines**: `map.addSource()` GeoJSON + `map.addLayer()` type `line`. Las rutas entre origen y destino se renderizan como líneas punteadas.
+- **Polylines**: `map.addSource()` GeoJSON + `map.addLayer()` type `line`.
 - **Ciclo de vida**: Se verifica `map.isStyleLoaded()` antes de agregar marcadores/líneas; si no, se espera `style.load`.
 - **Marcadores de ruta**: Se almacenan en `markersRef` para limpieza en cada re-render.
 
@@ -805,15 +805,9 @@ Valhalla (valhalla:8002)
   → Ruteo por carretera (auto)
   → API: POST /route con format: geojson
   → Puerto expuesto: 8002
-
-tileserver-gl (tiles-service:8080)
-  → Tiles vectoriales desde .mbtiles
-  → Style: /styles/basic/style.json
-  → Tiles: /tiles/{z}/{x}/{y}.pbf
-  → Puerto expuesto: 8080
 ```
 
-Acceso desde Next.js vía `host.docker.internal` (puertos expuestos en host).
+Los tiles del mapa vienen directamente de `tile.openstreetmap.org` — sin tile server propio.
 
 ---
 
@@ -956,9 +950,7 @@ Cada formulario usa esquemas zod definidos en `lib/schemas/`.
 NEXT_PUBLIC_SUPABASE_URL=http://backend.desdecerovenezuela.org:8000
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
-OSRM_URL=http://host.docker.internal:5000
-TILE_SERVER_URL=http://host.docker.internal:8080
-NEXT_PUBLIC_MAP_STYLE_URL=/api/map/styles/basic/style.json
+VALHALLA_URL=http://valhalla:8002
 ```
 
 #### 16.3 Comandos

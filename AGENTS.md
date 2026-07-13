@@ -31,7 +31,7 @@ Logística Terremoto — plataforma de **logística civil** (Next.js 16, Tailwin
 - **Route Segments API**: POST `/api/route-segments` con @turf/turf (named import `{ distance }`)
 - **Mapa** (`/explorar`): migrado a **MapLibre GL JS** (vector tiles via style.json), marcadores origen/destino, polylines
 - **Ruteo**: migrado a **Valhalla** (Docker privado, puerto 8002) vía `/api/osrm-route` (rewrite a Valhalla API)
-- **Tile server**: proxy `/api/map/[...path]` hacia tileserver-gl Docker privado (puerto 8080), rewrite de URLs en style.json
+- **Mapa**: migrado a OSM raster tiles (tile.openstreetmap.org) — sin tile server self-hosted
 - **Admin**: tabs de viajes, transporte, hospedaje, empresas, insumos, empleos + stats
 - **SQL**: `city-coords.sql`, `route-segments.sql`, `messages.sql`, `organizations.sql`, `volunteer-types.sql`
 - **Geocoding**: `scripts/geocode-cities.mjs` (Nominatim)
@@ -48,6 +48,6 @@ Logística Terremoto — plataforma de **logística civil** (Next.js 16, Tailwin
 - RLS policies asumen `auth.uid()`
 - Tablas nuevas: `organizations`, `organization_members`, `city_coords`, `route_segments`
 - Columna nueva: `profiles.volunteer_type` (hospedaje/gestion/ambos)
-- **Mapa**: MapLibre GL JS (imperativo, sin wrapper React). Tiles vía proxy `/api/map/[...path]` → tileserver-gl Docker
+- **Mapa**: MapLibre GL JS (imperativo, sin wrapper React). Tiles raster desde tile.openstreetmap.org con atribución OSM
 - **Ruteo**: Valhalla en Docker (`http://valhalla:8002`), formate GeoJSON, respuesta: `features[0].geometry.coordinates` + `features[0].properties.summary.length`
-- **Env vars**: `VALHALLA_URL`, `TILE_SERVER_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`
+- **Env vars**: `VALHALLA_URL`

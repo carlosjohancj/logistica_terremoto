@@ -1,7 +1,7 @@
 # Plan de Acción — Desde Cero
 
 > **⚠️ Este plan refleja el proyecto en su fase inicial (PocketBase). Ver DOCS.md para la documentación actualizada.**
-> Stack actual: Next.js 16, Supabase, MapLibre GL JS, Valhalla, tileserver-gl Docker.
+> Stack actual: Next.js 16, Supabase, MapLibre GL JS, Valhalla, OSM raster tiles.
 
 Sistema de logística para damnificados del terremoto de Venezuela.
 
@@ -13,7 +13,7 @@ Sistema de logística para damnificados del terremoto de Venezuela.
 | UI | shadcn/ui + @base-ui/react |
 | Backend/DB | Supabase self-hosted (PostgreSQL) |
 | Auth | Supabase Auth (admin.createUser + service role) |
-| Mapas | MapLibre GL JS + tileserver-gl (Docker) |
+| Mapas | MapLibre GL JS + OSM raster tiles |
 | Ruteo | Valhalla (Docker) |
 | i18n | next-intl (7 idiomas) |
 | Bots | n8n + webhooks Next.js |

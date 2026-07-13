@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
-import { MAP_STYLE_URL } from "@/lib/maps/constants";
+import { OSM_RASTER_STYLE } from "@/lib/maps/constants";
 
 export type ListItem = {
   id: string;
@@ -60,7 +60,7 @@ export function MapView({
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: MAP_STYLE_URL,
+      style: OSM_RASTER_STYLE,
       center: [center[1], center[0]],
       zoom,
     });
@@ -152,7 +152,7 @@ export function MapView({
         <div className="absolute top-2 left-2 right-2 z-10 flex flex-col gap-1">
           {mapError && (
             <p className="rounded-md bg-destructive/90 px-3 py-1.5 text-xs text-white shadow">
-              No se pudo cargar el mapa. Verifica que tileserver esté activo.
+              No se pudo cargar el mapa. Verifica tu conexión a internet.
             </p>
           )}
           {degradedRouting && !mapError && (

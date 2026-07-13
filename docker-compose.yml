@@ -9,8 +9,6 @@ services:
     environment:
       - NODE_ENV=production
       - VALHALLA_URL=${VALHALLA_URL:-http://valhalla:8002}
-      - TILE_SERVER_URL=${TILE_SERVER_URL:-http://martin:3000}
-      - NEXT_PUBLIC_MAP_STYLE_URL=${MAP_STYLE_URL:-/map-style.json}
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL:-http://backend.desdecerovenezuela.org:8000}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:?required}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:?required}
@@ -34,16 +32,6 @@ services:
     networks:
       - mapa_net
 
-  martin:
-    image: maplibre/martin:latest
-    restart: unless-stopped
-    ports:
-      - "8081:3000"
-    command: ["/data/v3.mbtiles"]
-    volumes:
-      - ${DATA_DIR:-/root}:/data
-    networks:
-      - mapa_net
 
 networks:
   mapa_net:
