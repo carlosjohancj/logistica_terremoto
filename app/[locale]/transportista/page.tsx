@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import dynamic from "next/dynamic"
 import { getSupabase } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
@@ -10,7 +11,12 @@ import RequestManager from "@/components/transportista/request-manager"
 import Timeline from "@/components/transportista/timeline"
 import UpcomingSchedule from "@/components/transportista/upcoming-schedule"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import { ClipboardList, History, CalendarDays } from "lucide-react"
+import { ClipboardList, History, CalendarDays, Map as MapIcon } from "lucide-react"
+
+const TerritoryManager = dynamic(
+  () => import("@/components/transportista/territory-manager"),
+  { ssr: false },
+)
 
 type TravelRequest = {
   id: string
@@ -74,38 +80,64 @@ export default function TransportistaPage() {
     const offersList = (offers || []) as Array<{ capacity: number; origin_state: string; origin_city: string; accepts_passengers: boolean; accepts_cargo: boolean }>
     setTransportistaOffers(offersList)
 
-    const myStates = [...new Set(offersList.map(o => o.origin_state))]
+    const { data: territories } = await supabase
+      .from("transportista_territories")
+      .select("*")
+      .eq("user_id", user.id)
 
-    let reqQuery = supabase
+    let { data: reqs } = await supabase
       .from("travel_requests")
       .select("*")
       .eq("status", "open")
       .neq("user_id", user.id)
-
-    if (myStates.length > 0) {
-      reqQuery = reqQuery.in("origin_state", myStates)
-    }
-
-    const { data: reqs } = await reqQuery.order("created_at", { ascending: false })
+      .order("created_at", { ascending: false })
 
     let typedReqs = (reqs || []) as TravelRequest[]
 
-    if (offersList.length > 0) {
+    if (territories && territories.length > 0) {
+      const withMatch = await Promise.all(
+        typedReqs.map(async (req) => {
+          const origin = await getCityCoord(req.origin_state, req.origin_city)
+          const dest = await getCityCoord(req.destination_state, req.destination_city)
+          const matched = territories.some((t: any) => {
+            if (origin) {
+              const d = distance(
+                [origin.lng, origin.lat],
+                [t.center_lng, t.center_lat],
+                { units: "kilometers" },
+              )
+              if (d <= t.radius_km) return true
+            }
+            if (dest) {
+              const d = distance(
+                [dest.lng, dest.lat],
+                [t.center_lng, t.center_lat],
+                { units: "kilometers" },
+              )
+              if (d <= t.radius_km) return true
+            }
+            return false
+          })
+          return { ...req, matched }
+        }),
+      )
+      typedReqs = withMatch.filter(r => r.matched)
+    }
+
+    if (typedReqs.length > 0) {
       const withDistance = await Promise.all(
         typedReqs.map(async (req) => {
-          const offer = offersList.find(o => o.origin_state === req.origin_state)
-          if (!offer || !offer.origin_city || !req.origin_city) return { ...req, distance_km: 999 }
-
-          const offerCoord = await getCityCoord(offer.origin_state, offer.origin_city)
           const reqCoord = await getCityCoord(req.origin_state, req.origin_city)
-          if (!offerCoord || !reqCoord) return { ...req, distance_km: 999 }
+          if (!reqCoord) return { ...req, distance_km: 999 }
 
-          const km = distance(
-            [offerCoord.lng, offerCoord.lat],
-            [reqCoord.lng, reqCoord.lat],
-            { units: "kilometers" },
-          )
-          return { ...req, distance_km: Math.round(km) }
+          const nearest = territories && territories.length > 0
+            ? territories.reduce((best: any, t: any) => {
+                const d = distance([reqCoord.lng, reqCoord.lat], [t.center_lng, t.center_lat], { units: "kilometers" })
+                return d < best.dist ? { dist: d, t } : best
+              }, { dist: Infinity, t: null })
+            : { dist: 999, t: null }
+
+          return { ...req, distance_km: nearest.t ? Math.round(nearest.dist) : 999 }
         }),
       )
       withDistance.sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999))
@@ -167,11 +199,8 @@ export default function TransportistaPage() {
     setLoading(false)
   }
 
-  function handleTakeRequest(req: Record<string, any>, scheduledDate?: string, estimatedHours?: number) {
-    const params = new URLSearchParams({ requestId: req.id })
-    if (scheduledDate) params.set("date", scheduledDate)
-    if (estimatedHours) params.set("hours", String(estimatedHours))
-    router.push(`/${locale}/transportista/ruta?${params.toString()}`)
+  function handleTakeRequest(req: Record<string, any>) {
+    router.push(`/${locale}/transportista/ruta?requestId=${req.id}`)
   }
 
   const upcomingSegments = useMemo(() => {
@@ -218,6 +247,17 @@ export default function TransportistaPage() {
           <UpcomingSchedule entries={upcomingSegments} />
         </section>
       )}
+
+      <section>
+        <div className="mb-4 flex items-center gap-2">
+          <MapIcon className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold">Mis Zonas de Operación</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Define las zonas donde operas. Las solicitudes se filtrarán automáticamente según tu cobertura.
+        </p>
+        <TerritoryManager />
+      </section>
 
       <section>
         <div className="mb-4 flex items-center gap-2">

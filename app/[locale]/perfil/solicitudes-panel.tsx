@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Card,
@@ -27,7 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { getSupabase } from "@/lib/supabase"
 import { getCitiesByState } from "@/lib/estados"
 import { toast } from "sonner"
-import { Calendar, Users, Package, AlertTriangle } from "lucide-react"
+import { Users, Package, AlertTriangle } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -69,10 +68,6 @@ export default function SolicitudesPanel({
   const [originCities, setOriginCities] = useState<string[]>([])
   const [destCities, setDestCities] = useState<string[]>([])
   const [sending, setSending] = useState(false)
-  const [scheduledDate, setScheduledDate] = useState("")
-  const [estimatedHours, setEstimatedHours] = useState("")
-
-  const today = new Date().toISOString().split("T")[0]
 
   function openDialog(req: TravelRequest) {
     setSelectedReq(req)
@@ -81,8 +76,6 @@ export default function SolicitudesPanel({
     setPartialDest("")
     setOriginCities([])
     setDestCities([])
-    setScheduledDate("")
-    setEstimatedHours("")
     setDialogOpen(true)
 
     if (req.origin_state) {
@@ -140,8 +133,6 @@ export default function SolicitudesPanel({
         destination_state: destState,
         is_full_route: isFull,
       }
-      if (scheduledDate) body.scheduled_date = scheduledDate
-      if (estimatedHours) body.estimated_hours = Number(estimatedHours)
 
       const res = await fetch("/api/route-segments", {
         method: "POST",
@@ -311,34 +302,6 @@ export default function SolicitudesPanel({
                 Capacidad de tu vehículo: {capacityInfo.capacity} pers. — la solicitud pide {selectedReq?.people_to_move}
               </div>
             )}
-
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-              <div className="space-y-1.5">
-                <Label htmlFor="panel-date" className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5" />
-                  Fecha del viaje
-                </Label>
-                <Input
-                  id="panel-date"
-                  type="date"
-                  value={scheduledDate}
-                  onChange={(e) => setScheduledDate(e.target.value)}
-                  min={today}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="panel-hours">Horas estimadas</Label>
-                <Input
-                  id="panel-hours"
-                  type="number"
-                  min={1}
-                  max={48}
-                  placeholder="ej: 4"
-                  value={estimatedHours}
-                  onChange={(e) => setEstimatedHours(e.target.value)}
-                />
-              </div>
-            </div>
           </div>
 
           <DialogFooter>

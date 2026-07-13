@@ -4,8 +4,6 @@ import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -15,12 +13,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { NumberedPagination } from "@/components/shared/numbered-pagination"
-import { MapPin, ArrowRight, Users, Phone, PackageSearch, Calendar, AlertTriangle, Package } from "lucide-react"
+import { MapPin, ArrowRight, Users, Phone, PackageSearch, AlertTriangle, Package } from "lucide-react"
 
 type Props = {
   requests: Array<Record<string, any>>
   profiles: Record<string, { name: string; phone: string }>
-  onTakeRequest: (req: Record<string, any>, scheduledDate?: string, estimatedHours?: number) => void
+  onTakeRequest: (req: Record<string, any>) => void
   transportistaOffers?: Array<{ capacity: number; origin_state: string; accepts_passengers: boolean; accepts_cargo: boolean }>
 }
 
@@ -29,8 +27,6 @@ const PAGE_SIZE = 9
 export default function RequestManager({ requests, profiles, onTakeRequest, transportistaOffers }: Props) {
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<Record<string, any> | null>(null)
-  const [scheduledDate, setScheduledDate] = useState("")
-  const [estimatedHours, setEstimatedHours] = useState("")
 
   const totalPages = Math.max(1, Math.ceil(requests.length / PAGE_SIZE))
   const visible = useMemo(() => {
@@ -44,19 +40,13 @@ export default function RequestManager({ requests, profiles, onTakeRequest, tran
 
   function confirmTake() {
     if (!selected) return
-    onTakeRequest(selected, scheduledDate || undefined, estimatedHours ? Number(estimatedHours) : undefined)
+    onTakeRequest(selected)
     setSelected(null)
-    setScheduledDate("")
-    setEstimatedHours("")
   }
 
   function openDialog(req: Record<string, any>) {
     setSelected(req)
-    setScheduledDate("")
-    setEstimatedHours("")
   }
-
-  const today = new Date().toISOString().split("T")[0]
 
   function getCapacityInfo(req: Record<string, any>) {
     if (!transportistaOffers?.length) return null
@@ -163,88 +153,49 @@ export default function RequestManager({ requests, profiles, onTakeRequest, tran
       <NumberedPagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} className="mt-6" />
 
       <Dialog open={!!selected} onOpenChange={(open) => {
-        if (!open) {
-          setSelected(null)
-          setScheduledDate("")
-          setEstimatedHours("")
-        }
+        if (!open) setSelected(null)
       }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Confirmar toma de ruta</DialogTitle>
             <DialogDescription>
-              Estás a punto de comprometerte a transportar esta solicitud. Elige la fecha en que planeas hacer el viaje.
+              Estás a punto de comprometerte a transportar esta solicitud. Podrás planificar los detalles de la ruta a continuación.
             </DialogDescription>
           </DialogHeader>
 
           {selected && (
-            <div className="space-y-4">
-              <div className="space-y-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
-                <div className="flex items-center gap-1.5 font-medium">
-                  <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                  <span className="truncate">{selected.origin_city || selected.origin_state}</span>
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{selected.destination_city || selected.destination_state}</span>
+            <div className="space-y-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
+              <div className="flex items-center gap-1.5 font-medium">
+                <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate">{selected.origin_city || selected.origin_state}</span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate">{selected.destination_city || selected.destination_state}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Users className="h-4 w-4 shrink-0" />
+                {selected.people_to_move} persona{selected.people_to_move === 1 ? "" : "s"} ·{" "}
+                {selected.notes || "Sin notas"}
+              </div>
+              {capacityInfo && capacityInfo.exceeded && (
+                <div className="flex items-center gap-1.5 text-destructive text-xs">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  Capacidad de tu vehículo: {capacityInfo.capacity} pers. — la solicitud pide {selected.people_to_move}
                 </div>
+              )}
+              {selectedProfile && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Users className="h-4 w-4 shrink-0" />
-                  {selected.people_to_move} persona{selected.people_to_move === 1 ? "" : "s"} ·{" "}
-                  {selected.notes || "Sin notas"}
+                  <Phone className="h-4 w-4 shrink-0" />
+                  {selectedProfile.name} — {selectedProfile.phone || "sin teléfono"}
                 </div>
-                {capacityInfo && capacityInfo.exceeded && (
-                  <div className="flex items-center gap-1.5 text-destructive text-xs">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                    Capacidad de tu vehículo: {capacityInfo.capacity} pers. — la solicitud pide {selected.people_to_move}
-                  </div>
-                )}
-                {selectedProfile && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Phone className="h-4 w-4 shrink-0" />
-                    {selectedProfile.name} — {selectedProfile.phone || "sin teléfono"}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="scheduled-date" className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
-                    Fecha del viaje
-                  </Label>
-                  <Input
-                    id="scheduled-date"
-                    type="date"
-                    value={scheduledDate}
-                    onChange={(e) => setScheduledDate(e.target.value)}
-                    min={today}
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="est-hours">Horas estimadas</Label>
-                  <Input
-                    id="est-hours"
-                    type="number"
-                    min={1}
-                    max={48}
-                    placeholder="ej: 4"
-                    value={estimatedHours}
-                    onChange={(e) => setEstimatedHours(e.target.value)}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setSelected(null)
-              setScheduledDate("")
-              setEstimatedHours("")
-            }}>
+            <Button variant="outline" onClick={() => setSelected(null)}>
               Cancelar
             </Button>
-            <Button onClick={confirmTake} disabled={!scheduledDate}>
+            <Button onClick={confirmTake}>
               Sí, tomar esta ruta
             </Button>
           </DialogFooter>

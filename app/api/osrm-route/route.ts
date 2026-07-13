@@ -24,12 +24,13 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        id: "route_request",
         locations: [
           { lat: fromLat, lon: fromLng, type: "break" },
           { lat: toLat, lon: toLng, type: "break" },
         ],
         costing: "auto",
-        directions_options: { units: "kilometers" },
+        directions_options: { units: "kilometers", language: "en-US" },
       }),
       signal: AbortSignal.timeout(30000),
     })
