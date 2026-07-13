@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
@@ -10,12 +10,12 @@ export default async function LocaleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const messages = await getMessages();
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
 
   return (
     <NextIntlClientProvider messages={messages}>
       <div className="flex min-h-screen flex-col">
-        <Navbar />
+        <Navbar locale={locale} />
         <main className="flex-1">{children}</main>
         <Footer />
       </div>

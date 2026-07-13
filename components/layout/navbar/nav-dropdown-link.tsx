@@ -1,9 +1,7 @@
-"use client";
-
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export function DropdownLink({
+export function NavDropdownLink({
   href,
   active,
   children,
@@ -17,7 +15,7 @@ export function DropdownLink({
       href={href}
       className={cn(
         "block px-4 py-2 text-sm transition-colors hover:bg-muted hover:text-primary",
-        active ? "text-primary font-medium" : "text-muted-foreground"
+        active ? "text-primary font-medium" : "text-muted-foreground",
       )}
     >
       {children}
