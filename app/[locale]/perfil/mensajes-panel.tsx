@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import { getInitials, cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { Send, MessageSquare, MapPin, Search, ArrowLeft, ArrowRight } from "lucide-react"

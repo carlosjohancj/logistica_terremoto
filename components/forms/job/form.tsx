@@ -20,7 +20,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Controller } from "react-hook-form"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
+import type { TablesInsert } from "@/types/database"
 import { toast } from "sonner"
 import { jobSchema, JobValues } from "@/lib/schemas/job"
 import { JOB_MODALITIES } from "@/lib/forms/constants"
@@ -61,7 +62,7 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
       const supabase = getSupabase()
       await supabase
         .from(TABLES.JOBS)
-        .insert({ ...values, company: companyId, status: "open" })
+        .insert({ ...values, company_id: companyId, status: "open" } as TablesInsert<"jobs">)
         .select()
         .single()
       toast.success(tj("success") || "Empleo creado")

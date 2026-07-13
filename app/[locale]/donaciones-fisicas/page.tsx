@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { toast } from "sonner"
 import { Search, Package, MapPin, Truck, ArrowDownUp } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"

@@ -1,5 +1,5 @@
 import type { LoginFormValues, RegisterFormValues } from "@/lib/schemas/auth";
-import { getSupabase } from "./supabase";
+import { getSupabase } from "@/types/supabase";
 
 export async function loginUser(values: LoginFormValues): Promise<void> {
   const supabase = getSupabase();

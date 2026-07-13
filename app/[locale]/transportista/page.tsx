@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import Indicators from "@/components/transportista/indicators"
 import RequestManager from "@/components/transportista/request-manager"
 import Timeline from "@/components/transportista/timeline"

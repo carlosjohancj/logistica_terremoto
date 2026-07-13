@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { toast } from "sonner"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 import {

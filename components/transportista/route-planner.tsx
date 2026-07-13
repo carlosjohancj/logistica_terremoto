@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { fetchRoute } from "@/lib/maps/fetch-route"
 

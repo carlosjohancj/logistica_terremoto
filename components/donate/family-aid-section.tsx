@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getSupabase, TABLES } from "@/lib/supabase";
+import { getSupabase, TABLES } from "@/types/supabase";
 import { HELP_TYPES } from "@/lib/forms/constants";
 import { SkeletonGrid } from "@/components/ui/skeleton";
 import { NumberedPagination } from "@/components/shared/numbered-pagination";

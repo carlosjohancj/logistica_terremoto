@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
+import type { TablesInsert } from "@/types/database"
 import { toast } from "sonner"
 import { supplySchema, SupplyValues } from "@/lib/schemas/supply"
 import { SUPPLY_CATEGORIES, SUPPLY_CONDITIONS } from "@/lib/forms/constants"
@@ -78,7 +79,7 @@ export function SupplyForm() {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) data.user = user.id
+      if (user) data.user_id = user.id
       if (values.description) data.description = values.description
       if (values.quantity) data.quantity = values.quantity
       if (values.condition) data.condition = values.condition
@@ -88,7 +89,11 @@ export function SupplyForm() {
       if (values.contact_phone) data.contact_phone = values.contact_phone
 
       if (user) {
-        const { error } = await supabase.from("supplies").insert(data).select().single()
+        const { error } = await supabase
+          .from("supplies")
+          .insert(data as TablesInsert<"supplies">)
+          .select()
+          .single()
         if (error) throw error
       } else {
         const res = await fetch("/api/forms", {

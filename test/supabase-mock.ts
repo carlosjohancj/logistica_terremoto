@@ -35,7 +35,7 @@ type AdminCreateUserResult = {
 }
 
 /**
- * Builds a fake Supabase client for `vi.mock("@/lib/supabase", ...)`.
+ * Builds a fake Supabase client for `vi.mock("@/types/supabase", ...)`.
  * Pass `tables` keyed by table name to control what `.from(table)` resolves
  * to; any table not listed resolves to an empty, error-free result. Pass
  * `admin` to control `auth.admin.createUser`/`deleteUser` (used by service-role

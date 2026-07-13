@@ -26,7 +26,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { toast } from "sonner"
 import { Search, Download, Eye, Tag } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"

@@ -23,7 +23,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
+import type { TablesInsert } from "@/types/database"
 import { useEstados } from "@/lib/estados"
 import { companySchema, CompanyValues } from "@/lib/schemas/company"
 import { FormField } from "@/components/forms/shared/form-field"
@@ -82,8 +83,12 @@ export default function RegistroEmpresaPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) data.user = user.id
-      const { error } = await supabase.from("companies").insert(data).select().single()
+      if (user) data.user_id = user.id
+      const { error } = await supabase
+        .from("companies")
+        .insert(data as TablesInsert<"companies">)
+        .select()
+        .single()
       if (error) throw error
       toast.success(t("success"))
       router.push(`/${locale}/empleos`)

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getServerSupabase } from "@/lib/supabase-server"
-import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServiceSupabase, TABLES } from "@/types/supabase"
 
 export async function PATCH(
   request: Request,
@@ -52,7 +52,7 @@ export async function PATCH(
         .select("status")
         .eq("match_id", segment.match_id)
 
-      const allCompleted = allSegments?.every((s: { status: string }) => s.status === "completed") ?? false
+      const allCompleted = allSegments?.every((s: { status: string | null }) => s.status === "completed") ?? false
 
       if (allCompleted) {
         await Promise.all([

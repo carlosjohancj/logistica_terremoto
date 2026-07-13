@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { NumberedPagination } from "@/components/shared/numbered-pagination"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import { getCitiesByState } from "@/lib/estados"
 import { getInitials } from "@/lib/utils"
 import { toast } from "sonner"

@@ -1,25 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getSupabase } from "./supabase"
+import { getSupabase } from "@/types/supabase"
+import type { Estado as EstadoRow, CityCoord } from "@/types/database"
 
 type Municipio = {
   municipio: string
   ciudades: string[]
 }
 
-export type Estado = {
-  id: string
-  name: string
+// The DB row's `municipios` column is untyped jsonb; narrow it to the shape
+// this module actually relies on.
+export type Estado = Omit<EstadoRow, "municipios" | "capital" | "lat" | "lng"> & {
   capital: string
   municipios: Municipio[]
-  lat: number
-  lng: number
-}
-
-type CityCoord = {
-  city: string
-  state: string
   lat: number
   lng: number
 }

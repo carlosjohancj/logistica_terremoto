@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import type { Job } from "@/components/jobs/job-card"
 
 const PAGE_SIZE = 15

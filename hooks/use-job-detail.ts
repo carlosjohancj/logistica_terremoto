@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabase, TABLES } from "@/lib/supabase";
+import { getSupabase, TABLES } from "@/types/supabase";
 
 export type JobDetail = {
   id: string;
@@ -36,6 +36,7 @@ export function useJobDetail({ jobId, jobIds, onError }: UseJobDetailOptions) {
 
   useEffect(() => {
     if (!jobId) return;
+    const currentJobId = jobId;
     let active = true;
     async function fetchJob() {
       try {
@@ -43,7 +44,7 @@ export function useJobDetail({ jobId, jobIds, onError }: UseJobDetailOptions) {
         const { data } = await supabase
           .from(TABLES.JOBS)
           .select("*, company:companies(name)")
-          .eq("id", jobId)
+          .eq("id", currentJobId)
           .single();
         if (active) setJob(data as unknown as JobDetail);
       } catch {

@@ -20,7 +20,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { toast } from "sonner"
 import { SkeletonDetail } from "@/components/ui/skeleton"
 import { Shield, Users, Building2, Briefcase, Package, HandHeart } from "lucide-react"
@@ -106,13 +106,13 @@ export default function AdminPage() {
         supabase.from(TABLES.JOBS).select("*").order("created_at", { ascending: false }),
         supabase.from(TABLES.SERVICE_PROVIDERS).select("*").order("name"),
       ])
-      setTravelReqs((travel.data || []) as Post[])
-      setTransportOffers((transport.data || []) as Post[])
-      setHousingOffers((housing.data || []) as Post[])
-      setCompanies((comps.data || []) as Post[])
-      setSupplies((supps.data || []) as Post[])
-      setJobs((jbs.data || []) as Post[])
-      setProviders((provs.data || []) as Provider[])
+      setTravelReqs((travel.data || []) as unknown as Post[])
+      setTransportOffers((transport.data || []) as unknown as Post[])
+      setHousingOffers((housing.data || []) as unknown as Post[])
+      setCompanies((comps.data || []) as unknown as Post[])
+      setSupplies((supps.data || []) as unknown as Post[])
+      setJobs((jbs.data || []) as unknown as Post[])
+      setProviders((provs.data || []) as unknown as Provider[])
     } catch {
       toast.error(tc("error"))
     }
@@ -121,7 +121,7 @@ export default function AdminPage() {
   async function updateStatus(collection: string, id: string, status: string) {
     try {
       const supabase = getSupabase()
-      await supabase.from(collection).update({ status }).eq("id", id)
+      await supabase.from(collection).update({ status } as never).eq("id", id)
       toast.success(`Estado actualizado a: ${status}`)
       loadAll()
     } catch {

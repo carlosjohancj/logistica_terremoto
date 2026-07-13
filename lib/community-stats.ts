@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Heart, Truck, Home as HomeIcon, Route, type LucideIcon } from "lucide-react"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 
 export type CommunityStat = {
   icon: LucideIcon

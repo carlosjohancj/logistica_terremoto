@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import RoutePlanner from "@/components/transportista/route-planner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

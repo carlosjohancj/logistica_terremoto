@@ -18,7 +18,7 @@ vi.mock("@/lib/auth", () => ({
   registerUser: vi.fn(),
 }))
 
-vi.mock("@/lib/supabase", () => ({
+vi.mock("@/types/supabase", () => ({
   getSupabase: () => supabaseMock,
 }))
 

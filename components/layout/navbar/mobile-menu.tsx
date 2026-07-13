@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ChevronRight, ChevronLeft, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/types/supabase";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { useMobileMenu } from "@/hooks/use-mobile-menu";

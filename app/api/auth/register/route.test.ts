@@ -3,7 +3,7 @@ import { createSupabaseMock } from "@/test/supabase-mock"
 
 const mockClient = createSupabaseMock()
 
-vi.mock("@/lib/supabase", () => ({
+vi.mock("@/types/supabase", () => ({
   getServiceSupabase: () => mockClient,
   TABLES: { PROFILES: "profiles" },
 }))

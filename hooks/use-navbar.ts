@@ -2,7 +2,7 @@
 
 import { startTransition, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/types/supabase";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 async function fetchUserRole(

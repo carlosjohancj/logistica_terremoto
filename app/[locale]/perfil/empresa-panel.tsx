@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { toast } from "sonner"
 import { Plus, Building2, MapPin, Briefcase, EyeOff } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"

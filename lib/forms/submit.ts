@@ -1,10 +1,10 @@
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/types/supabase";
 import { HousingOfferValues } from "@/lib/schemas/housing-offer";
 import { TransportOfferValues } from "@/lib/schemas/transport-offer";
 import { TravelRequestValues } from "@/lib/schemas/travel-request";
 
 async function submitAsUser(
-  table: string,
+  table: "housing_offers" | "transport_offers" | "travel_requests",
   data: Record<string, unknown>
 ) {
   const supabase = getSupabase();
@@ -14,8 +14,8 @@ async function submitAsUser(
 
   if (!user) throw new Error("Debes iniciar sesión para publicar");
 
-  data.user = user.id;
-  const { error } = await supabase.from(table).insert(data).select().single();
+  data.user_id = user.id;
+  const { error } = await supabase.from(table).insert(data as never).select().single();
   if (error) throw error;
 }
 
