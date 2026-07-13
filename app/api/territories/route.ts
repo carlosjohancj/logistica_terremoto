@@ -1,37 +1,51 @@
-import { NextResponse } from "next/server"
-import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServiceSupabase, TABLES } from "@/types/supabase";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("user_id")
-    if (!userId) return NextResponse.json({ error: "Missing user_id" }, { status: 400 })
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("user_id");
+    if (!userId)
+      return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
 
-    const service = getServiceSupabase()
-    const { data, error } = await service
+    const service = getServiceSupabase();
+    const { data, error } = (await service
       .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .select("*")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false }) as never as { data: any[] | null; error: any }
+      .order("created_at", { ascending: false })) as never as {
+      data: any[] | null;
+      error: any;
+    };
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ territories: data ?? [] })
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ territories: data ?? [] });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { center_lat, center_lng, radius_km, label, user_id } = await request.json()
+    const { center_lat, center_lng, radius_km, label, user_id } =
+      await request.json();
 
-    if (!user_id) return NextResponse.json({ error: "Missing user_id" }, { status: 400 })
-    if (center_lat === undefined || center_lng === undefined || radius_km === undefined) {
-      return NextResponse.json({ error: "Missing required fields: center_lat, center_lng, radius_km" }, { status: 400 })
+    if (!user_id)
+      return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
+    if (
+      center_lat === undefined ||
+      center_lng === undefined ||
+      radius_km === undefined
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields: center_lat, center_lng, radius_km" },
+        { status: 400 }
+      );
     }
 
-    const service = getServiceSupabase()
-    const { data, error } = await service
+    const service = getServiceSupabase();
+    const { data, error } = (await service
       .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .insert({
         user_id,
@@ -41,11 +55,12 @@ export async function POST(request: Request) {
         label: label || null,
       } as never)
       .select()
-      .single() as never as { data: any | null; error: any }
+      .single()) as never as { data: any | null; error: any };
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ territory: data }, { status: 201 })
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ territory: data }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
