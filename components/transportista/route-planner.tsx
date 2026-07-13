@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { getSupabase } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { fetchRoute } from "@/lib/maps/fetch-route"
+import { nearestPointOnLine, lineString } from "@turf/turf"
 import { Loader2, MapPin, Flag, Users, Phone, Package, AlertTriangle, XCircle, CheckCircle, Route, ChevronDown } from "lucide-react"
 
 const MapWithNoSSR = dynamic(
@@ -73,6 +74,8 @@ export default function RoutePlanner({
   const [currentUserId, setCurrentUserId] = useState<string>("")
   const [territories, setTerritories] = useState<Territory[]>([])
   const [panelOpen, setPanelOpen] = useState(true)
+  const [fullRouteGeometry, setFullRouteGeometry] = useState<[number, number][] | null>(null)
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null)
 
   useEffect(() => {
     getSupabase().auth.getUser().then(({ data }) => {
@@ -96,6 +99,13 @@ export default function RoutePlanner({
       loadTerritories()
     }
   }, [travelRequestId, currentUserId])
+
+  useEffect(() => {
+    if (!originCoord || !destCoord) return
+    setFullRouteGeometry(null)
+    fetchRoute(originCoord.lng, originCoord.lat, destCoord.lng, destCoord.lat)
+      .then((result) => setFullRouteGeometry(result?.geometry ?? null))
+  }, [originCoord, destCoord])
 
   async function loadTerritories() {
     try {
@@ -157,19 +167,31 @@ export default function RoutePlanner({
         ? { city: prevSegment.destination_city, state: prevSegment.destination_state, lat: prevSegment.destLat!, lng: prevSegment.destLng! }
         : { city: originCity, state: originState, lat: originCoord?.lat || 0, lng: originCoord?.lng || 0 }
 
+      // Snap click to nearest point on full route
+      let snapLng = lng
+      let snapLat = lat
+      if (fullRouteGeometry && fullRouteGeometry.length > 1) {
+        try {
+          const turfLine = lineString(fullRouteGeometry)
+          const snapped = nearestPointOnLine(turfLine, [lng, lat])
+          snapLng = snapped.geometry.coordinates[0]
+          snapLat = snapped.geometry.coordinates[1]
+        } catch {}
+      }
+
       const destName = `Punto ${mySegments.length + 1}`
       const order = mySegments.length + 1
 
       let distanceKm: number
       let routeGeo: [number, number][] | null = null
 
-      const valhalla = await fetchRoute(segOrigin.lng, segOrigin.lat, lng, lat)
+      const valhalla = await fetchRoute(segOrigin.lng, segOrigin.lat, snapLng, snapLat)
       if (valhalla) {
         distanceKm = valhalla.distanceKm
         routeGeo = valhalla.geometry
       } else {
         const { distance } = await import("@turf/turf")
-        distanceKm = Math.round(distance([segOrigin.lng, segOrigin.lat], [lng, lat], { units: "kilometers" }) * 10) / 10
+        distanceKm = Math.round(distance([segOrigin.lng, segOrigin.lat], [snapLng, snapLat], { units: "kilometers" }) * 10) / 10
       }
 
       const body: Record<string, unknown> = {
@@ -181,8 +203,8 @@ export default function RoutePlanner({
         destination_state: destState,
         origin_lat: segOrigin.lat,
         origin_lng: segOrigin.lng,
-        destination_lat: lat,
-        destination_lng: lng,
+        destination_lat: snapLat,
+        destination_lng: snapLng,
         is_full_route: false,
         route_geometry: routeGeo,
       }
@@ -210,8 +232,8 @@ export default function RoutePlanner({
           status: "pending",
           lat: segOrigin.lat,
           lng: segOrigin.lng,
-          destLat: lat,
-          destLng: lng,
+          destLat: snapLat,
+          destLng: snapLng,
           route_geometry: routeGeo,
           transportista_id: currentUserId,
         }])
@@ -225,7 +247,7 @@ export default function RoutePlanner({
     } finally {
       setSaving(false)
     }
-  }, [saving, mySegments, travelRequestId, originCity, originState, destState, originCoord, currentUserId, scheduledDate, estimatedHours])
+  }, [saving, mySegments, travelRequestId, originCity, originState, destState, originCoord, currentUserId, scheduledDate, estimatedHours, fullRouteGeometry])
 
   async function updateSegmentStatus(segmentId: string, newStatus: string) {
     const res = await fetch(`/api/route-segments/${segmentId}`, {
@@ -286,6 +308,10 @@ export default function RoutePlanner({
     }
   }
 
+  const handleSelectSegment = useCallback((id: string | null) => {
+    setSelectedSegmentId(id)
+  }, [])
+
   const canCompleteAll = mySegments.length > 0 && mySegments.some(s => s.status === "in_progress" || s.status === "pending")
   const canCancel = mySegments.some(s => s.status === "pending" || s.status === "in_progress")
   const progressPct = totalKm > 0 ? Math.round((completedKm / totalKm) * 100) : 0
@@ -309,7 +335,10 @@ export default function RoutePlanner({
           destCoord={destCoord ? [destCoord.lat, destCoord.lng] : null}
           segments={mySegments}
           territories={territories}
+          fullRouteGeometry={fullRouteGeometry ?? undefined}
+          selectedSegmentId={selectedSegmentId ?? undefined}
           onClick={handleMapClick}
+          onSelectSegment={handleSelectSegment}
         />
 
         {/* Collapsible info panel overlay */}

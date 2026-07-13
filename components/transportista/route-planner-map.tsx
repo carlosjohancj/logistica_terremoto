@@ -6,6 +6,7 @@ import { OSM_RASTER_STYLE } from "@/lib/maps/constants"
 import { circle } from "@turf/turf"
 
 type SegmentDisplay = {
+  id?: string
   order: number
   lat?: number
   lng?: number
@@ -30,18 +31,35 @@ type Props = {
   destCoord: [number, number] | null
   segments: SegmentDisplay[]
   territories?: Territory[]
+  fullRouteGeometry?: [number, number][]
+  selectedSegmentId?: string
   onClick: (lat: number, lng: number) => void
+  onSelectSegment?: (id: string | null) => void
 }
 
-export default function RoutePlannerMap({ originCoord, destCoord, segments, territories, onClick }: Props) {
+export default function RoutePlannerMap({ originCoord, destCoord, segments, territories, fullRouteGeometry, selectedSegmentId, onClick, onSelectSegment }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markerRefs = useRef<maplibregl.Marker[]>([])
   const territorySourceReady = useRef(false)
 
   const handleClick = useCallback((e: maplibregl.MapMouseEvent) => {
+    const map = mapRef.current
+    if (!map) return
+
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: ["planner-segments", "planner-completed", "planner-waypoints"],
+    })
+    if (features.length > 0) {
+      const segId = features[0].properties?.id
+      if (segId) {
+        onSelectSegment?.(segId)
+        return
+      }
+    }
+
     onClick(e.lngLat.lat, e.lngLat.lng)
-  }, [onClick])
+  }, [onClick, onSelectSegment])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -120,6 +138,9 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, terr
       }
 
       updateSegments(map, segments)
+      updateWaypoints(map, segments)
+      updateFullRoute(map, fullRouteGeometry || [])
+      updateSelectedSegment(map, segments, selectedSegmentId)
     }
 
     if (m.isStyleLoaded()) {
@@ -127,14 +148,55 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, terr
     } else {
       m.once("style.load", () => render(m))
     }
-  }, [originCoord, destCoord, segments])
+  }, [originCoord, destCoord, segments, fullRouteGeometry, selectedSegmentId])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !selectedSegmentId) return
+
+    const seg = segments.find(s => s.id === selectedSegmentId)
+    if (!seg) return
+
+    let coords: number[][]
+    if (seg.route_geometry && seg.route_geometry.length > 1) {
+      coords = seg.route_geometry
+    } else if (seg.lat !== undefined && seg.lng !== undefined && seg.destLat !== undefined && seg.destLng !== undefined) {
+      coords = [[seg.lng, seg.lat], [seg.destLng, seg.destLat]]
+    } else {
+      return
+    }
+
+    const bounds = coords.reduce(
+      (b, c) => b.extend(c as [number, number]),
+      new maplibregl.LngLatBounds(coords[0] as [number, number], coords[0] as [number, number])
+    )
+    map.fitBounds(bounds, { padding: 80 })
+  }, [selectedSegmentId, segments])
 
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
 
     map.on("click", handleClick)
-    return () => { map.off("click", handleClick) }
+
+    const onEnter = () => { map.getCanvas().style.cursor = "pointer" }
+    const onLeave = () => { map.getCanvas().style.cursor = "" }
+    map.on("mouseenter", "planner-segments", onEnter)
+    map.on("mouseleave", "planner-segments", onLeave)
+    map.on("mouseenter", "planner-completed", onEnter)
+    map.on("mouseleave", "planner-completed", onLeave)
+    map.on("mouseenter", "planner-waypoints", onEnter)
+    map.on("mouseleave", "planner-waypoints", onLeave)
+
+    return () => {
+      map.off("click", handleClick)
+      map.off("mouseenter", "planner-segments", onEnter)
+      map.off("mouseleave", "planner-segments", onLeave)
+      map.off("mouseenter", "planner-completed", onEnter)
+      map.off("mouseleave", "planner-completed", onLeave)
+      map.off("mouseenter", "planner-waypoints", onEnter)
+      map.off("mouseleave", "planner-waypoints", onLeave)
+    }
   }, [handleClick])
 
   return (
@@ -168,7 +230,7 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
 
     features.push({
       type: "Feature",
-      properties: { status: seg.status },
+      properties: { status: seg.status, id: seg.id || "" },
       geometry: { type: "LineString", coordinates: coords },
     })
   })
@@ -194,7 +256,7 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
     source: sourceId,
     filter: ["!=", ["get", "status"], "completed"],
     layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": "#3B82F6", "line-width": 6, "line-opacity": 0.85 },
+    paint: { "line-color": "#3B82F6", "line-width": 4, "line-opacity": 1 },
   })
 
   map.addLayer({
@@ -203,6 +265,129 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
     source: sourceId,
     filter: ["==", ["get", "status"], "completed"],
     layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": "#10B981", "line-width": 5, "line-opacity": 0.7 },
+    paint: { "line-color": "#10B981", "line-width": 3, "line-opacity": 1 },
+  })
+}
+
+function updateWaypoints(map: maplibregl.Map, segments: SegmentDisplay[]) {
+  const sourceId = "planner-waypoints"
+  const features: GeoJSON.Feature[] = []
+
+  segments.forEach((seg) => {
+    let endCoord: [number, number] | null = null
+    if (seg.route_geometry && seg.route_geometry.length > 0) {
+      const last = seg.route_geometry[seg.route_geometry.length - 1]
+      endCoord = [last[0], last[1]]
+    } else if (seg.destLat !== undefined && seg.destLng !== undefined) {
+      endCoord = [seg.destLng, seg.destLat]
+    }
+    if (!endCoord) return
+
+    features.push({
+      type: "Feature",
+      properties: { id: seg.id || "" },
+      geometry: { type: "Point", coordinates: endCoord },
+    })
+  })
+
+  if (features.length === 0) {
+    if (map.getLayer(sourceId)) map.removeLayer(sourceId)
+    if (map.getSource(sourceId)) map.removeSource(sourceId)
+    return
+  }
+
+  if (map.getSource(sourceId)) {
+    (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features,
+    })
+    return
+  }
+
+  map.addSource(sourceId, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features },
+  })
+
+  map.addLayer({
+    id: sourceId,
+    type: "circle",
+    source: sourceId,
+    paint: {
+      "circle-radius": 8,
+      "circle-color": "#3B82F6",
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "#FFFFFF",
+    },
+  })
+}
+
+function updateFullRoute(map: maplibregl.Map, geometry: [number, number][]) {
+  const sourceId = "full-route"
+  if (geometry.length < 2) {
+    if (map.getLayer(sourceId)) map.removeLayer(sourceId)
+    if (map.getSource(sourceId)) map.removeSource(sourceId)
+    return
+  }
+
+  const feature: GeoJSON.Feature = {
+    type: "Feature",
+    properties: {},
+    geometry: { type: "LineString", coordinates: geometry },
+  }
+
+  if (map.getSource(sourceId)) {
+    (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(feature as any)
+    return
+  }
+
+  map.addSource(sourceId, { type: "geojson", data: feature as any })
+  map.addLayer({
+    id: sourceId,
+    type: "line",
+    source: sourceId,
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": "#888",
+      "line-width": 8,
+      "line-opacity": 0.2,
+    },
+  })
+}
+
+function updateSelectedSegment(map: maplibregl.Map, segments: SegmentDisplay[], selectedId?: string) {
+  const sourceId = "planner-selected"
+
+  if (map.getLayer(sourceId)) map.removeLayer(sourceId)
+  if (map.getSource(sourceId)) map.removeSource(sourceId)
+
+  if (!selectedId) return
+
+  const seg = segments.find(s => s.id === selectedId)
+  if (!seg) return
+
+  let coords: number[][]
+  if (seg.route_geometry && seg.route_geometry.length > 1) {
+    coords = seg.route_geometry
+  } else if (seg.lat !== undefined && seg.lng !== undefined && seg.destLat !== undefined && seg.destLng !== undefined) {
+    coords = [[seg.lng, seg.lat], [seg.destLng, seg.destLat]]
+  } else {
+    return
+  }
+
+  map.addSource(sourceId, {
+    type: "geojson",
+    data: {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "LineString", coordinates: coords },
+    } as any,
+  })
+  map.addLayer({
+    id: sourceId,
+    type: "line",
+    source: sourceId,
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": "#2196F3", "line-width": 8, "line-opacity": 0.9 },
   })
 }
