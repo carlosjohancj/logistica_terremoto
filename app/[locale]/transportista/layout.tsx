@@ -96,7 +96,7 @@ export default function TransportistaLayout({
                 {isActive && (
                   <span className="absolute left-0 top-1.5 bottom-1.5 hidden w-1 rounded-full bg-primary lg:block" />
                 )}
-                <Icon className="h-[18px] w-[18px] shrink-0" />
+                <Icon className="h-4.5 w-4.5 shrink-0" />
                 <span className="hidden lg:inline truncate">{item.label}</span>
               </Link>
             )
@@ -109,7 +109,7 @@ export default function TransportistaLayout({
             title="Volver al inicio"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
-            <Home className="h-[18px] w-[18px] shrink-0" />
+            <Home className="h-4.5 w-4.5 shrink-0" />
             <span className="hidden lg:inline">Inicio</span>
           </Link>
           <button
@@ -118,7 +118,7 @@ export default function TransportistaLayout({
             title="Cerrar sesión"
             className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
           >
-            <LogOut className="h-[18px] w-[18px] shrink-0" />
+            <LogOut className="h-4.5 w-4.5 shrink-0" />
             <span className="hidden lg:inline">Cerrar sesión</span>
           </button>
 

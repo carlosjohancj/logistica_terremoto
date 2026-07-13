@@ -19,7 +19,7 @@ export function JoinCta() {
         <p className="mx-auto mb-8 max-w-lg opacity-90">{t("joinUsDesc")}</p>
         <Link
           href={`/${locale}/auth/login`}
-          className="group mx-auto flex w-full max-w-xl items-center justify-between gap-4 rounded-full bg-gradient-to-r from-sky-100 via-violet-100 to-rose-100 py-3 pl-10 pr-3 shadow-lg transition-transform hover:scale-[1.02]"
+          className="group mx-auto flex w-full max-w-xl items-center justify-between gap-4 rounded-full bg-linear-to-r from-sky-100 via-violet-100 to-rose-100 py-3 pl-10 pr-3 shadow-lg transition-transform hover:scale-[1.02]"
         >
           <span className="text-xl font-bold text-neutral-900">{t("ctaButton")}</span>
           <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white transition-transform group-hover:translate-x-1">
