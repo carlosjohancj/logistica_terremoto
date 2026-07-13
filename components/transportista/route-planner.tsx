@@ -310,14 +310,6 @@ export default function RoutePlanner({
           segments={mySegments}
           territories={territories}
           onClick={handleMapClick}
-          requesterName={requesterName}
-          requesterPhone={requesterPhone}
-          peopleToMove={peopleToMove}
-          notes={notes}
-          needsCargo={needsCargo}
-          cargoDescription={cargoDescription}
-          originCity={originCity}
-          destCity={destCity}
         />
 
         {/* Collapsible info panel overlay */}
