@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback } from "react"
 import maplibregl from "maplibre-gl"
 import { OSM_RASTER_STYLE } from "@/lib/maps/constants"
+import { circle } from "@turf/turf"
 
 type SegmentDisplay = {
   order: number
@@ -16,17 +17,27 @@ type SegmentDisplay = {
   route_geometry?: [number, number][]
 }
 
+type Territory = {
+  id: string
+  center_lat: number
+  center_lng: number
+  radius_km: number
+  label: string | null
+}
+
 type Props = {
   originCoord: [number, number] | null
   destCoord: [number, number] | null
   segments: SegmentDisplay[]
+  territories?: Territory[]
   onClick: (lat: number, lng: number) => void
 }
 
-export default function RoutePlannerMap({ originCoord, destCoord, segments, onClick }: Props) {
+export default function RoutePlannerMap({ originCoord, destCoord, segments, territories, onClick }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markerRefs = useRef<maplibregl.Marker[]>([])
+  const territorySourceReady = useRef(false)
 
   const handleClick = useCallback((e: maplibregl.MapMouseEvent) => {
     onClick(e.lngLat.lat, e.lngLat.lng)
@@ -43,13 +54,44 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
     })
 
     map.addControl(new maplibregl.NavigationControl(), "top-right")
+
+    map.on("load", () => {
+      map.addSource("planner-territories", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      })
+      map.addLayer({
+        id: "planner-territories-fill",
+        type: "fill",
+        source: "planner-territories",
+        paint: { "fill-color": "#10B981", "fill-opacity": 0.1 },
+      })
+      map.addLayer({
+        id: "planner-territories-outline",
+        type: "line",
+        source: "planner-territories",
+        paint: { "line-color": "#10B981", "line-width": 2, "line-opacity": 0.6, "line-dasharray": [3, 3] },
+      })
+      territorySourceReady.current = true
+      updateTerritoryCircles(map, territories || [])
+    })
+
     mapRef.current = map
 
     return () => {
       map.remove()
       mapRef.current = null
+      territorySourceReady.current = false
     }
   }, [])
+
+  useEffect(() => {
+    const m = mapRef.current
+    if (!m) return
+    if (territorySourceReady.current) {
+      updateTerritoryCircles(m, territories || [])
+    }
+  }, [territories])
 
   useEffect(() => {
     const m = mapRef.current
@@ -100,6 +142,16 @@ export default function RoutePlannerMap({ originCoord, destCoord, segments, onCl
   )
 }
 
+function updateTerritoryCircles(map: maplibregl.Map, territories: Territory[]) {
+  const features: GeoJSON.Feature[] = territories.map((t) =>
+    circle([t.center_lng, t.center_lat], t.radius_km, { steps: 64, units: "kilometers" })
+  )
+  const src = map.getSource("planner-territories") as maplibregl.GeoJSONSource | undefined
+  if (src) {
+    src.setData({ type: "FeatureCollection", features })
+  }
+}
+
 function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
   const sourceId = "planner-segments"
   const features: GeoJSON.Feature[] = []
@@ -122,7 +174,7 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
   })
 
   if (map.getSource(sourceId)) {
-    ;(map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
+    (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
       type: "FeatureCollection",
       features,
     })
@@ -141,15 +193,8 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
     type: "line",
     source: sourceId,
     filter: ["!=", ["get", "status"], "completed"],
-    layout: {
-      "line-cap": "round",
-      "line-join": "round",
-    },
-    paint: {
-      "line-color": "#3B82F6",
-      "line-width": 6,
-      "line-opacity": 0.85,
-    },
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": "#3B82F6", "line-width": 6, "line-opacity": 0.85 },
   })
 
   map.addLayer({
@@ -157,14 +202,7 @@ function updateSegments(map: maplibregl.Map, segments: SegmentDisplay[]) {
     type: "line",
     source: sourceId,
     filter: ["==", ["get", "status"], "completed"],
-    layout: {
-      "line-cap": "round",
-      "line-join": "round",
-    },
-    paint: {
-      "line-color": "#10B981",
-      "line-width": 5,
-      "line-opacity": 0.7,
-    },
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": "#10B981", "line-width": 5, "line-opacity": 0.7 },
   })
 }

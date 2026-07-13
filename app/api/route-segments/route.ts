@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { getServerSupabase } from "@/lib/supabase-server"
 import { getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
@@ -69,15 +68,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await getServerSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
-    }
-
     const body = await request.json()
-    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry, scheduled_date, estimated_hours } = body
+    const { user_id, travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry, scheduled_date, estimated_hours } = body
 
+    if (!user_id) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
@@ -88,7 +82,7 @@ export async function POST(request: Request) {
       const { count } = await service
         .from(TABLES.ROUTE_SEGMENTS)
         .select("id", { count: "exact", head: true })
-        .eq("transportista_id", user.id)
+        .eq("transportista_id", user_id)
         .eq("scheduled_date", scheduled_date)
         .in("status", ["pending", "in_progress"])
 
@@ -113,7 +107,7 @@ export async function POST(request: Request) {
     const { data: offer } = await service
       .from("transport_offers")
       .select("capacity, vehicle_type")
-      .eq("user_id", user.id)
+      .eq("user_id", user_id)
       .eq("status", "open")
       .eq("origin_state", origin_state)
       .maybeSingle() as never as { data: { capacity: number; vehicle_type: string } | null }
@@ -170,7 +164,7 @@ export async function POST(request: Request) {
     if (!matchId) {
       const { data: newMatch } = await service
         .from(TABLES.MATCHES)
-        .insert({ travel_request_id, user_id: user.id, status: allCovered ? "confirmed" : "pending" } as never)
+        .insert({ travel_request_id, user_id, status: allCovered ? "confirmed" : "pending" } as never)
         .select()
         .single() as never as { data: { id: string } | null }
       matchId = newMatch?.id ?? null
@@ -178,7 +172,7 @@ export async function POST(request: Request) {
 
     const segmentData: Record<string, unknown> = {
       match_id: matchId,
-      transportista_id: user.id,
+      transportista_id: user_id,
       travel_request_id,
       origin_city,
       origin_state,

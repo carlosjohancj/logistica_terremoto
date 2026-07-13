@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import { getSupabase } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { fetchRoute } from "@/lib/maps/fetch-route"
-import { AlertTriangle, Users, XCircle } from "lucide-react"
+import { Loader2, MapPin, Flag, Users, Phone, Package, AlertTriangle, XCircle, CheckCircle, Route, ChevronDown } from "lucide-react"
 
 const MapWithNoSSR = dynamic(
   () => import("./route-planner-map"),
@@ -34,6 +34,14 @@ export type Segment = {
   transportista_name?: string
 }
 
+type Territory = {
+  id: string
+  center_lat: number
+  center_lng: number
+  radius_km: number
+  label: string | null
+}
+
 type Props = {
   travelRequestId: string
   originCity: string
@@ -43,9 +51,19 @@ type Props = {
   onComplete: () => void
   scheduledDate?: string
   estimatedHours?: number
+  requesterName?: string
+  requesterPhone?: string
+  peopleToMove?: number
+  notes?: string
+  needsCargo?: boolean
+  cargoDescription?: string
 }
 
-export default function RoutePlanner({ travelRequestId, originCity, originState, destCity, destState, onComplete, scheduledDate, estimatedHours }: Props) {
+export default function RoutePlanner({
+  travelRequestId, originCity, originState, destCity, destState,
+  onComplete, scheduledDate, estimatedHours,
+  requesterName, requesterPhone, peopleToMove, notes, needsCargo, cargoDescription,
+}: Props) {
   const [segments, setSegments] = useState<Segment[]>([])
   const [allSegments, setAllSegments] = useState<Segment[]>([])
   const [saving, setSaving] = useState(false)
@@ -53,6 +71,8 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
   const [originCoord, setOriginCoord] = useState<{ lat: number; lng: number } | null>(null)
   const [destCoord, setDestCoord] = useState<{ lat: number; lng: number } | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string>("")
+  const [territories, setTerritories] = useState<Territory[]>([])
+  const [panelOpen, setPanelOpen] = useState(true)
 
   useEffect(() => {
     getSupabase().auth.getUser().then(({ data }) => {
@@ -71,18 +91,25 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
   }, [originState, originCity, destState, destCity])
 
   useEffect(() => {
-    if (currentUserId) loadSegments()
+    if (currentUserId) {
+      loadSegments()
+      loadTerritories()
+    }
   }, [travelRequestId, currentUserId])
+
+  async function loadTerritories() {
+    try {
+      const res = await fetch(`/api/territories?user_id=${currentUserId}`)
+      const json = await res.json()
+      setTerritories(json.territories || [])
+    } catch { /* ignore */ }
+  }
 
   async function loadSegments() {
     try {
-      const [mySegRes, allSegRes] = await Promise.all([
-        fetch(`/api/route-segments?travel_request_id=${travelRequestId}&include_profile=true`),
-        fetch(`/api/route-segments?travel_request_id=${travelRequestId}&include_profile=true`),
-      ])
-      const myJson = await mySegRes.json()
-      const allJson = await allSegRes.json()
-      const parsed = (myJson.segments || []).map((s: any) => {
+      const res = await fetch(`/api/route-segments?travel_request_id=${travelRequestId}&include_profile=true`)
+      const json = await res.json()
+      const parsed = (json.segments || []).map((s: any) => {
         let geo: [number, number][] | undefined
         if (s.route_geometry) {
           try {
@@ -111,24 +138,20 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       })
       setAllSegments(parsed)
       setSegments(parsed.filter((s: Segment) => s.transportista_id === currentUserId || !s.transportista_id))
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }
 
   const mySegments = segments.filter(s => s.transportista_id === currentUserId)
   const otherSegments = allSegments.filter(s => s.transportista_id && s.transportista_id !== currentUserId)
-  const totalSegmentsNeeded = allSegments.length > 0 ? Math.max(...allSegments.map(s => s.order)) : 1
-  const coveredByOthers = otherSegments.filter(s => s.status !== "cancelled").length
+  const totalKm = mySegments.filter(s => s.status !== "cancelled").reduce((sum, s) => sum + s.distance_km, 0)
+  const completedKm = mySegments.filter(s => s.status === "completed").reduce((sum, s) => sum + s.distance_km, 0)
+  const activeCount = mySegments.filter(s => s.status !== "cancelled").length
 
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
     if (saving) return
+    if (!currentUserId) return
     setSaving(true)
     try {
-      const supabase = getSupabase()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
       const prevSegment = mySegments[mySegments.length - 1]
       const segOrigin = prevSegment
         ? { city: prevSegment.destination_city, state: prevSegment.destination_state, lat: prevSegment.destLat!, lng: prevSegment.destLng! }
@@ -150,6 +173,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       }
 
       const body: Record<string, unknown> = {
+        user_id: currentUserId,
         travel_request_id: travelRequestId,
         origin_city: segOrigin.city,
         origin_state: segOrigin.state,
@@ -189,25 +213,25 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
           destLat: lat,
           destLng: lng,
           route_geometry: routeGeo,
-          transportista_id: user.id,
+          transportista_id: currentUserId,
         }])
       } else {
         await loadSegments()
       }
 
-      toast.success(`Tramo ${order} guardado (${distanceKm} km por carretera)`)
+      toast.success(`Tramo ${order} guardado (${distanceKm} km)`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error")
     } finally {
       setSaving(false)
     }
-  }, [saving, mySegments, travelRequestId, originCity, originState, destState, originCoord, scheduledDate, estimatedHours])
+  }, [saving, mySegments, travelRequestId, originCity, originState, destState, originCoord, currentUserId, scheduledDate, estimatedHours])
 
   async function updateSegmentStatus(segmentId: string, newStatus: string) {
     const res = await fetch(`/api/route-segments/${segmentId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: newStatus, user_id: currentUserId }),
     })
     if (!res.ok) {
       const j = await res.json()
@@ -246,7 +270,7 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
     }
   }
 
-  async function completeAll() {
+  async function handleCompleteAll() {
     try {
       const incomplete = mySegments.filter(s => s.status !== "completed")
       for (const s of incomplete) {
@@ -264,42 +288,129 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
 
   const canCompleteAll = mySegments.length > 0 && mySegments.some(s => s.status === "in_progress" || s.status === "pending")
   const canCancel = mySegments.some(s => s.status === "pending" || s.status === "in_progress")
+  const progressPct = totalKm > 0 ? Math.round((completedKm / totalKm) * 100) : 0
 
   return (
     <div className="space-y-4">
+      {/* Multi-transportista progress */}
       {otherSegments.length > 0 && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
-          <p className="font-medium mb-1 flex items-center gap-1.5">
+          <p className="font-medium flex items-center gap-1.5">
             <Users className="h-4 w-4 text-primary" />
-            Progreso de la ruta ({coveredByOthers + mySegments.filter(s => s.status !== "cancelled").length}/{totalSegmentsNeeded} tramos cubiertos)
+            Progreso de la ruta ({activeCount + otherSegments.filter(s => s.status !== "cancelled").length} tramos cubiertos)
           </p>
-          <div className="space-y-1">
-            {otherSegments.filter(s => s.status !== "cancelled").map((s) => (
-              <p key={s.id} className="text-xs text-muted-foreground">
-                {s.origin_city} → {s.destination_city}: {s.transportista_name || "Otro transportista"}
-              </p>
-            ))}
-          </div>
         </div>
       )}
 
-      <div className="h-[400px] rounded-lg overflow-hidden border">
+      {/* Map */}
+      <div className="relative h-[450px] rounded-lg overflow-hidden border">
         <MapWithNoSSR
           originCoord={originCoord ? [originCoord.lat, originCoord.lng] : null}
           destCoord={destCoord ? [destCoord.lat, destCoord.lng] : null}
           segments={mySegments}
+          territories={territories}
           onClick={handleMapClick}
+          requesterName={requesterName}
+          requesterPhone={requesterPhone}
+          peopleToMove={peopleToMove}
+          notes={notes}
+          needsCargo={needsCargo}
+          cargoDescription={cargoDescription}
+          originCity={originCity}
+          destCity={destCity}
         />
+
+        {/* Collapsible info panel overlay */}
+        {panelOpen && (
+          <div className="absolute bottom-3 left-3 right-3 z-10 mx-auto max-w-md">
+            <Card className="shadow-lg border-primary/10">
+              <CardContent className="p-3 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-medium">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="truncate">{originCity}</span>
+                    <span className="text-muted-foreground">→</span>
+                    <span className="truncate">{destCity}</span>
+                  </div>
+                  <button
+                    onClick={() => setPanelOpen(false)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {peopleToMove && (
+                    <Badge variant="outline" className="gap-1 font-normal text-xs">
+                      <Users className="h-3 w-3" />{peopleToMove} pers.
+                    </Badge>
+                  )}
+                  {needsCargo && (
+                    <Badge variant="secondary" className="gap-1 font-normal text-xs">
+                      <Package className="h-3 w-3" />{cargoDescription || "Carga"}
+                    </Badge>
+                  )}
+                  {requesterName && (
+                    <Badge variant="outline" className="gap-1 font-normal text-xs">
+                      <Phone className="h-3 w-3" />{requesterName}{requesterPhone ? ` · ${requesterPhone}` : ""}
+                    </Badge>
+                  )}
+                </div>
+
+                {notes && (
+                  <p className="text-xs text-muted-foreground">{notes}</p>
+                )}
+
+                {/* Progress bar for segments */}
+                {mySegments.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{activeCount} tramo{activeCount !== 1 ? "s" : ""} · {Math.round(totalKm)} km</span>
+                      <span>{progressPct}% completado</span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        {!panelOpen && (
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="absolute bottom-3 left-3 z-10 rounded-full bg-background/90 p-2 shadow backdrop-blur hover:bg-background"
+          >
+            <Route className="h-4 w-4 text-primary" />
+          </button>
+        )}
+
+        {/* Saving overlay */}
+        {saving && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/40">
+            <div className="flex items-center gap-2 rounded-lg bg-background px-4 py-2 shadow">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Calculando ruta...</span>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Actions bar */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Haz clic en el mapa para agregar un tramo intermedio
+          Haz clic en el mapa para agregar un punto intermedio
         </p>
         <div className="flex gap-2">
           {canCancel && (
             <Button
               variant="destructive"
+              size="sm"
               onClick={() => {
                 const last = mySegments.filter(s => s.status !== "completed").pop()
                 if (last?.id) handleCancelSegment(last.id)
@@ -312,60 +423,93 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
             </Button>
           )}
           {canCompleteAll && (
-            <Button onClick={completeAll} variant="default">
-              Finalizar ruta
+            <Button size="sm" onClick={handleCompleteAll}>
+              <CheckCircle className="h-4 w-4 mr-1" />Finalizar ruta
             </Button>
           )}
         </div>
       </div>
 
+      {/* Segments list */}
       {mySegments.length > 0 && (
         <div className="space-y-2">
           <hr className="border-t" />
-          <p className="font-medium text-sm">Tus tramos planificados</p>
+          <p className="text-sm font-medium flex items-center gap-2">
+            <Route className="h-4 w-4 text-primary" />
+            Tus tramos planificados
+            <Badge variant="secondary" className="text-xs">{activeCount}</Badge>
+          </p>
+
+          {/* Visual progress timeline */}
+          <div className="flex items-center gap-1 px-1">
+            {mySegments.filter(s => s.status !== "cancelled").map((seg, i) => (
+              <div key={seg.id || i} className="flex items-center gap-1 flex-1">
+                <div className={`h-2 flex-1 rounded-full ${
+                  seg.status === "completed" ? "bg-green-500" :
+                  seg.status === "in_progress" ? "bg-blue-500 animate-pulse" :
+                  "bg-muted"
+                }`} />
+              </div>
+            ))}
+          </div>
+
           {mySegments.map((seg, i) => (
-            <Card key={seg.id || i}>
-              <CardContent className="p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">
-                    Tramo {seg.order}: {seg.origin_city} → {seg.destination_city}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{seg.distance_km} km</p>
+            <Card key={seg.id || i} className={`transition-colors ${
+              seg.status === "in_progress" ? "border-blue-300 bg-blue-50/30" :
+              seg.status === "completed" ? "border-green-300 bg-green-50/30" :
+              seg.status === "cancelled" ? "opacity-50" : ""
+            }`}>
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
+                      {seg.order}
+                    </span>
+                    <p className="text-sm font-medium truncate">
+                      {seg.origin_city} → {seg.destination_city}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <span>{seg.distance_km} km</span>
+                    {seg.status === "pending" && <Badge variant="outline" className="text-[10px] h-4">Pendiente</Badge>}
+                    {seg.status === "in_progress" && <Badge className="bg-blue-500 text-[10px] h-4">En curso</Badge>}
+                    {seg.status === "completed" && <Badge className="bg-green-600 text-[10px] h-4">Completado</Badge>}
+                    {seg.status === "cancelled" && <Badge variant="destructive" className="text-[10px] h-4">Cancelado</Badge>}
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1 shrink-0">
                   {seg.status === "pending" && (
                     <>
-                      <Button size="sm" variant="outline" onClick={() => handleStartSegment(seg.id)}>
-                        ▶ Iniciar
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleStartSegment(seg.id)}>
+                        Iniciar
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleCancelSegment(seg.id)}>
-                        Cancelar
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => handleCancelSegment(seg.id)}>
+                        <XCircle className="h-3 w-3" />
                       </Button>
                     </>
                   )}
                   {seg.status === "in_progress" && (
                     <>
-                      <Button size="sm" variant="default" onClick={() => handleCompleteSegment(seg.id)}>
-                        ✅ Completar
+                      <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleCompleteSegment(seg.id)}>
+                        Completar
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleCancelSegment(seg.id)}>
-                        Cancelar
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => handleCancelSegment(seg.id)}>
+                        <XCircle className="h-3 w-3" />
                       </Button>
                     </>
                   )}
                   {seg.status === "completed" && (
-                    <span className="text-xs text-green-600 font-medium">Completado</span>
+                    <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                      <CheckCircle className="h-3.5 w-3.5" />Listo
+                    </span>
                   )}
                   {seg.status === "cancelled" && (
-                    <span className="text-xs text-muted-foreground font-medium">Cancelado</span>
+                    <span className="text-xs text-muted-foreground">Cancelado</span>
                   )}
                 </div>
               </CardContent>
             </Card>
           ))}
-          <p className="text-xs text-muted-foreground">
-            Total: {mySegments.filter(s => s.status !== "cancelled").reduce((sum, s) => sum + s.distance_km, 0).toFixed(0)} km
-          </p>
         </div>
       )}
     </div>
