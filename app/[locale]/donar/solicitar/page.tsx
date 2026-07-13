@@ -16,7 +16,7 @@ import { toast } from "sonner"
 import { ArrowLeft, Loader2, Send } from "lucide-react"
 import Link from "next/link"
 import { familyAidSchema, FamilyAidValues } from "@/lib/schemas/family-aid"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 export default function SolicitarPage() {
   const f = useTranslations("familyAid")

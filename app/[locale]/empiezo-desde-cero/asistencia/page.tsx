@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Bot, ArrowLeft, Send, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 const TOTAL_STEPS = 4
 

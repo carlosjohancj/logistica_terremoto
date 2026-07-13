@@ -12,7 +12,7 @@ import {
 import { useEstados } from "@/lib/estados"
 import { SupplyValues } from "@/lib/schemas/supply"
 import { SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 interface SupplyLocationFieldsProps {
   control: Control<SupplyValues>

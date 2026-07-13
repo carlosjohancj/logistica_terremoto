@@ -13,7 +13,7 @@ import {
 import { useEstados } from "@/lib/estados";
 import { TravelRequestValues } from "@/lib/schemas/travel-request";
 import { SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles";
-import { FormField } from "@/components/forms/shared/form-field";
+import { FormField } from "@/components/shared/form-field";
 
 type LocationPrefix = "origin" | "destination";
 

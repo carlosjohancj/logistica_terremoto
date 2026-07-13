@@ -16,8 +16,8 @@ import { registerUser } from "@/lib/auth"
 import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/auth"
 import { FIELD_CLASS, PASSWORD_FIELD_CLASS, SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
-import { FormField } from "@/components/forms/shared/form-field"
-import { PhoneInput } from "@/components/forms/shared/phone-input"
+import { FormField } from "@/components/shared/form-field"
+import { PhoneInput } from "@/components/shared/phone-input"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")

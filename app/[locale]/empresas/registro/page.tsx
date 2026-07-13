@@ -27,7 +27,7 @@ import { getSupabase } from "@/types/supabase"
 import type { TablesInsert } from "@/types/database"
 import { useEstados } from "@/lib/estados"
 import { companySchema, CompanyValues } from "@/lib/schemas/company"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 import {
   FIELD_CLASS,
   SELECT_TRIGGER_CLASS,
