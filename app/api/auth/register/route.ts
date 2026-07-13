@@ -4,9 +4,9 @@ import { getServiceSupabase, TABLES } from "@/lib/supabase"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, password, name, role, phone, age, volunteerType } = body
+    const { email, password, name, role, phone, whatsapp, age, volunteerType } = body
 
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !phone || !whatsapp || !role) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, role, phone, volunteer_type: volunteerType },
+      user_metadata: { name, role, phone, whatsapp, volunteer_type: volunteerType },
     })
 
     if (authError) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not created" }, { status: 500 })
     }
 
-    const profileData: Record<string, unknown> = { id: userId, name, role: role || "damnificado", phone }
+    const profileData: Record<string, unknown> = { id: userId, name, role: role || "damnificado", phone, whatsapp }
     if (age !== undefined) {
       profileData.age = age
     }
@@ -36,8 +36,7 @@ export async function POST(request: Request) {
       profileData.volunteer_type = volunteerType
     }
 
-    const { error: profileError } = await (supabase.from(TABLES.PROFILES) as any)
-      .insert(profileData)
+    const { error: profileError } = await supabase.from(TABLES.PROFILES).insert(profileData as never)
 
     if (profileError) {
       await supabase.auth.admin.deleteUser(userId)

@@ -29,17 +29,28 @@ export function createQueryMock<T>(result: QueryResult<T>) {
   return chain
 }
 
+type AdminCreateUserResult = {
+  data: { user: { id: string } | null }
+  error: { message: string } | null
+}
+
 /**
  * Builds a fake Supabase client for `vi.mock("@/lib/supabase", ...)`.
  * Pass `tables` keyed by table name to control what `.from(table)` resolves
- * to; any table not listed resolves to an empty, error-free result.
+ * to; any table not listed resolves to an empty, error-free result. Pass
+ * `admin` to control `auth.admin.createUser`/`deleteUser` (used by service-role
+ * routes like registration), which otherwise create a random-id user with no error.
  */
 export function createSupabaseMock({
   user = null,
   tables = {},
+  admin = {},
 }: {
   user?: { id: string } | null
   tables?: Record<string, QueryResult<unknown>>
+  admin?: {
+    createUser?: AdminCreateUserResult
+  }
 } = {}) {
   const from = vi.fn((table: string) => createQueryMock(tables[table] ?? { data: [], error: null }))
   return {
@@ -47,6 +58,14 @@ export function createSupabaseMock({
       getUser: vi.fn(async () => ({ data: { user } })),
       getSession: vi.fn(async () => ({ data: { session: user ? { user } : null } })),
       signOut: vi.fn(async () => ({ error: null })),
+      signInWithPassword: vi.fn(async () => ({ error: null })),
+      admin: {
+        createUser: vi.fn(
+          async (): Promise<AdminCreateUserResult> =>
+            admin.createUser ?? { data: { user: { id: "new-user-id" } }, error: null }
+        ),
+        deleteUser: vi.fn(async () => ({ error: null })),
+      },
     },
     from,
   }

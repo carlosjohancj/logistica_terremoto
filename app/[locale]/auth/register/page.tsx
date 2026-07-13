@@ -18,6 +18,7 @@ import { createRegisterSchema, type RegisterFormValues } from "@/lib/schemas/aut
 import { FIELD_CLASS, PASSWORD_FIELD_CLASS, SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
 import { FormField } from "@/components/forms/shared/form-field"
+import { PhoneInput } from "@/components/forms/shared/phone-input"
 
 export default function RegisterPage() {
   const t = useTranslations("auth")
@@ -43,9 +44,10 @@ export default function RegisterPage() {
         errorEmail: t("errorEmail"),
         errorPasswordLength: t("errorPasswordLength"),
         errorPasswordMatch: t("errorPasswordMatch"),
+        errorPhone: t("errorPhone"),
       })
     ),
-    defaultValues: { role: "damnificado" },
+    defaultValues: { role: "damnificado", phone: "", whatsapp: "" },
   })
 
   const selectedRole = watch("role")
@@ -89,12 +91,45 @@ export default function RegisterPage() {
                 <Input {...field} type="email" autoComplete="email" className={FIELD_CLASS} {...register("email")} />
               )}
             </FormField>
-            <FormField label={t("phone")}>
+            <FormField label={t("phone")} required error={errors.phone?.message}>
               {(field) => (
-                <Input {...field} type="tel" autoComplete="tel" className={FIELD_CLASS} {...register("phone")} />
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field: rhf }) => (
+                    <PhoneInput
+                      id={field.id}
+                      value={rhf.value ?? ""}
+                      onChange={rhf.onChange}
+                      onBlur={rhf.onBlur}
+                      aria-invalid={field["aria-invalid"]}
+                      aria-describedby={field["aria-describedby"]}
+                      aria-required={field["aria-required"]}
+                    />
+                  )}
+                />
               )}
             </FormField>
-            <FormField label={t("role")}>
+            <FormField label={t("whatsapp")} required error={errors.whatsapp?.message}>
+              {(field) => (
+                <Controller
+                  name="whatsapp"
+                  control={control}
+                  render={({ field: rhf }) => (
+                    <PhoneInput
+                      id={field.id}
+                      value={rhf.value ?? ""}
+                      onChange={rhf.onChange}
+                      onBlur={rhf.onBlur}
+                      aria-invalid={field["aria-invalid"]}
+                      aria-describedby={field["aria-describedby"]}
+                      aria-required={field["aria-required"]}
+                    />
+                  )}
+                />
+              )}
+            </FormField>
+            <FormField label={t("role")} required error={errors.role?.message}>
               {(field) => (
                 <Controller
                   name="role"
@@ -120,7 +155,7 @@ export default function RegisterPage() {
               )}
             </FormField>
             {selectedRole === "damnificado" && (
-              <FormField label={t("age")}>
+              <FormField label={t("age")} required error={errors.age?.message}>
                 {(field) => (
                   <Input
                     {...field}

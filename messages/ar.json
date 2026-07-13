@@ -96,7 +96,7 @@
     "password": "كلمة المرور",
     "passwordConfirm": "تأكيد كلمة المرور",
     "name": "الاسم الكامل",
-    "phone": "الهاتف / واتساب",
+    "phone": "الهاتف",
     "role": "نوع المستخدم",
     "roleDamnificado": "متضرر",
     "roleTransportista": "ناقل",
@@ -118,7 +118,9 @@
     "voluntarioHospedaje": "متطوع إيواء",
     "voluntarioGestion": "متطوع إدارة",
     "voluntarioAmbos": "كلاهما",
-    "age": "العمر"
+    "age": "العمر",
+    "whatsapp": "واتساب",
+    "errorPhone": "رقم هاتف غير صالح"
   },
   "travelRequest": {
     "title": "طلب رحلة",

@@ -96,7 +96,7 @@
     "password": "Passwort",
     "passwordConfirm": "Passwort bestätigen",
     "name": "Vollständiger Name",
-    "phone": "Telefon / WhatsApp",
+    "phone": "Telefon",
     "role": "Benutzertyp",
     "roleDamnificado": "Opfer",
     "roleTransportista": "Transporteur",
@@ -118,7 +118,9 @@
     "voluntarioHospedaje": "Unterkunftsfreiwilliger",
     "voluntarioGestion": "Verwaltungsfreiwilliger",
     "voluntarioAmbos": "Beides",
-    "age": "Alter"
+    "age": "Alter",
+    "whatsapp": "WhatsApp",
+    "errorPhone": "Ungültige Telefonnummer"
   },
   "travelRequest": {
     "title": "Reise Anfragen",

@@ -96,7 +96,7 @@
     "password": "Senha",
     "passwordConfirm": "Confirmar senha",
     "name": "Nome completo",
-    "phone": "Telefone / WhatsApp",
+    "phone": "Telefone",
     "role": "Tipo de usuário",
     "roleDamnificado": "Vítima",
     "roleTransportista": "Transportador",
@@ -118,7 +118,9 @@
     "voluntarioHospedaje": "Voluntário de hospedagem",
     "voluntarioGestion": "Voluntário de gestão",
     "voluntarioAmbos": "Ambos",
-    "age": "Idade"
+    "age": "Idade",
+    "whatsapp": "WhatsApp",
+    "errorPhone": "Número de telefone inválido"
   },
   "travelRequest": {
     "title": "Solicitar Viagem",

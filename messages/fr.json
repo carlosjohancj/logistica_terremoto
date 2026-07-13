@@ -96,7 +96,7 @@
     "password": "Mot de passe",
     "passwordConfirm": "Confirmer le mot de passe",
     "name": "Nom complet",
-    "phone": "Téléphone / WhatsApp",
+    "phone": "Téléphone",
     "role": "Type d'utilisateur",
     "roleDamnificado": "Sinistré",
     "roleTransportista": "Transporteur",
@@ -118,7 +118,9 @@
     "voluntarioHospedaje": "Bénévole d'hébergement",
     "voluntarioGestion": "Bénévole de gestion",
     "voluntarioAmbos": "Les deux",
-    "age": "Âge"
+    "age": "Âge",
+    "whatsapp": "WhatsApp",
+    "errorPhone": "Numéro de téléphone invalide"
   },
   "travelRequest": {
     "title": "Demander un Trajet",
