@@ -15,6 +15,8 @@ export const travelRequestSchema = z.object({
   children_count: z.coerce.number().min(0).optional(),
   adults_count: z.coerce.number().min(0).optional(),
   housing_destruction: z.enum(["total", "grave", "se_puede_reparar", "prestada_emergencia"]),
+  needs_cargo_transport: z.boolean().optional(),
+  cargo_description: z.string().optional(),
   notes: z.string().optional(),
 })
 

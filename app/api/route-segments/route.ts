@@ -4,6 +4,8 @@ import { getServiceSupabase, TABLES } from "@/lib/supabase"
 import { getCityCoord } from "@/lib/estados"
 import { distance } from "@turf/turf"
 
+const MAX_ACTIVE_ROUTES = 3
+
 function sortSegments(data: any[], column: string, dir: "asc" | "desc") {
   const sorted = [...data].sort((a, b) => {
     const va = a[column] ?? 0
@@ -74,13 +76,49 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry } = body
+    const { travel_request_id, origin_city, origin_state, destination_city, destination_state, is_full_route, origin_lat, origin_lng, destination_lat, destination_lng, route_geometry, scheduled_date, estimated_hours } = body
 
     if (!travel_request_id || !origin_city || !origin_state || !destination_city || !destination_state) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     const service = getServiceSupabase()
+
+    if (scheduled_date) {
+      const { count } = await service
+        .from(TABLES.ROUTE_SEGMENTS)
+        .select("id", { count: "exact", head: true })
+        .eq("transportista_id", user.id)
+        .eq("scheduled_date", scheduled_date)
+        .in("status", ["pending", "in_progress"])
+
+      if (count && count > 0) {
+        return NextResponse.json(
+          { error: `Ya tienes una ruta programada para el ${scheduled_date}. Elige otra fecha.` },
+          { status: 409 },
+        )
+      }
+    }
+
+    const { data: travelReq } = await service
+      .from(TABLES.TRAVEL_REQUESTS)
+      .select("people_to_move, destination_state, destination_city")
+      .eq("id", travel_request_id)
+      .single() as never as { data: { people_to_move: number; destination_state: string; destination_city: string } | null }
+
+    if (!travelReq) {
+      return NextResponse.json({ error: "Travel request not found" }, { status: 404 })
+    }
+
+    const { data: offer } = await service
+      .from("transport_offers")
+      .select("capacity, vehicle_type")
+      .eq("user_id", user.id)
+      .eq("status", "open")
+      .eq("origin_state", origin_state)
+      .maybeSingle() as never as { data: { capacity: number; vehicle_type: string } | null }
+
+    const capacityExceeded = offer && travelReq.people_to_move > offer.capacity
 
     const originCoord = origin_lat ? { lat: origin_lat, lng: origin_lng } : await getCityCoord(origin_state, origin_city)
     const destCoord = destination_lat ? { lat: destination_lat, lng: destination_lng } : await getCityCoord(destination_state, destination_city)
@@ -94,18 +132,22 @@ export async function POST(request: Request) {
     const distanceKm = Math.round(distance(from, to, { units: "kilometers" }) * 10) / 10
 
     const { data: existingSegments } = await service
-      .from("route_segments")
-      .select("id, \"order\"")
-      .eq("travel_request_id", travel_request_id) as never as { data: { id: string; order: number }[] | null }
+      .from(TABLES.ROUTE_SEGMENTS)
+      .select("id, \"order\", transportista_id, origin_city, destination_city")
+      .eq("travel_request_id", travel_request_id) as never as { data: { id: string; order: number; transportista_id: string; origin_city: string; destination_city: string }[] | null }
 
     const sorted = sortSegments(existingSegments ?? [], "order", "desc")
     const nextOrder = (sorted[0]?.order ?? 0) + 1
 
-    const { data: travelReq } = await service
-      .from(TABLES.TRAVEL_REQUESTS)
-      .select("destination_state, destination_city")
-      .eq("id", travel_request_id)
-      .single() as never as { data: { destination_state: string; destination_city: string } | null }
+    const overlap = (existingSegments ?? []).find(
+      (s) => s.origin_city === origin_city && s.destination_city === destination_city
+    )
+    if (overlap) {
+      return NextResponse.json(
+        { error: `El tramo ${origin_city} → ${destination_city} ya está cubierto por otro transportista.` },
+        { status: 409 },
+      )
+    }
 
     const reachedFinalDest = travelReq && destination_state === travelReq.destination_state &&
       (!travelReq.destination_city || destination_city === travelReq.destination_city)
@@ -134,26 +176,31 @@ export async function POST(request: Request) {
       matchId = newMatch?.id ?? null
     }
 
+    const segmentData: Record<string, unknown> = {
+      match_id: matchId,
+      transportista_id: user.id,
+      travel_request_id,
+      origin_city,
+      origin_state,
+      origin_lat: originCoord.lat,
+      origin_lng: originCoord.lng,
+      destination_city,
+      destination_state,
+      destination_lat: destCoord.lat,
+      destination_lng: destCoord.lng,
+      distance_km: distanceKm,
+      order: nextOrder,
+      is_full_route: !!is_full_route,
+      status: allCovered ? "confirmed" : "pending",
+      route_geometry: route_geometry || null,
+    }
+
+    if (scheduled_date) segmentData.scheduled_date = scheduled_date
+    if (estimated_hours) segmentData.estimated_hours = estimated_hours
+
     const { data: segment, error: segError } = await service
-      .from("route_segments")
-      .insert({
-        match_id: matchId,
-        transportista_id: user.id,
-        travel_request_id,
-        origin_city,
-        origin_state,
-        origin_lat: originCoord.lat,
-        origin_lng: originCoord.lng,
-        destination_city,
-        destination_state,
-        destination_lat: destCoord.lat,
-        destination_lng: destCoord.lng,
-        distance_km: distanceKm,
-        order: nextOrder,
-        is_full_route: !!is_full_route,
-        status: allCovered ? "confirmed" : "pending",
-        route_geometry: route_geometry || null,
-      } as never)
+      .from(TABLES.ROUTE_SEGMENTS)
+      .insert(segmentData as never)
       .select()
       .single()
 
@@ -168,7 +215,15 @@ export async function POST(request: Request) {
         .eq("id", travel_request_id)
     }
 
-    return NextResponse.json({ success: true, segment, match_id: matchId, all_covered: allCovered, distance_km: distanceKm })
+    return NextResponse.json({
+      success: true,
+      segment,
+      match_id: matchId,
+      all_covered: allCovered,
+      distance_km: distanceKm,
+      capacityExceeded: !!capacityExceeded,
+      vehicleCapacity: offer?.capacity,
+    })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

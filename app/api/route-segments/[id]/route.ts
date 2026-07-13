@@ -61,7 +61,27 @@ export async function PATCH(
           service.from("messages").insert({
             match_id: segment.match_id,
             sender_id: user.id,
-            content: "🚀 Ruta completada — el transporte ha llegado a su destino.",
+            content: "Ruta completada — el transporte ha llegado a su destino.",
+          } as never),
+        ])
+      }
+    }
+
+    if (newStatus === "cancelled") {
+      const { data: remaining } = await service
+        .from(TABLES.ROUTE_SEGMENTS)
+        .select("id, status")
+        .eq("match_id", segment.match_id)
+        .neq("status", "cancelled")
+
+      if (!remaining?.length) {
+        await Promise.all([
+          service.from(TABLES.MATCHES).update({ status: "cancelled" } as never).eq("id", segment.match_id),
+          service.from(TABLES.TRAVEL_REQUESTS).update({ status: "open" } as never).eq("id", segment.travel_request_id),
+          service.from("messages").insert({
+            match_id: segment.match_id,
+            sender_id: user.id,
+            content: "Ruta cancelada — la solicitud vuelve a estar disponible para otros transportistas.",
           } as never),
         ])
       }

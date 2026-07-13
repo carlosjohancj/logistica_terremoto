@@ -85,6 +85,8 @@ export async function submitTravelRequest(values: TravelRequestValues) {
   if (values.children_count) data.children_count = values.children_count;
   if (values.adults_count) data.adults_count = values.adults_count;
   if (values.registrant_relation) data.registrant_relation = values.registrant_relation;
+  if (values.needs_cargo_transport) data.needs_cargo_transport = true;
+  if (values.cargo_description) data.cargo_description = values.cargo_description;
   if (values.notes) data.notes = values.notes;
   await submitAsUser("travel_requests", data);
 }

@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Card,
   CardContent,
@@ -13,7 +15,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Select,
@@ -22,10 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import { getSupabase } from "@/lib/supabase"
 import { getCitiesByState } from "@/lib/estados"
 import { toast } from "sonner"
+import { Calendar, Users, Package, AlertTriangle } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -38,6 +40,8 @@ type TravelRequest = {
   people_to_move: number
   status: string
   notes: string
+  needs_cargo_transport?: boolean
+  cargo_description?: string
 }
 
 type Profile = {
@@ -49,10 +53,12 @@ export default function SolicitudesPanel({
   availableReqs,
   availableProfiles,
   transportOfferCount,
+  transportistaOffers,
 }: {
   availableReqs: TravelRequest[]
   availableProfiles: Record<string, Profile>
   transportOfferCount: number
+  transportistaOffers?: Array<{ capacity: number; origin_state: string; accepts_passengers: boolean; accepts_cargo: boolean }>
 }) {
   const [takingId, setTakingId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -63,6 +69,10 @@ export default function SolicitudesPanel({
   const [originCities, setOriginCities] = useState<string[]>([])
   const [destCities, setDestCities] = useState<string[]>([])
   const [sending, setSending] = useState(false)
+  const [scheduledDate, setScheduledDate] = useState("")
+  const [estimatedHours, setEstimatedHours] = useState("")
+
+  const today = new Date().toISOString().split("T")[0]
 
   function openDialog(req: TravelRequest) {
     setSelectedReq(req)
@@ -71,6 +81,8 @@ export default function SolicitudesPanel({
     setPartialDest("")
     setOriginCities([])
     setDestCities([])
+    setScheduledDate("")
+    setEstimatedHours("")
     setDialogOpen(true)
 
     if (req.origin_state) {
@@ -79,6 +91,23 @@ export default function SolicitudesPanel({
     if (req.destination_state) {
       getCitiesByState(req.destination_state).then(setDestCities)
     }
+  }
+
+  function getCapacityInfo(req: TravelRequest) {
+    if (!transportistaOffers?.length) return null
+    const match = transportistaOffers.find(o => o.origin_state === req.origin_state)
+    if (!match) return null
+    return {
+      capacity: match.capacity,
+      exceeded: req.people_to_move > match.capacity,
+    }
+  }
+
+  function getCargoInfo(req: TravelRequest) {
+    const types: string[] = []
+    if (req.needs_cargo_transport) types.push("Carga")
+    if (!req.needs_cargo_transport) types.push("Pasajeros")
+    return types.join(" + ")
   }
 
   async function confirmTake() {
@@ -102,18 +131,22 @@ export default function SolicitudesPanel({
         isFull = false
       }
 
+      const body: Record<string, unknown> = {
+        travel_request_id: selectedReq.id,
+        transportista_id: user.id,
+        origin_city: originCity,
+        origin_state: originState,
+        destination_city: destCity,
+        destination_state: destState,
+        is_full_route: isFull,
+      }
+      if (scheduledDate) body.scheduled_date = scheduledDate
+      if (estimatedHours) body.estimated_hours = Number(estimatedHours)
+
       const res = await fetch("/api/route-segments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          travel_request_id: selectedReq.id,
-          transportista_id: user.id,
-          origin_city: originCity,
-          origin_state: originState,
-          destination_city: destCity,
-          destination_state: destState,
-          is_full_route: isFull,
-        }),
+        body: JSON.stringify(body),
       })
 
       const json = await res.json()
@@ -144,6 +177,8 @@ export default function SolicitudesPanel({
     )
   }
 
+  const capacityInfo = selectedReq ? getCapacityInfo(selectedReq) : null
+
   return (
     <section>
       <h2 className="text-xl font-semibold mb-2">Solicitudes disponibles en tu zona</h2>
@@ -155,6 +190,8 @@ export default function SolicitudesPanel({
       <div className="space-y-3">
         {availableReqs.map((req) => {
           const profile = availableProfiles[req.user_id]
+          const cap = getCapacityInfo(req)
+          const cargo = getCargoInfo(req)
           return (
             <Card key={req.id}>
               <CardContent className="p-4">
@@ -163,8 +200,24 @@ export default function SolicitudesPanel({
                     <p className="font-medium">
                       {req.origin_city || req.origin_state} → {req.destination_city || req.destination_state || "Sin destino"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {req.people_to_move} pers. · {req.notes || "Sin notas"}
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      <Badge variant="outline" className="gap-1 font-normal text-xs">
+                        <Users className="h-3 w-3" />
+                        {req.people_to_move} pers.
+                      </Badge>
+                      <Badge variant="secondary" className="gap-1 font-normal text-xs">
+                        <Package className="h-3 w-3" />
+                        {cargo}
+                      </Badge>
+                      {cap && cap.exceeded && (
+                        <Badge variant="destructive" className="gap-1 font-normal text-xs">
+                          <AlertTriangle className="h-3 w-3" />
+                          Cap. {cap.capacity}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {req.notes || "Sin notas"}
                     </p>
                     {profile && (
                       <div className="mt-2 text-sm">
@@ -251,6 +304,41 @@ export default function SolicitudesPanel({
                 </div>
               </div>
             )}
+
+            {capacityInfo && capacityInfo.exceeded && (
+              <div className="flex items-center gap-1.5 text-destructive text-xs pl-6">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                Capacidad de tu vehículo: {capacityInfo.capacity} pers. — la solicitud pide {selectedReq?.people_to_move}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+              <div className="space-y-1.5">
+                <Label htmlFor="panel-date" className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Fecha del viaje
+                </Label>
+                <Input
+                  id="panel-date"
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  min={today}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="panel-hours">Horas estimadas</Label>
+                <Input
+                  id="panel-hours"
+                  type="number"
+                  min={1}
+                  max={48}
+                  placeholder="ej: 4"
+                  value={estimatedHours}
+                  onChange={(e) => setEstimatedHours(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
           <DialogFooter>

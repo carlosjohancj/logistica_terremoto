@@ -22,6 +22,8 @@ export default function RoutePlannerPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const requestId = searchParams.get("requestId")
+  const scheduledDate = searchParams.get("date") || undefined
+  const estimatedHours = searchParams.get("hours") ? Number(searchParams.get("hours")) : undefined
   const [request, setRequest] = useState<TravelRequest | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -53,17 +55,21 @@ export default function RoutePlannerPage() {
     if (!user) return
 
     try {
+      const body: Record<string, unknown> = {
+        travel_request_id: request.id,
+        origin_city: request.origin_city,
+        origin_state: request.origin_state,
+        destination_city: request.destination_city,
+        destination_state: request.destination_state,
+        is_full_route: true,
+      }
+      if (scheduledDate) body.scheduled_date = scheduledDate
+      if (estimatedHours) body.estimated_hours = estimatedHours
+
       const res = await fetch("/api/route-segments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          travel_request_id: request.id,
-          origin_city: request.origin_city,
-          origin_state: request.origin_state,
-          destination_city: request.destination_city,
-          destination_state: request.destination_state,
-          is_full_route: true,
-        }),
+        body: JSON.stringify(body),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || "Error")
@@ -129,6 +135,8 @@ export default function RoutePlannerPage() {
             destCity={request.destination_city || request.destination_state}
             destState={request.destination_state}
             onComplete={() => router.push("/transportista")}
+            scheduledDate={scheduledDate}
+            estimatedHours={estimatedHours}
           />
         </CardContent>
       </Card>

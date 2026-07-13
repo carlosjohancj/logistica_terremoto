@@ -1,13 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { getSupabase } from "@/lib/supabase"
+import { getCityCoord } from "@/lib/estados"
+import { distance } from "@turf/turf"
 import Indicators from "@/components/transportista/indicators"
 import RequestManager from "@/components/transportista/request-manager"
 import Timeline from "@/components/transportista/timeline"
+import UpcomingSchedule from "@/components/transportista/upcoming-schedule"
 import { SkeletonGrid } from "@/components/ui/skeleton"
-import { ClipboardList, History } from "lucide-react"
+import { ClipboardList, History, CalendarDays } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -19,6 +22,9 @@ type TravelRequest = {
   people_to_move: number
   notes: string
   status: string
+  needs_cargo_transport?: boolean
+  cargo_description?: string
+  distance_km?: number
 }
 
 type Profile = {
@@ -46,6 +52,8 @@ export default function TransportistaPage() {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({})
   const [timeline, setTimeline] = useState<TimelineEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [transportistaOffers, setTransportistaOffers] = useState<Array<{ capacity: number; origin_state: string; origin_city: string; accepts_passengers: boolean; accepts_cargo: boolean }>>([])
+  const [matcherState, setMatcherState] = useState("")
 
   useEffect(() => {
     loadData()
@@ -57,13 +65,16 @@ export default function TransportistaPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { data: transportOffers } = await supabase
+    const { data: offers } = await supabase
       .from("transport_offers")
-      .select("origin_state, origin_city")
+      .select("capacity, origin_state, origin_city, accepts_passengers, accepts_cargo")
       .eq("user_id", user.id)
       .eq("status", "open")
 
-    const myStates = [...new Set((transportOffers || []).map((o: any) => o.origin_state))]
+    const offersList = (offers || []) as Array<{ capacity: number; origin_state: string; origin_city: string; accepts_passengers: boolean; accepts_cargo: boolean }>
+    setTransportistaOffers(offersList)
+
+    const myStates = [...new Set(offersList.map(o => o.origin_state))]
 
     let reqQuery = supabase
       .from("travel_requests")
@@ -76,9 +87,34 @@ export default function TransportistaPage() {
     }
 
     const { data: reqs } = await reqQuery.order("created_at", { ascending: false })
-    setRequests((reqs || []) as TravelRequest[])
 
-    const uniqueUserIds = [...new Set((reqs || []).map((r: any) => r.user_id))]
+    let typedReqs = (reqs || []) as TravelRequest[]
+
+    if (offersList.length > 0) {
+      const withDistance = await Promise.all(
+        typedReqs.map(async (req) => {
+          const offer = offersList.find(o => o.origin_state === req.origin_state)
+          if (!offer || !offer.origin_city || !req.origin_city) return { ...req, distance_km: 999 }
+
+          const offerCoord = await getCityCoord(offer.origin_state, offer.origin_city)
+          const reqCoord = await getCityCoord(req.origin_state, req.origin_city)
+          if (!offerCoord || !reqCoord) return { ...req, distance_km: 999 }
+
+          const km = distance(
+            [offerCoord.lng, offerCoord.lat],
+            [reqCoord.lng, reqCoord.lat],
+            { units: "kilometers" },
+          )
+          return { ...req, distance_km: Math.round(km) }
+        }),
+      )
+      withDistance.sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999))
+      typedReqs = withDistance
+    }
+
+    setRequests(typedReqs)
+
+    const uniqueUserIds = [...new Set(typedReqs.map(r => r.user_id))]
     if (uniqueUserIds.length > 0) {
       const { data: profs } = await supabase
         .from("profiles")
@@ -115,27 +151,36 @@ export default function TransportistaPage() {
     const totalKm = (segJson.segments || []).reduce((sum: number, s: any) => sum + (s.distance_km || 0), 0)
     setKmTotal(totalKm)
 
-    const allMatchIds = [...new Set((matches || []).map((m: any) => m.id))]
-
     const timelineData: TimelineEntry[] = (timelineJson.segments || []).map((s: any) => {
       const match = (matches || []).find((m: any) => m.id === s.match_id)
       return {
         id: s.id,
         familyName: s.destination_city || "Destino",
         route: `${s.origin_city} → ${s.destination_city}`,
-        date: s.created_at ? new Date(s.created_at).toLocaleDateString() : "",
+        date: s.scheduled_date || (s.created_at ? new Date(s.created_at).toLocaleDateString() : ""),
         status: s.status || "pending",
       }
     }) as TimelineEntry[]
 
     setTimeline(timelineData)
-    setSolicitudesPendientes((reqs || []).length)
+    setSolicitudesPendientes(typedReqs.length)
     setLoading(false)
   }
 
-  function handleTakeRequest(req: Record<string, any>) {
-    router.push(`/${locale}/transportista/ruta?requestId=${req.id}`)
+  function handleTakeRequest(req: Record<string, any>, scheduledDate?: string, estimatedHours?: number) {
+    const params = new URLSearchParams({ requestId: req.id })
+    if (scheduledDate) params.set("date", scheduledDate)
+    if (estimatedHours) params.set("hours", String(estimatedHours))
+    router.push(`/${locale}/transportista/ruta?${params.toString()}`)
   }
+
+  const upcomingSegments = useMemo(() => {
+    if (!timeline.length) return []
+    return timeline
+      .filter(e => e.status === "pending" || e.status === "in_progress")
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 5)
+  }, [timeline])
 
   if (loading) {
     return (
@@ -154,7 +199,7 @@ export default function TransportistaPage() {
     <div className="space-y-10">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Panel de Transportista</h1>
-        <p className="text-muted-foreground">Gestiona tus rutas, solicitudes y comunicaciones</p>
+        <p className="text-muted-foreground">Gestiona tus rutas, horarios y comunicaciones</p>
       </div>
 
       <Indicators
@@ -163,6 +208,16 @@ export default function TransportistaPage() {
         familiasAyudadas={familiasAyudadas}
         solicitudesPendientes={solicitudesPendientes}
       />
+
+      {upcomingSegments.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarDays className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Próximas rutas</h2>
+          </div>
+          <UpcomingSchedule entries={upcomingSegments} />
+        </section>
+      )}
 
       <section>
         <div className="mb-4 flex items-center gap-2">
@@ -178,6 +233,7 @@ export default function TransportistaPage() {
           requests={requests}
           profiles={profiles}
           onTakeRequest={handleTakeRequest}
+          transportistaOffers={transportistaOffers}
         />
       </section>
 
