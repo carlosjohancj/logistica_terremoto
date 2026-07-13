@@ -498,5 +498,23 @@ export default {
     "highlightLinksDesc": "Markiert alle Links auf der Seite",
     "readingGuide": "Lesehilfe",
     "readingGuideDesc": "Eine Linie folgt Ihrem Cursor, um das Lesen zu erleichtern"
+  },
+  "requestManager": {
+    "emptyTitle": "Keine Anfragen verfügbar",
+    "emptyDescription": "In deiner Region gibt es noch keine offenen Anfragen. Schau später wieder vorbei.",
+    "peopleUnit": "Personen",
+    "cargoType": "Ladung",
+    "passengersType": "Passagiere",
+    "capacityLabel": "Kapazität",
+    "noNotes": "Keine zusätzlichen Notizen",
+    "noPhone": "kein Telefon",
+    "takeRoute": "Route übernehmen",
+    "dialogTitle": "Übernahme der Route bestätigen",
+    "dialogDescription": "Du bist dabei, dich zum Transport dieser Anfrage zu verpflichten. Die Routendetails kannst du anschließend planen.",
+    "personSingular": "Person",
+    "personPlural": "Personen",
+    "vehicleCapacityWarning": "Kapazität deines Fahrzeugs",
+    "requestAsks": "die Anfrage benötigt",
+    "confirmTake": "Ja, diese Route übernehmen"
   }
 } as const;

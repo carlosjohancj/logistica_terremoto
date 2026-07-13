@@ -498,5 +498,23 @@ export default {
     "highlightLinksDesc": "Evidenzia tutti i link della pagina",
     "readingGuide": "Guida alla lettura",
     "readingGuideDesc": "Una linea segue il cursore per facilitare la lettura"
+  },
+  "requestManager": {
+    "emptyTitle": "Nessuna richiesta disponibile",
+    "emptyDescription": "Non ci sono ancora richieste aperte nella tua zona. Torna più tardi.",
+    "peopleUnit": "persone",
+    "cargoType": "Carico",
+    "passengersType": "Passeggeri",
+    "capacityLabel": "Capacità",
+    "noNotes": "Nessuna nota aggiuntiva",
+    "noPhone": "nessun telefono",
+    "takeRoute": "Prendi il percorso",
+    "dialogTitle": "Confermare la presa in carico del percorso",
+    "dialogDescription": "Stai per impegnarti a trasportare questa richiesta. Potrai pianificare i dettagli del percorso in seguito.",
+    "personSingular": "persona",
+    "personPlural": "persone",
+    "vehicleCapacityWarning": "La capacità del tuo veicolo",
+    "requestAsks": "la richiesta richiede",
+    "confirmTake": "Sì, prendi questo percorso"
   }
 } as const;

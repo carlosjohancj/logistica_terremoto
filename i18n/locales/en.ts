@@ -500,5 +500,23 @@ export default {
     "highlightLinksDesc": "Marks all links on the page",
     "readingGuide": "Reading guide",
     "readingGuideDesc": "A line follows your cursor to help you read"
+  },
+  "requestManager": {
+    "emptyTitle": "No requests available",
+    "emptyDescription": "There are no open requests in your area yet. Check back later.",
+    "peopleUnit": "people",
+    "cargoType": "Cargo",
+    "passengersType": "Passengers",
+    "capacityLabel": "Capacity",
+    "noNotes": "No additional notes",
+    "noPhone": "no phone",
+    "takeRoute": "Take route",
+    "dialogTitle": "Confirm taking the route",
+    "dialogDescription": "You're about to commit to transporting this request. You'll be able to plan the route details next.",
+    "personSingular": "person",
+    "personPlural": "people",
+    "vehicleCapacityWarning": "Your vehicle's capacity",
+    "requestAsks": "the request asks for",
+    "confirmTake": "Yes, take this route"
   }
 } as const;

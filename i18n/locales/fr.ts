@@ -498,5 +498,23 @@ export default {
     "highlightLinksDesc": "Met en évidence tous les liens de la page",
     "readingGuide": "Guide de lecture",
     "readingGuideDesc": "Une ligne suit votre curseur pour faciliter la lecture"
+  },
+  "requestManager": {
+    "emptyTitle": "Aucune demande disponible",
+    "emptyDescription": "Il n'y a pas encore de demandes ouvertes dans votre zone. Revenez plus tard.",
+    "peopleUnit": "personnes",
+    "cargoType": "Fret",
+    "passengersType": "Passagers",
+    "capacityLabel": "Capacité",
+    "noNotes": "Aucune note supplémentaire",
+    "noPhone": "pas de téléphone",
+    "takeRoute": "Prendre l'itinéraire",
+    "dialogTitle": "Confirmer la prise en charge de l'itinéraire",
+    "dialogDescription": "Vous êtes sur le point de vous engager à transporter cette demande. Vous pourrez planifier les détails de l'itinéraire ensuite.",
+    "personSingular": "personne",
+    "personPlural": "personnes",
+    "vehicleCapacityWarning": "La capacité de votre véhicule",
+    "requestAsks": "la demande nécessite",
+    "confirmTake": "Oui, prendre cet itinéraire"
   }
 } as const;
