@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
 import { HELP_TYPES } from "@/lib/forms/constants"
 import { useEstados } from "@/lib/estados"
 import { toast } from "sonner"
@@ -91,7 +91,7 @@ export default function SolicitarPage() {
           <CardTitle>{f("formTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
             <FormField label={f("titleLabel")} required error={errors.title?.message}>
               {(field) => (
                 <Input {...field} {...register("title")} placeholder={f("titleLabel")} />

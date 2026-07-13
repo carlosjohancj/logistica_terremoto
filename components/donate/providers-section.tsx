@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { HandHeart } from "lucide-react"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { NumberedPagination } from "@/components/shared/numbered-pagination"
 import { ProviderCard, type Provider } from "./provider-card"

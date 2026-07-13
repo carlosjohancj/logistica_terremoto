@@ -23,7 +23,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "sonner"
-import { getSupabase } from "@/lib/supabase"
+import { getSupabase } from "@/types/supabase"
+import type { TablesInsert } from "@/types/database"
 import { useEstados } from "@/lib/estados"
 import { companySchema, CompanyValues } from "@/lib/schemas/company"
 import { FormField } from "@/components/forms/shared/form-field"
@@ -82,8 +83,12 @@ export default function RegistroEmpresaPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) data.user = user.id
-      const { error } = await supabase.from("companies").insert(data).select().single()
+      if (user) data.user_id = user.id
+      const { error } = await supabase
+        .from("companies")
+        .insert(data as TablesInsert<"companies">)
+        .select()
+        .single()
       if (error) throw error
       toast.success(t("success"))
       router.push(`/${locale}/empleos`)
@@ -101,7 +106,7 @@ export default function RegistroEmpresaPage() {
           <CardDescription>{t("registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-semibold">{t("companyInfo")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

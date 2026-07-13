@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+
+const AUTO_ADVANCE_MS = 6000;
 
 const steps = [
   {
@@ -113,6 +115,15 @@ function pointFor(index: number) {
 export function Timeline() {
   const [active, setActive] = useState(0);
   const activeStep = steps[active];
+
+  // Restarting on every `active` change means a manual click resets the
+  // 6s countdown, so autoplay always resumes from whichever step was picked.
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActive((prev) => (prev + 1) % steps.length);
+    }, AUTO_ADVANCE_MS);
+    return () => clearInterval(id);
+  }, [active]);
 
   return (
     <div>

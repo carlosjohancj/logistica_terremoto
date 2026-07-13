@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import {
   Card,
   CardContent,
@@ -22,11 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { NumberedPagination } from "@/components/shared/numbered-pagination"
+import { getSupabase } from "@/types/supabase"
 import { Badge } from "@/components/ui/badge"
-import { getSupabase } from "@/lib/supabase"
 import { getCitiesByState } from "@/lib/estados"
+import { getInitials } from "@/lib/utils"
 import { toast } from "sonner"
-import { Users, Package, AlertTriangle } from "lucide-react"
+import { Users, Package, AlertTriangle, PackageSearch } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -48,6 +50,8 @@ type Profile = {
   phone: string
 }
 
+const PAGE_SIZE = 9
+
 export default function SolicitudesPanel({
   availableReqs,
   availableProfiles,
@@ -59,7 +63,7 @@ export default function SolicitudesPanel({
   transportOfferCount: number
   transportistaOffers?: Array<{ capacity: number; origin_state: string; accepts_passengers: boolean; accepts_cargo: boolean }>
 }) {
-  const [takingId, setTakingId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedReq, setSelectedReq] = useState<TravelRequest | null>(null)
   const [mode, setMode] = useState<"full" | "partial">("full")
@@ -68,6 +72,9 @@ export default function SolicitudesPanel({
   const [originCities, setOriginCities] = useState<string[]>([])
   const [destCities, setDestCities] = useState<string[]>([])
   const [sending, setSending] = useState(false)
+
+  const totalPages = Math.max(1, Math.ceil(availableReqs.length / PAGE_SIZE))
+  const visible = availableReqs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function openDialog(req: TravelRequest) {
     setSelectedReq(req)
@@ -112,7 +119,7 @@ export default function SolicitudesPanel({
       if (!user) throw new Error("No autenticado")
 
       let originCity = selectedReq.origin_city
-      let originState = selectedReq.origin_state
+      const originState = selectedReq.origin_state
       let destCity = selectedReq.destination_city
       let destState = selectedReq.destination_state
       let isFull = true
@@ -161,9 +168,13 @@ export default function SolicitudesPanel({
     return (
       <section>
         <h2 className="text-xl font-semibold mb-2">Solicitudes disponibles en tu zona</h2>
-        <p className="text-muted-foreground">
-          No hay solicitudes abiertas por el momento.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+          <PackageSearch className="h-8 w-8 text-muted-foreground" />
+          <p className="font-medium">No hay solicitudes disponibles</p>
+          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+            No hay solicitudes abiertas por el momento. Vuelve más tarde.
+          </p>
+        </div>
       </section>
     )
   }
@@ -178,8 +189,9 @@ export default function SolicitudesPanel({
           ? "Coinciden con tus rutas de transporte registradas"
           : "Mostrando todas las solicitudes abiertas — registra una oferta de transporte para filtrar por zona"}
       </p>
-      <div className="space-y-3">
-        {availableReqs.map((req) => {
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {visible.map((req) => {
           const profile = availableProfiles[req.user_id]
           const cap = getCapacityInfo(req)
           const cargo = getCargoInfo(req)
@@ -217,15 +229,18 @@ export default function SolicitudesPanel({
                       </div>
                     )}
                   </div>
-                  <Button size="sm" onClick={() => openDialog(req)}>
-                    Tomar solicitud
-                  </Button>
                 </div>
+
+                <Button className="mt-1 w-full" onClick={() => openDialog(req)}>
+                  Tomar solicitud
+                </Button>
               </CardContent>
             </Card>
           )
         })}
       </div>
+
+      <NumberedPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} className="mt-6" />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">

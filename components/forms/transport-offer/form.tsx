@@ -66,7 +66,7 @@ export function TransportOfferForm() {
   return (
     <Card>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="divide-y divide-border">
             <FormSection title={t("vehicleSection")}>
               <Controller

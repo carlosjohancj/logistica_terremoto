@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import {
   Select,
   SelectContent,
@@ -75,7 +75,7 @@ export default function ExplorarPage() {
         for (const req of (travelReqs ?? [])) {
           const origin = await resolveCoord(req.origin_state, req.origin_city)
           if (!origin) continue
-          const dest = req.has_destination && req.destination_state ? await destCoord(req.destination_state, req.destination_city) : null
+          const dest = req.has_destination && req.destination_state ? await destCoord(req.destination_state, req.destination_city ?? undefined) : null
           const item: ListItem = {
             id: `travel-${req.id}`,
             type: "travel",

@@ -52,7 +52,7 @@ export default function LoginPage() {
           <CardDescription>{t("loginDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
             <FormField label={t("email")} required error={errors.email?.message}>
               {(field) => (
                 <Input {...field} type="email" autoComplete="email" className={FIELD_CLASS} {...register("email")} />

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServiceSupabase, TABLES } from "@/types/supabase"
 import { getServerSupabase } from "@/lib/supabase-server"
 
 async function checkAdmin() {

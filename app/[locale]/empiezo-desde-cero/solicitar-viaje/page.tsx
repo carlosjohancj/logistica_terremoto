@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Truck, Send } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { getSupabase, TABLES } from "@/lib/supabase"
+import { getSupabase, TABLES } from "@/types/supabase"
 import { useEstados } from "@/lib/estados"
 import { FormField } from "@/components/forms/shared/form-field"
 

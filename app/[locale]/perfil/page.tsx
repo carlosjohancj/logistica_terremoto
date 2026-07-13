@@ -8,20 +8,43 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { getSupabase, TABLES, type Role } from "@/lib/supabase"
+import { Card, CardContent } from "@/components/ui/card"
+import { getSupabase, TABLES, type Role } from "@/types/supabase"
 import { toast } from "sonner"
-import { SkeletonGrid, SkeletonProfile } from "@/components/ui/skeleton"
-import { ArrowRight } from "lucide-react"
+import { SkeletonProfile } from "@/components/ui/skeleton"
+import { StatCard } from "@/components/ui/stat-card"
+import {
+  ArrowRight,
+  Building,
+  Building2,
+  ClipboardList,
+  FileText,
+  HeartHandshake,
+  LogOut,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Users,
+  type LucideIcon,
+} from "lucide-react"
+import { cn, getInitials } from "@/lib/utils"
 import SolicitudesPanel from "./solicitudes-panel"
 import EmpresaPanel from "./empresa-panel"
 import MensajesPanel from "./mensajes-panel"
+import { PublicationSection } from "@/components/perfil/publication-section"
+import { PublicationDetailDialog } from "@/components/perfil/publication-detail-dialog"
+import { StatusBadge } from "@/components/perfil/status-badge"
+import type { Publication } from "@/components/perfil/publication-types"
+
+const TAB_ICONS: Record<string, LucideIcon> = {
+  publicaciones: FileText,
+  solicitudes: ClipboardList,
+  ayuda: HeartHandshake,
+  conexiones: Users,
+  empresa: Building2,
+  organizacion: Building,
+  mensajes: MessageSquare,
+}
 
 const roleLabels: Record<Role, string> = {
   damnificado: "Damnificado",
@@ -40,7 +63,6 @@ type TabDef = {
 }
 
 const ALL_TABS: TabDef[] = [
-  { id: "perfil", label: "Perfil", roles: ["*"] },
   { id: "publicaciones", label: "Mis Publicaciones", roles: ["*"] },
   { id: "solicitudes", label: "Solicitudes Disponibles", roles: ["voluntario", "transportista"] },
   { id: "ayuda", label: "Ayuda Asignada", roles: ["damnificado"] },
@@ -82,7 +104,7 @@ type Match = {
   user_id: string
   status: string
   created_at: string
-  travel_requests?: { origin_city: string; origin_state: string; destination_city: string; people_to_move: number }
+  travel_requests?: { origin_city: string; origin_state: string; destination_city: string; people_to_move: number; user_id?: string }
   profiles?: { name: string; phone: string }
 }
 
@@ -96,12 +118,15 @@ export default function PerfilPage() {
   const tabParam = searchParams.get("tab")
 
   const [user, setUser] = useState<Record<string, unknown> | null>(null)
+  const [ownProfile, setOwnProfile] = useState<Record<string, unknown> | null>(null)
   const [userRole, setUserRole] = useState("")
   const [travelReqs, setTravelReqs] = useState<TravelRequest[]>([])
   const [transportOffers, setTransportOffers] = useState<TransportOffer[]>([])
   const [housingOffers, setHousingOffers] = useState<Record<string, unknown>[]>([])
+  const [supplies, setSupplies] = useState<Record<string, unknown>[]>([])
   const [loading, setLoading] = useState(true)
   const [hasCompanies, setHasCompanies] = useState(false)
+  const [selectedPublication, setSelectedPublication] = useState<Publication | null>(null)
 
   const [availableReqs, setAvailableReqs] = useState<TravelRequest[]>([])
   const [availableProfiles, setAvailableProfiles] = useState<Record<string, Profile>>({})
@@ -109,6 +134,7 @@ export default function PerfilPage() {
   const [ayudaData, setAyudaData] = useState<(TravelRequest & { match?: Match; transporter?: Profile; segments: Segment[] })[]>([])
 
   const [matches, setMatches] = useState<Match[]>([])
+  const [matchProfiles, setMatchProfiles] = useState<Record<string, Profile>>({})
 
   const [localTab, setLocalTab] = useState<string>("")
 
@@ -120,7 +146,7 @@ export default function PerfilPage() {
     }).map((t) => t.id)
 
     if (tabParam && validTabs.includes(tabParam)) return tabParam
-    return "perfil"
+    return "publicaciones"
   }, [tabParam, userRole, hasCompanies])
 
   useEffect(() => {
@@ -152,17 +178,21 @@ export default function PerfilPage() {
         setUser(userAny)
         setUserRole(role)
 
-        const [travelRes, transportRes, housingRes, companyRes] = await Promise.all([
+        const [travelRes, transportRes, housingRes, companyRes, profileRes, suppliesRes] = await Promise.all([
           supabase.from(TABLES.TRAVEL_REQUESTS).select("*").eq("user_id", user.id).order("created_at", { ascending: false }) as never as { data: TravelRequest[] | null },
           supabase.from(TABLES.TRANSPORT_OFFERS).select("*").eq("user_id", user.id) as never as { data: TransportOffer[] | null },
           supabase.from(TABLES.HOUSING_OFFERS).select("*").eq("user_id", user.id) as never as { data: Record<string, unknown>[] | null },
           supabase.from(TABLES.COMPANIES).select("id").eq("user_id", user.id) as never as { data: { id: string }[] | null },
+          supabase.from(TABLES.PROFILES).select("*").eq("id", user.id).single() as never as { data: Record<string, unknown> | null },
+          supabase.from(TABLES.SUPPLIES).select("*").eq("user_id", user.id).order("created_at", { ascending: false }) as never as { data: Record<string, unknown>[] | null },
         ])
 
         setTravelReqs(travelRes.data ?? [])
         setTransportOffers(transportRes.data ?? [])
         setHousingOffers(housingRes.data ?? [])
         setHasCompanies((companyRes.data?.length ?? 0) > 0)
+        setOwnProfile(profileRes.data ?? null)
+        setSupplies(suppliesRes.data ?? [])
 
         // Load tab-specific data in background
         loadSolicitudesData(role, transportRes.data ?? [], user.id, supabase)
@@ -266,7 +296,7 @@ export default function PerfilPage() {
     const [asTransporter, asVictim] = await Promise.all([
       supabase
         .from("matches")
-        .select("*, travel_requests:travel_request_id(origin_city, origin_state, destination_city, people_to_move)")
+        .select("*, travel_requests:travel_request_id(origin_city, origin_state, destination_city, people_to_move, user_id)")
         .eq("user_id", userId)
         .order("created_at", { ascending: false }) as never as { data: Match[] | null },
       (async () => {
@@ -278,7 +308,7 @@ export default function PerfilPage() {
         if (ids.length === 0) return { data: [] as Match[] }
         return supabase
           .from("matches")
-          .select("*, travel_requests:travel_request_id(origin_city, origin_state, destination_city, people_to_move)")
+          .select("*, travel_requests:travel_request_id(origin_city, origin_state, destination_city, people_to_move, user_id)")
           .in("travel_request_id", ids)
           .order("created_at", { ascending: false }) as never as { data: Match[] | null }
       })(),
@@ -286,7 +316,26 @@ export default function PerfilPage() {
 
     const all = [...(asTransporter.data ?? []), ...(asVictim.data ?? [])]
     const seen = new Set<string>()
-    setMatches(all.filter((m) => { if (seen.has(m.id)) return false; seen.add(m.id); return true }))
+    const unique = all.filter((m) => { if (seen.has(m.id)) return false; seen.add(m.id); return true })
+    setMatches(unique)
+
+    const counterpartIds = [
+      ...new Set(
+        unique
+          .map((m) => (m.user_id === userId ? m.travel_requests?.user_id : m.user_id))
+          .filter((id): id is string => Boolean(id))
+      ),
+    ]
+
+    if (counterpartIds.length > 0) {
+      const { data: profiles } = await (supabase
+        .from(TABLES.PROFILES)
+        .select("id, name, phone")
+        .in("id", counterpartIds) as never as { data: { id: string; name: string; phone: string }[] | null })
+      const map: Record<string, Profile> = {}
+      for (const p of profiles ?? []) map[p.id] = { name: p.name, phone: p.phone }
+      setMatchProfiles(map)
+    }
   }
 
   function handleLogout() {
@@ -297,40 +346,130 @@ export default function PerfilPage() {
   if (loading) return <SkeletonProfile />
   if (!user) return null
 
+  const userMetadata = user.user_metadata as Record<string, unknown> | undefined
+  const fullName = (ownProfile?.name as string) || (userMetadata?.name as string) || "Usuario"
+  const memberSince = (ownProfile?.created_at as string | undefined) ?? (user.created_at as string | undefined)
+  const volunteerType = ownProfile?.volunteer_type as string
+  const isGestion = userRole === "voluntario" && (volunteerType === "gestion" || volunteerType === "ambos")
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">{t("perfil")}</h1>
-          <p className="text-muted-foreground">{user.name as string}</p>
+      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4 min-w-0">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold uppercase text-primary-foreground">
+            {getInitials(fullName)}
+          </span>
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-bold leading-tight">{t("perfil")}</h1>
+            <p className="truncate text-sm text-muted-foreground">{fullName}</p>
+            {memberSince && (
+              <p className="text-xs text-muted-foreground">
+                Miembro desde el {new Date(memberSince).toLocaleDateString()}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-sm">
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="inline-flex items-center rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground">
             {roleLabels[(userRole as Role) || "damnificado"]}
-          </Badge>
-          <Button variant="destructive" size="sm" onClick={handleLogout}>
+          </span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-card px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+          >
+            <LogOut className="h-3.5 w-3.5" />
             {t("cerrarSesion")}
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {availableTabs.map((tab) => (
-          <Button
-            key={tab.id}
-            variant={activeTab === tab.id ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setLocalTab(tab.id)
-              router.replace(`/${locale}/perfil?tab=${tab.id}`, { scroll: false })
-            }}
-          >
-            {tab.label}
-          </Button>
-        ))}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
+        <StatCard
+          label={t("solicitarViaje")}
+          value={String(travelReqs.length)}
+          desc="Tus solicitudes de traslado registradas."
+        />
+        <StatCard
+          label={t("ofrecerTransporte")}
+          value={String(transportOffers.length)}
+          desc="Tus ofertas de transporte publicadas."
+        />
+        <StatCard
+          label={t("ofrecerHospedaje")}
+          value={String(housingOffers.length)}
+          desc="Tus ofertas de hospedaje publicadas."
+        />
       </div>
 
-      {activeTab === "perfil" && renderPerfilTab()}
+      {isGestion && (
+        <Card className="mb-6">
+          <CardContent className="p-5">
+            <h3 className="font-semibold mb-3">Tareas de gestión</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                <div>
+                  <p className="text-sm font-medium">Solicitudes de viaje pendientes</p>
+                  <p className="text-xs text-muted-foreground">Validar información y asignar transportistas</p>
+                </div>
+                <Badge>{travelReqs.length}</Badge>
+              </div>
+              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                <div>
+                  <p className="text-sm font-medium">Mensajes sin leer</p>
+                  <p className="text-xs text-muted-foreground">Gestionar comunicación entre partes</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setLocalTab("mensajes")
+                  router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
+                }}>
+                  Ir a mensajes
+                </Button>
+              </div>
+              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                <div>
+                  <p className="text-sm font-medium">Logística de reasentamiento</p>
+                  <p className="text-xs text-muted-foreground">Coordinar viajes y hospedaje para damnificados</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setLocalTab("solicitudes")
+                  router.replace(`/${locale}/perfil?tab=solicitudes`, { scroll: false })
+                }}>
+                  Ver solicitudes
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {availableTabs.map((tab) => {
+          const Icon = TAB_ICONS[tab.id]
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setLocalTab(tab.id)
+                router.replace(`/${locale}/perfil?tab=${tab.id}`, { scroll: false })
+              }}
+              aria-pressed={isActive}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              )}
+            >
+              {Icon && <Icon className="h-3.5 w-3.5" />}
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
       {activeTab === "publicaciones" && renderPublicacionesTab()}
       {activeTab === "solicitudes" && (
         <SolicitudesPanel availableReqs={availableReqs} availableProfiles={availableProfiles} transportOfferCount={transportOffers.length} />
@@ -340,147 +479,45 @@ export default function PerfilPage() {
       {activeTab === "empresa" && <EmpresaPanel />}
       {activeTab === "organizacion" && renderOrganizacionTab()}
       {activeTab === "mensajes" && <MensajesPanel />}
+
+      <PublicationDetailDialog
+        publication={selectedPublication}
+        onOpenChange={(open) => !open && setSelectedPublication(null)}
+      />
     </div>
   )
 
-  function renderPerfilTab() {
-    const vt = user?.volunteer_type as string
-    const isGestion = userRole === "voluntario" && (vt === "gestion" || vt === "ambos")
-
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">{t("solicitarViaje")}</CardTitle>
-              <CardDescription>{travelReqs.length} publicaciones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">{travelReqs.length}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">{t("ofrecerTransporte")}</CardTitle>
-              <CardDescription>{transportOffers.length} publicaciones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-accent">{transportOffers.length}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">{t("ofrecerHospedaje")}</CardTitle>
-              <CardDescription>{housingOffers.length} publicaciones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-green-600">{housingOffers.length}</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {isGestion && (
-          <Card>
-            <CardContent className="p-5">
-              <h3 className="font-semibold mb-3">Tareas de gestión</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                  <div>
-                    <p className="text-sm font-medium">Solicitudes de viaje pendientes</p>
-                    <p className="text-xs text-muted-foreground">Validar información y asignar transportistas</p>
-                  </div>
-                  <Badge>{travelReqs.length}</Badge>
-                </div>
-                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                  <div>
-                    <p className="text-sm font-medium">Mensajes sin leer</p>
-                    <p className="text-xs text-muted-foreground">Gestionar comunicación entre partes</p>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={() => {
-                    setLocalTab("mensajes")
-                    router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
-                  }}>
-                    Ir a mensajes
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                  <div>
-                    <p className="text-sm font-medium">Logística de reasentamiento</p>
-                    <p className="text-xs text-muted-foreground">Coordinar viajes y hospedaje para damnificados</p>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={() => {
-                    setLocalTab("solicitudes")
-                    router.replace(`/${locale}/perfil?tab=solicitudes`, { scroll: false })
-                  }}>
-                    Ver solicitudes
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    )
-  }
-
   function renderPublicacionesTab() {
+    const hasAnyPublication =
+      travelReqs.length > 0 || transportOffers.length > 0 || housingOffers.length > 0 || supplies.length > 0
+
     return (
       <div className="space-y-8">
-        {travelReqs.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">{t("solicitarViaje")}</h2>
-            <div className="space-y-3">
-              {travelReqs.map((req) => (
-                <Card key={req.id}>
-                  <CardContent className="p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{req.origin_city} → {req.destination_city || "Sin destino"}</p>
-                      <p className="text-sm text-muted-foreground">{req.people_to_move} pers. · {req.status}</p>
-                    </div>
-                    <Badge variant="outline">{req.status}</Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-        {transportOffers.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">{t("ofrecerTransporte")}</h2>
-            <div className="space-y-3">
-              {transportOffers.map((offer) => (
-                <Card key={offer.id}>
-                  <CardContent className="p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{offer.vehicle_type} — {offer.origin_city} → {offer.destination_city}</p>
-                      <p className="text-sm text-muted-foreground">{offer.capacity} plazas · {offer.status}</p>
-                    </div>
-                    <Badge variant="outline">{offer.status}</Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-        {housingOffers.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">{t("ofrecerHospedaje")}</h2>
-            <div className="space-y-3">
-              {housingOffers.map((offer) => (
-                <Card key={offer.id as string}>
-                  <CardContent className="p-4 flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{offer.city as string}, {offer.state as string}</p>
-                      <p className="text-sm text-muted-foreground">{offer.capacity as string} pers. · {offer.max_stay_days as string} días</p>
-                    </div>
-                    <Badge variant="outline">{offer.status as string}</Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-        {travelReqs.length === 0 && transportOffers.length === 0 && housingOffers.length === 0 && (
+        <PublicationSection
+          title={t("solicitarViaje")}
+          kind="travel_request"
+          items={travelReqs as unknown as Publication["data"][]}
+          onSelect={setSelectedPublication}
+        />
+        <PublicationSection
+          title={t("ofrecerTransporte")}
+          kind="transport_offer"
+          items={transportOffers as unknown as Publication["data"][]}
+          onSelect={setSelectedPublication}
+        />
+        <PublicationSection
+          title={t("ofrecerHospedaje")}
+          kind="housing_offer"
+          items={housingOffers as unknown as Publication["data"][]}
+          onSelect={setSelectedPublication}
+        />
+        <PublicationSection
+          title="Insumos y Donaciones Físicas"
+          kind="supply"
+          items={supplies as unknown as Publication["data"][]}
+          onSelect={setSelectedPublication}
+        />
+        {!hasAnyPublication && (
           <p className="text-muted-foreground">No tienes publicaciones aún.</p>
         )}
       </div>
@@ -564,42 +601,84 @@ export default function PerfilPage() {
   }
 
   function renderConexionesTab() {
-    const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-      pending: "outline", confirmed: "default", in_progress: "secondary", completed: "default", cancelled: "destructive",
-    }
-    const statusLabels: Record<string, string> = {
-      pending: "Pendiente", confirmed: "Confirmado", in_progress: "En progreso", completed: "Completado", cancelled: "Cancelado",
+    if (matches.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+          <Users className="h-8 w-8 text-muted-foreground" />
+          <p className="font-medium">No tienes conexiones aún</p>
+          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+            Cuando tomes una solicitud o alguien tome la tuya, aparecerá aquí.
+          </p>
+        </div>
+      )
     }
 
-    if (matches.length === 0) {
-      return <p className="text-muted-foreground">No tienes conexiones aún.</p>
-    }
+    const currentUserId = user?.id as string | undefined
 
     return (
-      <div className="space-y-4">
-        {matches.map((match) => (
-          <Card key={match.id}>
-            <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {match.created_at ? new Date(match.created_at).toLocaleDateString() : ""}
-                  </p>
-                  {match.travel_requests && (
-                    <p className="font-medium mt-1">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {matches.map((match) => {
+          const counterpartId = match.user_id === currentUserId ? match.travel_requests?.user_id : match.user_id
+          const counterpart = counterpartId ? matchProfiles[counterpartId] : undefined
+
+          return (
+            <Card key={match.id} className="flex flex-col transition-shadow hover:shadow-md">
+              <CardContent className="flex flex-1 flex-col gap-3 p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
+                      {counterpart?.name ? getInitials(counterpart.name) : "?"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{counterpart?.name || "Usuario"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {match.created_at ? new Date(match.created_at).toLocaleDateString() : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <StatusBadge status={match.status} className="mt-0.5" />
+                </div>
+
+                {match.travel_requests && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">
                       {match.travel_requests.origin_city || match.travel_requests.origin_state}
-                      <ArrowRight className="inline h-4 w-4 mx-1" />
-                      {match.travel_requests.destination_city || "Sin destino"}
-                    </p>
+                    </span>
+                    <ArrowRight className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{match.travel_requests.destination_city || "Sin destino"}</span>
+                  </div>
+                )}
+
+                <div className="mt-auto flex gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 rounded-full"
+                    onClick={() => {
+                      setLocalTab("mensajes")
+                      router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
+                    }}
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" />
+                    Mensaje
+                  </Button>
+                  {counterpart?.phone && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full"
+                      nativeButton={false}
+                      render={<a href={`tel:${counterpart.phone}`} aria-label={`Llamar a ${counterpart.name}`} />}
+                    >
+                      <Phone className="h-3.5 w-3.5" />
+                    </Button>
                   )}
                 </div>
-                <Badge variant={statusVariant[match.status] ?? "outline"}>
-                  {statusLabels[match.status] || match.status}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     )
   }

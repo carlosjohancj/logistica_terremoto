@@ -9,7 +9,7 @@ import { StepCard } from "@/components/ui/step-card";
 import { ImageTextCarousel, type ImageTextCarouselItem } from "@/components/shared/image-text-carousel";
 import { BrandBannerStack, BannerHighlight, type BrandBannerItem } from "@/components/shared/brand-banner-stack";
 import { FaqSection } from "@/components/shared/faq-section";
-import { getSupabase, TABLES } from "@/lib/supabase";
+import { getSupabase, TABLES } from "@/types/supabase";
 import { usePathname } from "next/navigation";
 
 const LOGO_URL =

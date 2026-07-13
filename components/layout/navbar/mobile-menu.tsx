@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ChevronRight, ChevronLeft, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/types/supabase";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-
-type Group = "ofrecer" | "mas";
+import { useMobileMenu } from "@/hooks/use-mobile-menu";
+import {
+  getMasLinks,
+  getOfrecerLinks,
+  getRootLinks,
+} from "./mobile-menu.constants";
 
 export function NavMobileMenu({
   locale,
@@ -26,75 +30,27 @@ export function NavMobileMenu({
 }) {
   const t = useTranslations("nav");
   const th = useTranslations("home");
-  const [group, setGroup] = useState<Group | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  const { group, setGroup, mounted, closeButtonRef } = useMobileMenu({
+    open,
+    onClose,
+  });
 
-  useEffect(() => {
-    if (!open) {
-      setGroup(null);
-      previouslyFocusedRef.current?.focus();
-      return;
-    }
-
-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
-    closeButtonRef.current?.focus();
-
-    const scrollY = window.scrollY;
-    const { style } = document.body;
-    style.position = "fixed";
-    style.top = `-${scrollY}px`;
-    style.left = "0";
-    style.right = "0";
-    style.overflow = "hidden";
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      style.position = "";
-      style.top = "";
-      style.left = "";
-      style.right = "";
-      style.overflow = "";
-      window.scrollTo(0, scrollY);
-    };
-  }, [open, onClose]);
-
-  const rootLinks = [
-    { href: `/${locale}/empiezo-desde-cero`, label: th("ctaEmpiezo") },
-    { href: `/${locale}/solicitar-viaje`, label: t("solicitarViaje") },
-    { href: `/${locale}/donar`, label: t("donar") },
-  ];
+  const rootLinks = getRootLinks(locale, t, th);
+  const ofrecerLinks = getOfrecerLinks(locale, t);
+  const masLinks = getMasLinks(locale, t);
 
   const ofrecerLabel = t("ofrecerTransporte").split(" ")[0];
-  const ofrecerLinks = [
-    { href: `/${locale}/ofrecer-transporte`, label: t("ofrecerTransporte") },
-    { href: `/${locale}/ofrecer-hospedaje`, label: t("ofrecerHospedaje") },
-    { href: `/${locale}/donaciones-fisicas`, label: t("donacionesFisicas") },
-    { href: `/${locale}/ofrecer-insumos`, label: t("ofrecerInsumos") },
-  ];
-
-  const masLabel = "Más";
-  const masLinks = [
-    { href: `/${locale}/explorar`, label: t("explorar") },
-    { href: `/${locale}/empleos`, label: t("empleos") },
-    { href: `/${locale}/empresas/registro`, label: t("registroEmpresa") },
-    { href: `/${locale}/recursos`, label: t("recursos") },
-    { href: `/${locale}/sobre-nosotros`, label: t("sobreNosotros") },
-  ];
-
-  const groupLabel = group === "ofrecer" ? ofrecerLabel : masLabel;
+  const groupLabel = group === "ofrecer" ? ofrecerLabel : t("mas");
   const groupLinks = group === "ofrecer" ? ofrecerLinks : masLinks;
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       <div
         className={cn(
           "fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 lg:hidden",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+          open ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={onClose}
         aria-hidden="true"
@@ -107,7 +63,7 @@ export function NavMobileMenu({
         aria-label={t("openMenu")}
         className={cn(
           "fixed right-0 top-0 z-50 flex h-dvh w-full max-w-sm flex-col bg-background shadow-xl transition-transform duration-500 ease-in-out lg:hidden",
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0" : "translate-x-full",
         )}
         inert={!open}
       >
@@ -116,7 +72,12 @@ export function NavMobileMenu({
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
-          <button ref={closeButtonRef} aria-label={t("closeMenu")} onClick={onClose} className="p-1">
+          <button
+            ref={closeButtonRef}
+            aria-label={t("closeMenu")}
+            onClick={onClose}
+            className="p-1"
+          >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
@@ -131,7 +92,9 @@ export function NavMobileMenu({
                     href={link.href}
                     className={cn(
                       "py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors hover:text-primary",
-                      isActive(link.href) ? "text-primary" : "text-muted-foreground"
+                      isActive(link.href)
+                        ? "text-primary"
+                        : "text-muted-foreground",
                     )}
                   >
                     {link.label}
@@ -154,7 +117,7 @@ export function NavMobileMenu({
                   className="flex items-center justify-between py-2.5 text-xs font-semibold tracking-wide uppercase text-muted-foreground transition-colors hover:text-primary"
                   onClick={() => setGroup("mas")}
                 >
-                  {masLabel}
+                  {t("mas")}
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </nav>
@@ -163,10 +126,16 @@ export function NavMobileMenu({
 
               {isLoggedIn ? (
                 <div className="flex flex-col">
-                  <Link href={`/${locale}/perfil?tab=conexiones`} className="py-2 text-sm font-medium text-muted-foreground">
+                  <Link
+                    href={`/${locale}/perfil?tab=conexiones`}
+                    className="py-2 text-sm font-medium text-muted-foreground"
+                  >
                     {t("matches")}
                   </Link>
-                  <Link href={`/${locale}/perfil`} className="py-2 text-sm font-medium text-muted-foreground">
+                  <Link
+                    href={`/${locale}/perfil`}
+                    className="py-2 text-sm font-medium text-muted-foreground"
+                  >
                     {t("perfil")}
                   </Link>
                   <button
@@ -183,10 +152,16 @@ export function NavMobileMenu({
                 </div>
               ) : (
                 <div className="flex flex-col">
-                  <Link href={`/${locale}/auth/login`} className="py-2 text-sm font-medium text-muted-foreground">
+                  <Link
+                    href={`/${locale}/auth/login`}
+                    className="py-2 text-sm font-medium text-muted-foreground"
+                  >
                     {t("iniciarSesion")}
                   </Link>
-                  <Link href={`/${locale}/auth/register`} className="py-2 text-sm font-medium text-muted-foreground">
+                  <Link
+                    href={`/${locale}/auth/register`}
+                    className="py-2 text-sm font-medium text-muted-foreground"
+                  >
                     {t("registrarse")}
                   </Link>
                 </div>
@@ -209,7 +184,9 @@ export function NavMobileMenu({
                     href={link.href}
                     className={cn(
                       "py-2.5 text-sm font-medium transition-colors hover:text-primary",
-                      isActive(link.href) ? "text-primary" : "text-muted-foreground"
+                      isActive(link.href)
+                        ? "text-primary"
+                        : "text-muted-foreground",
                     )}
                   >
                     {link.label}
@@ -220,6 +197,7 @@ export function NavMobileMenu({
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

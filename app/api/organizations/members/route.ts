@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getServerSupabase } from "@/lib/supabase-server"
-import { getServiceSupabase, TABLES } from "@/lib/supabase"
+import { getServiceSupabase } from "@/types/supabase"
 
 export async function POST(request: Request) {
   try {
@@ -29,13 +29,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only the organization admin can add members" }, { status: 403 })
     }
 
-    const { data: memberProfile } = await service
-      .from(TABLES.PROFILES)
-      .select("id")
-      .eq("email", member_email)
-      .single() as never as { data: { id: string } | null }
+    // profiles has no email column (email lives on auth.users), so members
+    // must be resolved through the admin API rather than a profiles query.
+    const { data: usersPage, error: usersError } = await service.auth.admin.listUsers({ perPage: 1000 })
+    if (usersError) {
+      return NextResponse.json({ error: usersError.message }, { status: 500 })
+    }
+    const matchedUser = usersPage.users.find((u) => u.email === member_email)
 
-    if (!memberProfile) {
+    if (!matchedUser) {
       return NextResponse.json({ error: "No user found with that email" }, { status: 404 })
     }
 
@@ -43,10 +45,10 @@ export async function POST(request: Request) {
       .from("organization_members")
       .insert({
         organization_id,
-        member_id: memberProfile.id,
+        member_id: matchedUser.id,
         role: role || "member",
         status: "active",
-      } as never)
+      })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
