@@ -411,7 +411,8 @@ export default {
     "transportOffers": "Transportangebote",
     "housingOffers": "Unterkunftsangebote",
     "all": "Alle",
-    "noResults": "Keine Ergebnisse gefunden"
+    "noResults": "Keine Ergebnisse gefunden",
+    "viewOnMap": "Auf der Karte ansehen"
   },
   "common": {
     "loading": "Laden...",

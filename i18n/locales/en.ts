@@ -413,7 +413,8 @@ export default {
     "transportOffers": "Transport offers",
     "housingOffers": "Housing offers",
     "all": "All",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "viewOnMap": "View on map"
   },
   "common": {
     "loading": "Loading...",

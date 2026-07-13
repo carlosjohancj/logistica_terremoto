@@ -411,7 +411,8 @@ export default {
     "transportOffers": "عروض النقل",
     "housingOffers": "عروض الإقامة",
     "all": "الكل",
-    "noResults": "لا توجد نتائج"
+    "noResults": "لا توجد نتائج",
+    "viewOnMap": "عرض على الخريطة"
   },
   "common": {
     "loading": "جار التحميل...",

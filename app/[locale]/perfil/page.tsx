@@ -12,7 +12,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { getSupabase, TABLES, type Role } from "@/types/supabase"
 import { toast } from "sonner"
 import { SkeletonProfile } from "@/components/ui/skeleton"
-import { StatCard } from "@/components/ui/stat-card"
+import { ProfileStatCard } from "@/components/perfil/profile-stat-card"
+import { ManagementTaskRow } from "@/components/perfil/management-task-row"
 import {
   ArrowRight,
   Building,
@@ -20,10 +21,13 @@ import {
   ClipboardList,
   FileText,
   HeartHandshake,
+  Home,
   LogOut,
   MapPin,
   MessageSquare,
   Phone,
+  Route,
+  Truck,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -343,6 +347,11 @@ export default function PerfilPage() {
     router.push("/")
   }
 
+  function goToTab(tabId: string) {
+    setLocalTab(tabId)
+    router.replace(`/${locale}/perfil?tab=${tabId}`, { scroll: false })
+  }
+
   if (loading) return <SkeletonProfile />
   if (!user) return null
 
@@ -350,7 +359,61 @@ export default function PerfilPage() {
   const fullName = (ownProfile?.name as string) || (userMetadata?.name as string) || "Usuario"
   const memberSince = (ownProfile?.created_at as string | undefined) ?? (user.created_at as string | undefined)
   const volunteerType = ownProfile?.volunteer_type as string
-  const isGestion = userRole === "voluntario" && (volunteerType === "gestion" || volunteerType === "ambos")
+  const managesLogistics = userRole === "voluntario" && (volunteerType === "gestion" || volunteerType === "ambos")
+  const managesHousing = userRole === "voluntario" && (volunteerType === "hospedaje" || volunteerType === "ambos")
+
+  const managementTasks = userRole === "voluntario"
+    ? [
+        ...(managesLogistics
+          ? [
+              {
+                key: "solicitudes",
+                icon: ClipboardList,
+                title: "Solicitudes de viaje pendientes",
+                desc: "Validar información y asignar transportistas",
+                action: <Badge>{availableReqs.length}</Badge>,
+              },
+              {
+                key: "logistica",
+                icon: HeartHandshake,
+                title: "Logística de reasentamiento",
+                desc: "Coordinar viajes y hospedaje para damnificados",
+                action: (
+                  <Button size="sm" variant="outline" onClick={() => goToTab("solicitudes")}>
+                    Ver solicitudes
+                  </Button>
+                ),
+              },
+            ]
+          : []),
+        ...(managesHousing
+          ? [
+              {
+                key: "hospedaje",
+                icon: Home,
+                title: "Ofertas de hospedaje",
+                desc: "Gestiona tus publicaciones de alojamiento activas",
+                action: (
+                  <Button size="sm" variant="outline" onClick={() => goToTab("publicaciones")}>
+                    Ver publicaciones
+                  </Button>
+                ),
+              },
+            ]
+          : []),
+        {
+          key: "mensajes",
+          icon: MessageSquare,
+          title: "Mensajes sin leer",
+          desc: "Gestionar comunicación entre partes",
+          action: (
+            <Button size="sm" variant="outline" onClick={() => goToTab("mensajes")}>
+              Ir a mensajes
+            </Button>
+          ),
+        },
+      ]
+    : []
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -384,60 +447,41 @@ export default function PerfilPage() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
-        <StatCard
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <ProfileStatCard
+          icon={Route}
           label={t("solicitarViaje")}
           value={String(travelReqs.length)}
-          desc="Tus solicitudes de traslado registradas."
+          desc="Solicitudes de traslado registradas"
         />
-        <StatCard
+        <ProfileStatCard
+          icon={Truck}
           label={t("ofrecerTransporte")}
           value={String(transportOffers.length)}
-          desc="Tus ofertas de transporte publicadas."
+          desc="Ofertas de transporte publicadas"
         />
-        <StatCard
+        <ProfileStatCard
+          icon={Home}
           label={t("ofrecerHospedaje")}
           value={String(housingOffers.length)}
-          desc="Tus ofertas de hospedaje publicadas."
+          desc="Ofertas de hospedaje publicadas"
         />
       </div>
 
-      {isGestion && (
+      {managementTasks.length > 0 && (
         <Card className="mb-6">
           <CardContent className="p-5">
             <h3 className="font-semibold mb-3">Tareas de gestión</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                <div>
-                  <p className="text-sm font-medium">Solicitudes de viaje pendientes</p>
-                  <p className="text-xs text-muted-foreground">Validar información y asignar transportistas</p>
-                </div>
-                <Badge>{travelReqs.length}</Badge>
-              </div>
-              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                <div>
-                  <p className="text-sm font-medium">Mensajes sin leer</p>
-                  <p className="text-xs text-muted-foreground">Gestionar comunicación entre partes</p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => {
-                  setLocalTab("mensajes")
-                  router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
-                }}>
-                  Ir a mensajes
-                </Button>
-              </div>
-              <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                <div>
-                  <p className="text-sm font-medium">Logística de reasentamiento</p>
-                  <p className="text-xs text-muted-foreground">Coordinar viajes y hospedaje para damnificados</p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => {
-                  setLocalTab("solicitudes")
-                  router.replace(`/${locale}/perfil?tab=solicitudes`, { scroll: false })
-                }}>
-                  Ver solicitudes
-                </Button>
-              </div>
+              {managementTasks.map((task) => (
+                <ManagementTaskRow
+                  key={task.key}
+                  icon={task.icon}
+                  title={task.title}
+                  desc={task.desc}
+                  action={task.action}
+                />
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -451,10 +495,7 @@ export default function PerfilPage() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => {
-                setLocalTab(tab.id)
-                router.replace(`/${locale}/perfil?tab=${tab.id}`, { scroll: false })
-              }}
+              onClick={() => goToTab(tab.id)}
               aria-pressed={isActive}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
@@ -655,10 +696,7 @@ export default function PerfilPage() {
                     size="sm"
                     variant="outline"
                     className="flex-1 rounded-full"
-                    onClick={() => {
-                      setLocalTab("mensajes")
-                      router.replace(`/${locale}/perfil?tab=mensajes`, { scroll: false })
-                    }}
+                    onClick={() => goToTab("mensajes")}
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
                     Mensaje

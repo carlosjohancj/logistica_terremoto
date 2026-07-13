@@ -13,6 +13,7 @@ export type ListItem = {
   destLat?: number;
   destLng?: number;
   description: string;
+  notes?: string;
   routeGeometry?: [number, number][];
   routeApproximate?: boolean;
   routeDistance?: number;
@@ -22,6 +23,8 @@ type MapViewProps = {
   items: ListItem[];
   center?: [number, number];
   zoom?: number;
+  selectedId?: string | null;
+  onSelectedIdChange?: (id: string | null) => void;
 };
 
 const originColors: Record<string, string> = {
@@ -46,13 +49,17 @@ export function MapView({
   items,
   center = [9.5, -66.5],
   zoom = 6,
+  selectedId: controlledSelectedId,
+  onSelectedIdChange,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const [mapError, setMapError] = useState(false);
   const [degradedRouting, setDegradedRouting] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+  const selectedId = controlledSelectedId !== undefined ? controlledSelectedId : internalSelectedId;
+  const setSelectedId = onSelectedIdChange ?? setInternalSelectedId;
   const selectedItem = items.find((i) => i.id === selectedId);
 
   useEffect(() => {
@@ -137,6 +144,16 @@ export function MapView({
 
   useEffect(() => {
     const map = mapRef.current;
+    if (!map || !selectedItem) return;
+    map.flyTo({
+      center: [selectedItem.lng, selectedItem.lat],
+      zoom: Math.max(map.getZoom(), 11),
+      speed: 1.2,
+    });
+  }, [selectedId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map) return;
     if (!map.getLayer("route-lines-selected")) return;
     if (selectedId) {
@@ -186,6 +203,11 @@ export function MapView({
                 <p className="mt-2 text-sm font-medium">
                   {selectedItem.description}
                 </p>
+                {selectedItem.notes && (
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    {selectedItem.notes}
+                  </p>
+                )}
                 {selectedItem.routeDistance && (
                   <p className="mt-1 text-xs text-muted-foreground">
                     {Math.round(selectedItem.routeDistance)} km
