@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useCallback } from "react"
 import maplibregl from "maplibre-gl"
 import { OSM_RASTER_STYLE } from "@/lib/maps/constants"
 import { circle, distance } from "@turf/turf"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
-import { MapPin, Trash2, Save } from "lucide-react"
+import { MapPin, Trash2, Save, Crosshair, Navigation } from "lucide-react"
 
 type Territory = {
   id: string
@@ -25,15 +25,34 @@ export default function TerritoryManager() {
   const centerRef = useRef<{ lat: number; lng: number } | null>(null)
   const markerRef = useRef<maplibregl.Marker | null>(null)
   const sourcesReadyRef = useRef(false)
+  const selectingRef = useRef(false)
 
   const [territories, setTerritories] = useState<Territory[]>([])
   const [loading, setLoading] = useState(true)
+  const [selecting, setSelecting] = useState(false)
   const [drawing, setDrawing] = useState(false)
   const [centerLat, setCenterLat] = useState<number | null>(null)
   const [centerLng, setCenterLng] = useState<number | null>(null)
   const [radiusKm, setRadiusKm] = useState(10)
   const [label, setLabel] = useState("")
   const [saving, setSaving] = useState(false)
+
+  const toggleSelecting = useCallback(() => {
+    const map = mapRef.current
+    if (!map) return
+    const next = !selectingRef.current
+    selectingRef.current = next
+    setSelecting(next)
+    if (next) {
+      map.dragPan.disable()
+      map.getCanvas().style.cursor = "crosshair"
+    } else {
+      map.dragPan.enable()
+      map.getCanvas().style.cursor = ""
+      drawingRef.current = false
+      setDrawing(false)
+    }
+  }, [])
 
   useEffect(() => {
     loadTerritories()
@@ -44,9 +63,7 @@ export default function TerritoryManager() {
       const res = await fetch("/api/territories")
       const json = await res.json()
       setTerritories(json.territories || [])
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
     setLoading(false)
   }
 
@@ -67,7 +84,6 @@ export default function TerritoryManager() {
     markerRef.current = new maplibregl.Marker({ element: el })
       .setLngLat([lng, lat])
       .addTo(map)
-
     if (radius <= 0) {
       const src = map.getSource("drawing-circle") as maplibregl.GeoJSONSource | undefined
       if (src) src.setData({ type: "FeatureCollection", features: [] })
@@ -147,6 +163,7 @@ export default function TerritoryManager() {
 
     map.on("mousedown", (e) => {
       if (e.originalEvent.button !== 0) return
+      if (!selectingRef.current) return
       drawingRef.current = true
       centerRef.current = { lat: e.lngLat.lat, lng: e.lngLat.lng }
       setCenterLat(e.lngLat.lat)
@@ -248,8 +265,22 @@ export default function TerritoryManager() {
     <div className="space-y-4">
       <div className="relative h-[400px] rounded-lg overflow-hidden border">
         <div ref={containerRef} className="h-full w-full" />
+        <div className="absolute top-2 left-2 z-10 flex gap-2">
+          <Button
+            size="sm"
+            variant={selecting ? "default" : "outline"}
+            onClick={toggleSelecting}
+            className="shadow"
+          >
+            {selecting ? (
+              <><Navigation className="h-4 w-4 mr-1" />Navegar</>
+            ) : (
+              <><Crosshair className="h-4 w-4 mr-1" />Seleccionar zona</>
+            )}
+          </Button>
+        </div>
         {drawing && (
-          <div className="absolute top-2 left-2 z-10 rounded-md bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow">
+          <div className="absolute top-12 left-2 z-10 rounded-md bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow">
             Arrastra para definir el radio
           </div>
         )}
