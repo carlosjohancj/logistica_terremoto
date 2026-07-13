@@ -101,7 +101,7 @@ export default function RegistroEmpresaPage() {
           <CardDescription>{t("registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-semibold">{t("companyInfo")}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

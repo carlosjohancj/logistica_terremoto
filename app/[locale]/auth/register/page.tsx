@@ -78,7 +78,7 @@ export default function RegisterPage() {
           <CardDescription>{t("registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
             <FormField label={t("name")} required error={errors.name?.message}>
               {(field) => (
                 <Input {...field} autoComplete="name" className={FIELD_CLASS} {...register("name")} />

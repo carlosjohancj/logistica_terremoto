@@ -91,7 +91,7 @@ export default function SolicitarPage() {
           <CardTitle>{f("formTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
             <FormField label={f("titleLabel")} required error={errors.title?.message}>
               {(field) => (
                 <Input {...field} {...register("title")} placeholder={f("titleLabel")} />

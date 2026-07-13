@@ -79,7 +79,7 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
         <DialogTitle>{tj("newJob") || "Crear empleo"}</DialogTitle>
         <DialogDescription>{tj("subtitle")}</DialogDescription>
       </DialogHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-4 py-4">
           <FormField label={tj("title")} required error={errors.title?.message}>
             {(field) => <Input {...field} {...register("title")} />}
