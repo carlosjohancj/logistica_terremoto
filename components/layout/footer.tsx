@@ -50,6 +50,9 @@ export function Footer() {
           <span>{t("footer")} &copy; {year}</span>
           <Link href={`/${locale}/donar`} className="hover:text-primary underline underline-offset-2">{t("donarPlataforma")}</Link>
         </div>
+        <div className="mt-2 text-center text-xs text-muted-foreground">
+          &copy; <a href="https://www.openstreetmap.org/copyright" className="hover:text-primary underline underline-offset-2" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors
+        </div>
       </div>
     </footer>
   );

@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -22,10 +24,11 @@ import {
 import { Label } from "@/components/ui/label"
 import { NumberedPagination } from "@/components/shared/numbered-pagination"
 import { getSupabase } from "@/types/supabase"
+import { Badge } from "@/components/ui/badge"
 import { getCitiesByState } from "@/lib/estados"
 import { getInitials } from "@/lib/utils"
 import { toast } from "sonner"
-import { ArrowRight, Users, Phone, PackageSearch } from "lucide-react"
+import { Users, Package, AlertTriangle, PackageSearch } from "lucide-react"
 
 type TravelRequest = {
   id: string
@@ -38,6 +41,8 @@ type TravelRequest = {
   people_to_move: number
   status: string
   notes: string
+  needs_cargo_transport?: boolean
+  cargo_description?: string
 }
 
 type Profile = {
@@ -51,10 +56,12 @@ export default function SolicitudesPanel({
   availableReqs,
   availableProfiles,
   transportOfferCount,
+  transportistaOffers,
 }: {
   availableReqs: TravelRequest[]
   availableProfiles: Record<string, Profile>
   transportOfferCount: number
+  transportistaOffers?: Array<{ capacity: number; origin_state: string; accepts_passengers: boolean; accepts_cargo: boolean }>
 }) {
   const [page, setPage] = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -86,6 +93,23 @@ export default function SolicitudesPanel({
     }
   }
 
+  function getCapacityInfo(req: TravelRequest) {
+    if (!transportistaOffers?.length) return null
+    const match = transportistaOffers.find(o => o.origin_state === req.origin_state)
+    if (!match) return null
+    return {
+      capacity: match.capacity,
+      exceeded: req.people_to_move > match.capacity,
+    }
+  }
+
+  function getCargoInfo(req: TravelRequest) {
+    const types: string[] = []
+    if (req.needs_cargo_transport) types.push("Carga")
+    if (!req.needs_cargo_transport) types.push("Pasajeros")
+    return types.join(" + ")
+  }
+
   async function confirmTake() {
     if (!selectedReq) return
     setSending(true)
@@ -107,18 +131,20 @@ export default function SolicitudesPanel({
         isFull = false
       }
 
+      const body: Record<string, unknown> = {
+        travel_request_id: selectedReq.id,
+        transportista_id: user.id,
+        origin_city: originCity,
+        origin_state: originState,
+        destination_city: destCity,
+        destination_state: destState,
+        is_full_route: isFull,
+      }
+
       const res = await fetch("/api/route-segments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          travel_request_id: selectedReq.id,
-          transportista_id: user.id,
-          origin_city: originCity,
-          origin_state: originState,
-          destination_city: destCity,
-          destination_state: destState,
-          is_full_route: isFull,
-        }),
+        body: JSON.stringify(body),
       })
 
       const json = await res.json()
@@ -153,6 +179,8 @@ export default function SolicitudesPanel({
     )
   }
 
+  const capacityInfo = selectedReq ? getCapacityInfo(selectedReq) : null
+
   return (
     <section>
       <h2 className="text-xl font-semibold mb-2">Solicitudes disponibles en tu zona</h2>
@@ -165,38 +193,43 @@ export default function SolicitudesPanel({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {visible.map((req) => {
           const profile = availableProfiles[req.user_id]
+          const cap = getCapacityInfo(req)
+          const cargo = getCargoInfo(req)
           return (
-            <Card key={req.id} className="flex flex-col transition-shadow hover:shadow-md">
-              <CardContent className="flex flex-1 flex-col gap-3 p-5">
-                <p className="text-base font-bold leading-snug">
-                  {req.origin_city || req.origin_state}{" "}
-                  <ArrowRight className="inline h-4 w-4 text-muted-foreground" />{" "}
-                  {req.destination_city || req.destination_state || "Sin destino"}
-                </p>
-
-                <Badge variant="outline" className="w-fit gap-1 font-normal">
-                  <Users className="h-3 w-3" />
-                  {req.people_to_move} pers.
-                </Badge>
-
-                <p className="line-clamp-2 flex-1 text-sm text-muted-foreground">
-                  {req.notes || "Sin notas"}
-                </p>
-
-                {profile && (
-                  <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold uppercase text-primary">
-                      {getInitials(profile.name || "?")}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{profile.name}</p>
-                      <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-                        <Phone className="h-3 w-3 shrink-0" />
-                        {profile.phone || "sin teléfono"}
-                      </p>
+            <Card key={req.id}>
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="font-medium">
+                      {req.origin_city || req.origin_state} → {req.destination_city || req.destination_state || "Sin destino"}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      <Badge variant="outline" className="gap-1 font-normal text-xs">
+                        <Users className="h-3 w-3" />
+                        {req.people_to_move} pers.
+                      </Badge>
+                      <Badge variant="secondary" className="gap-1 font-normal text-xs">
+                        <Package className="h-3 w-3" />
+                        {cargo}
+                      </Badge>
+                      {cap && cap.exceeded && (
+                        <Badge variant="destructive" className="gap-1 font-normal text-xs">
+                          <AlertTriangle className="h-3 w-3" />
+                          Cap. {cap.capacity}
+                        </Badge>
+                      )}
                     </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {req.notes || "Sin notas"}
+                    </p>
+                    {profile && (
+                      <div className="mt-2 text-sm">
+                        <span className="font-medium">Contacto:</span>{" "}
+                        {profile.name} — {profile.phone || "sin teléfono"}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
 
                 <Button className="mt-1 w-full" onClick={() => openDialog(req)}>
                   Tomar solicitud
@@ -275,6 +308,13 @@ export default function SolicitudesPanel({
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            )}
+
+            {capacityInfo && capacityInfo.exceeded && (
+              <div className="flex items-center gap-1.5 text-destructive text-xs pl-6">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                Capacidad de tu vehículo: {capacityInfo.capacity} pers. — la solicitud pide {selectedReq?.people_to_move}
               </div>
             )}
           </div>

@@ -8,10 +8,8 @@ services:
       - "3001:3000"
     environment:
       - NODE_ENV=production
-      - VALHALLA_URL=http://valhalla:8002
-      - TILE_SERVER_URL=http://tileserver:8080
-      - NEXT_PUBLIC_MAP_STYLE_URL=/api/map/styles/basic/style.json
-      - NEXT_PUBLIC_SUPABASE_URL=http://backend.desdecerovenezuela.org:8000
+      - VALHALLA_URL=${VALHALLA_URL:-http://valhalla:8002}
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL:-http://backend.desdecerovenezuela.org:8000}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:?required}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:?required}
     networks:
@@ -24,53 +22,17 @@ services:
     ports:
       - "8002:8002"
     volumes:
-      - osm_data:/custom_files
+      - ${DATA_DIR:-/root}:/custom_files
     environment:
-      - tile_urls=https://download.geofabrik.de/south-america/venezuela-latest.osm.pbf
+      - tile_urls=file:///custom_files/venezuela.osm.pbf
       - use_tiles_ignore_pbf=False
-      - force_rebuild=False
       - build_tar=True
       - serve_tiles=True
       - server_threads=4
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 300s
     networks:
       - mapa_net
 
-  tilemaker:
-    image: ghcr.io/systemed/tilemaker:master
-    restart: "no"
-    volumes:
-      - osm_data:/data
-      - ./tilemaker-config:/config:ro
-    entrypoint: ["/bin/sh", "/config/entrypoint.sh"]
-    depends_on:
-      valhalla:
-        condition: service_started
-    networks:
-      - mapa_net
-
-  tileserver:
-    image: maptiler/tileserver-gl:latest
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    volumes:
-      - osm_data:/data
-    command: ["--file", "/data/venezuela.mbtiles", "--verbose"]
-    depends_on:
-      tilemaker:
-        condition: service_completed_successfully
-    networks:
-      - mapa_net
 
 networks:
   mapa_net:
     driver: bridge
-
-volumes:
-  osm_data:

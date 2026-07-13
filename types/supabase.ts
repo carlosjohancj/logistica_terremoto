@@ -50,4 +50,5 @@ export const TABLES = {
   ROUTE_SEGMENTS: "route_segments",
   SERVICE_PROVIDERS: "service_providers",
   FAMILY_AID_REQUESTS: "family_aid_requests",
+  TRANSPORTISTA_TERRITORIES: "transportista_territories",
 } as const
