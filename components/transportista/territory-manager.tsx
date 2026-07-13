@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react"
 import maplibregl from "maplibre-gl"
 import { OSM_RASTER_STYLE } from "@/lib/maps/constants"
+import { getSupabase } from "@/lib/supabase"
 import { circle, distance } from "@turf/turf"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +28,7 @@ export default function TerritoryManager() {
   const sourcesReadyRef = useRef(false)
   const selectingRef = useRef(false)
 
+  const [userId, setUserId] = useState<string | null>(null)
   const [territories, setTerritories] = useState<Territory[]>([])
   const [loading, setLoading] = useState(true)
   const [selecting, setSelecting] = useState(false)
@@ -55,12 +57,19 @@ export default function TerritoryManager() {
   }, [])
 
   useEffect(() => {
-    loadTerritories()
+    getSupabase().auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
   }, [])
 
+  useEffect(() => {
+    if (userId) loadTerritories()
+  }, [userId])
+
   async function loadTerritories() {
+    if (!userId) return
     try {
-      const res = await fetch("/api/territories")
+      const res = await fetch(`/api/territories?user_id=${userId}`)
       const json = await res.json()
       setTerritories(json.territories || [])
     } catch { /* ignore */ }
@@ -216,6 +225,7 @@ export default function TerritoryManager() {
   }, [radiusKm])
 
   async function handleSave() {
+    if (!userId) { toast.error("Debes iniciar sesión"); return }
     if (centerLat === null || centerLng === null || radiusKm < 1) {
       toast.error("Dibuja un círculo en el mapa primero")
       return
@@ -226,6 +236,7 @@ export default function TerritoryManager() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: userId,
           center_lat: centerLat,
           center_lng: centerLng,
           radius_km: radiusKm,
@@ -250,8 +261,9 @@ export default function TerritoryManager() {
   }
 
   async function handleDelete(id: string) {
+    if (!userId) return
     try {
-      const res = await fetch(`/api/territories/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/territories/${id}?user_id=${userId}`, { method: "DELETE" })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || "Error")
       toast.success("Territorio eliminado")

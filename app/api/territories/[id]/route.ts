@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server"
-import { getServerSupabase } from "@/lib/supabase-server"
+import { getServiceSupabase, TABLES } from "@/lib/supabase"
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await getServerSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get("user_id")
+    if (!userId) return NextResponse.json({ error: "Missing user_id" }, { status: 400 })
 
     const { id } = await params
+    const service = getServiceSupabase()
 
-    const { data: existing } = await supabase
-      .from("transportista_territories")
+    const { data: existing } = await service
+      .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .select("id")
       .eq("id", id)
-      .eq("user_id", user.id)
-      .single()
+      .eq("user_id", userId)
+      .maybeSingle()
 
     if (!existing) return NextResponse.json({ error: "Territory not found" }, { status: 404 })
 
-    const { error } = await supabase
-      .from("transportista_territories")
+    const { error } = await service
+      .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .delete()
       .eq("id", id)
 
