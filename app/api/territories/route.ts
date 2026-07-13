@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .select("*")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false }) as never as { data: any[] | null; error: any }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ territories: data ?? [] })
@@ -39,9 +39,9 @@ export async function POST(request: Request) {
         center_lng,
         radius_km,
         label: label || null,
-      })
+      } as never)
       .select()
-      .single()
+      .single() as never as { data: any | null; error: any }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ territory: data }, { status: 201 })

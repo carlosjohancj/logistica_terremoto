@@ -15,14 +15,14 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       .select("id")
       .eq("id", id)
       .eq("user_id", userId)
-      .maybeSingle()
+      .maybeSingle() as never as { data: { id: string } | null; error: any }
 
     if (!existing) return NextResponse.json({ error: "Territory not found" }, { status: 404 })
 
     const { error } = await service
       .from(TABLES.TRANSPORTISTA_TERRITORIES)
       .delete()
-      .eq("id", id)
+      .eq("id", id) as never as { error: any }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
