@@ -14,7 +14,7 @@ import {
 import { useEstados } from "@/lib/estados";
 import { HousingOfferValues } from "@/lib/schemas/housing-offer";
 import { FIELD_CLASS, SELECT_TRIGGER_CLASS } from "@/components/shared/field-styles";
-import { FormField } from "@/components/forms/shared/form-field";
+import { FormField } from "@/components/shared/form-field";
 
 interface LocationFieldsProps {
   control: Control<HousingOfferValues>;

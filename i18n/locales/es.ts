@@ -413,7 +413,8 @@ export default {
     "transportOffers": "Ofertas de transporte",
     "housingOffers": "Ofertas de hospedaje",
     "all": "Todos",
-    "noResults": "No se encontraron resultados"
+    "noResults": "No se encontraron resultados",
+    "viewOnMap": "Ver en el mapa"
   },
   "common": {
     "loading": "Cargando...",
@@ -499,5 +500,23 @@ export default {
     "highlightLinksDesc": "Marca todos los enlaces de la página",
     "readingGuide": "Guía de lectura",
     "readingGuideDesc": "Una línea sigue el cursor para facilitar la lectura"
+  },
+  "requestManager": {
+    "emptyTitle": "No hay solicitudes disponibles",
+    "emptyDescription": "Todavía no hay solicitudes abiertas en tu zona. Vuelve más tarde.",
+    "peopleUnit": "personas",
+    "cargoType": "Carga",
+    "passengersType": "Pasajeros",
+    "capacityLabel": "Capacidad",
+    "noNotes": "Sin notas adicionales",
+    "noPhone": "sin teléfono",
+    "takeRoute": "Tomar ruta",
+    "dialogTitle": "Confirmar toma de ruta",
+    "dialogDescription": "Estás a punto de comprometerte a transportar esta solicitud. Podrás planificar los detalles de la ruta a continuación.",
+    "personSingular": "persona",
+    "personPlural": "personas",
+    "vehicleCapacityWarning": "Capacidad de tu vehículo",
+    "requestAsks": "la solicitud pide",
+    "confirmTake": "Sí, tomar esta ruta"
   }
 } as const;

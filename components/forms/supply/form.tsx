@@ -20,10 +20,10 @@ import type { TablesInsert } from "@/types/database"
 import { toast } from "sonner"
 import { supplySchema, SupplyValues } from "@/lib/schemas/supply"
 import { SUPPLY_CATEGORIES, SUPPLY_CONDITIONS } from "@/lib/forms/constants"
-import { FormSection } from "@/components/forms/shared/form-section"
-import { OptionCard } from "@/components/forms/shared/option-card"
-import { FormField } from "@/components/forms/shared/form-field"
-import { RadioCardGroup } from "@/components/forms/shared/radio-card-group"
+import { FormSection } from "@/components/shared/form-section"
+import { OptionCard } from "@/components/shared/option-card"
+import { FormField } from "@/components/shared/form-field"
+import { RadioCardGroup } from "@/components/shared/radio-card-group"
 import {
   FIELD_CLASS,
   SELECT_TRIGGER_CLASS,

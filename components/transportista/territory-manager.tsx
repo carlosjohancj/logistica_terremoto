@@ -314,7 +314,7 @@ export default function TerritoryManager() {
 
   return (
     <div className="space-y-4">
-      <div className="relative h-[400px] rounded-lg overflow-hidden border">
+      <div className="relative h-100 rounded-lg overflow-hidden border">
         <div ref={containerRef} className="h-full w-full" />
         <div className="absolute top-2 left-2 z-10 flex gap-2">
           <Button
@@ -344,7 +344,7 @@ export default function TerritoryManager() {
       </div>
 
       <div className="flex flex-wrap gap-3 items-end">
-        <div className="space-y-1 flex-1 min-w-[140px]">
+        <div className="space-y-1 flex-1 min-w-35">
           <label className="text-xs font-medium text-muted-foreground">
             Radio
           </label>
@@ -360,7 +360,7 @@ export default function TerritoryManager() {
             <span className="text-xs text-muted-foreground">km</span>
           </div>
         </div>
-        <div className="space-y-1 flex-[2] min-w-[200px]">
+        <div className="space-y-1 flex-2 min-w-50">
           <label className="text-xs font-medium text-muted-foreground">
             Nombre de la zona
           </label>

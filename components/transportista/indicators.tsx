@@ -50,7 +50,7 @@ export default function Indicators({ kmTotal, viajesRealizados, familiasAyudadas
             className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
           >
             <div
-              className={`absolute -top-8 -right-8 h-28 w-28 rounded-full bg-gradient-to-br ${c.gradient} opacity-10 blur-2xl transition-opacity group-hover:opacity-20`}
+              className={`absolute -top-8 -right-8 h-28 w-28 rounded-full bg-linear-to-br ${c.gradient} opacity-10 blur-2xl transition-opacity group-hover:opacity-20`}
             />
             <div className="relative flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ export default function Indicators({ kmTotal, viajesRealizados, familiasAyudadas
                 </p>
               </div>
               <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${c.gradient} text-white shadow-sm`}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br ${c.gradient} text-white shadow-sm`}
               >
                 <Icon className="h-4 w-4" />
               </div>

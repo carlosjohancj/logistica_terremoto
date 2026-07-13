@@ -108,7 +108,7 @@ export default function ChatFloating() {
       </button>
 
       {open && (
-        <Card id="chat-floating-panel" role="region" aria-label="Mensajes" className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] shadow-xl flex flex-col">
+        <Card id="chat-floating-panel" role="region" aria-label="Mensajes" className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-125 shadow-xl flex flex-col">
           <CardHeader className="p-3 pb-0">
             <CardTitle className="text-sm">Mensajes</CardTitle>
           </CardHeader>

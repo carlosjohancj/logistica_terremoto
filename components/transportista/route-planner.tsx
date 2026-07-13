@@ -329,7 +329,7 @@ export default function RoutePlanner({
       )}
 
       {/* Map */}
-      <div className="relative h-[450px] rounded-lg overflow-hidden border">
+      <div className="relative h-112.5 rounded-lg overflow-hidden border">
         <MapWithNoSSR
           originCoord={originCoord ? [originCoord.lat, originCoord.lng] : null}
           destCoord={destCoord ? [destCoord.lat, destCoord.lng] : null}

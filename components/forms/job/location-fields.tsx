@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 import { useEstados } from "@/lib/estados"
 import { JobValues } from "@/lib/schemas/job"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 interface LocationFieldsProps {
   control: Control<JobValues>

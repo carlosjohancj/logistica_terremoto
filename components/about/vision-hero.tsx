@@ -7,7 +7,7 @@ export function VisionHero() {
   const t = useTranslations("about")
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 px-6 py-12 ring-1 ring-primary/10 sm:px-12 sm:py-16 mb-20">
+    <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/10 via-primary/5 to-accent/10 px-6 py-12 ring-1 ring-primary/10 sm:px-12 sm:py-16 mb-20">
       <div className="pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -left-10 size-72 rounded-full bg-accent/10 blur-3xl" />
 

@@ -2,8 +2,8 @@
 
 import { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { OptionCard } from "@/components/forms/shared/option-card";
-import { ToggleCardGroup } from "@/components/forms/shared/toggle-card-group";
+import { OptionCard } from "@/components/shared/option-card";
+import { ToggleCardGroup } from "@/components/shared/toggle-card-group";
 import { BooleanToggleField, HousingOfferValues } from "@/lib/schemas/housing-offer";
 
 interface BooleanToggleGroupProps {

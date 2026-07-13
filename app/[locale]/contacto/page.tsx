@@ -10,7 +10,7 @@ export default function ContactoPage() {
 
   return (
     <section
-      className="relative flex min-h-[560px] items-center bg-cover bg-center"
+      className="relative flex min-h-140 items-center bg-cover bg-center"
       style={{ backgroundImage: `url('${BACKGROUND_URL}')` }}
     >
       <div className="absolute inset-0 bg-black/30" />

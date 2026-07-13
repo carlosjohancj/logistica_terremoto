@@ -26,7 +26,7 @@ import { toast } from "sonner"
 import { jobSchema, JobValues } from "@/lib/schemas/job"
 import { JOB_MODALITIES } from "@/lib/forms/constants"
 import { JobLocationFields } from "./location-fields"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 type JobFormProps = {
   companyId: string

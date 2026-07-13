@@ -22,19 +22,19 @@ const MODALITY_PALETTE: Record<string, {
 }> = {
   presencial: {
     border: "border-sky-200 dark:border-sky-900/60",
-    surface: "bg-gradient-to-br from-sky-50/90 to-card dark:from-sky-950/25 dark:to-card",
+    surface: "bg-linear-to-br from-sky-50/90 to-card dark:from-sky-950/25 dark:to-card",
     badge: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
     glow: "hover:shadow-sky-200/70 dark:hover:shadow-sky-950/50",
   },
   hibrido: {
     border: "border-emerald-200 dark:border-emerald-900/60",
-    surface: "bg-gradient-to-br from-emerald-50/90 to-card dark:from-emerald-950/25 dark:to-card",
+    surface: "bg-linear-to-br from-emerald-50/90 to-card dark:from-emerald-950/25 dark:to-card",
     badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
     glow: "hover:shadow-emerald-200/70 dark:hover:shadow-emerald-950/50",
   },
   remoto: {
     border: "border-violet-200 dark:border-violet-900/60",
-    surface: "bg-gradient-to-br from-violet-50/90 to-card dark:from-violet-950/25 dark:to-card",
+    surface: "bg-linear-to-br from-violet-50/90 to-card dark:from-violet-950/25 dark:to-card",
     badge: "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
     glow: "hover:shadow-violet-200/70 dark:hover:shadow-violet-950/50",
   },

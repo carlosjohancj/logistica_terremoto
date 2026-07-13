@@ -14,7 +14,7 @@ import { loginUser } from "@/lib/auth"
 import { createLoginSchema, type LoginFormValues } from "@/lib/schemas/auth"
 import { FIELD_CLASS, PASSWORD_FIELD_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
-import { FormField } from "@/components/forms/shared/form-field"
+import { FormField } from "@/components/shared/form-field"
 
 export default function LoginPage() {
   const t = useTranslations("auth")

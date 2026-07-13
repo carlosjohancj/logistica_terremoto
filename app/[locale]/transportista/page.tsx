@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { getCityCoord } from "@/lib/estados";
 import { distance } from "@turf/turf";
 import Indicators from "@/components/transportista/indicators";
-import RequestManager from "@/components/transportista/request-manager";
+import RequestManager from "@/components/transportista/request/manager";
 import Timeline from "@/components/transportista/timeline";
 import UpcomingSchedule from "@/components/transportista/upcoming-schedule";
 import { SkeletonGrid } from "@/components/ui/skeleton";

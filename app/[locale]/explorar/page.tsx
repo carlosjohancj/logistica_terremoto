@@ -14,12 +14,24 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { MapIcon, ListIcon } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { MapIcon, ListIcon, Search, Route, Truck, Home, type LucideIcon } from "lucide-react"
 import { SkeletonGrid } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { ListItem } from "@/components/maps/map-view"
 import { getEstados, getCoords, getCityCoord } from "@/lib/estados"
 import { fetchRoutesBatch } from "@/lib/maps/fetch-route"
+import { NumberedPagination } from "@/components/shared/numbered-pagination"
+import { FIELD_CLASS, SELECT_TRIGGER_CLASS, BUTTON_HEIGHT_CLASS } from "@/components/shared/field-styles"
+import { cn } from "@/lib/utils"
+
+const PAGE_SIZE = 20
+
+const TYPE_META: Record<ListItem["type"], { icon: LucideIcon; badgeClass: string; iconBgClass: string }> = {
+  travel: { icon: Route, badgeClass: "border-primary text-primary", iconBgClass: "bg-primary/10 text-primary" },
+  transport: { icon: Truck, badgeClass: "border-accent text-accent", iconBgClass: "bg-accent/10 text-accent" },
+  housing: { icon: Home, badgeClass: "border-green-600 text-green-600", iconBgClass: "bg-green-600/10 text-green-600" },
+}
 
 const MapView = dynamic(
   () => import("@/components/maps/map-view").then((m) => ({ default: m.MapView })),
@@ -42,6 +54,13 @@ export default function ExplorarPage() {
   const [search, setSearch] = useState("")
   const [viewMode, setViewMode] = useState<"map" | "list">("map")
   const [estados, setEstados] = useState<string[]>([])
+  const [listPage, setListPage] = useState(1)
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+
+  function selectOnMap(id: string) {
+    setSelectedItemId(id)
+    setViewMode("map")
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -83,6 +102,7 @@ export default function ExplorarPage() {
             lat: origin.lat + jitter(),
             lng: origin.lng + jitter(),
             description: `${req.origin_city || req.origin_state} → ${req.destination_city || req.destination_state || "?"} (${req.people_to_move} pers.)`,
+            notes: req.notes || undefined,
           }
           if (dest) {
             item.destLat = dest.lat
@@ -107,6 +127,9 @@ export default function ExplorarPage() {
             lat: origin.lat + jitter(),
             lng: origin.lng + jitter(),
             description: `${offer.origin_city || offer.origin_state} → ${offer.destination_city || offer.destination_state || "?"}`,
+            notes: offer.vehicle_type
+              ? `Vehículo: ${offer.vehicle_type}${offer.notes ? ` — ${offer.notes}` : ""}`
+              : offer.notes || undefined,
           }
           if (dest) {
             item.destLat = dest.lat
@@ -130,6 +153,7 @@ export default function ExplorarPage() {
               lat: stateCoords[0] + (Math.random() - 0.5) * 0.3,
               lng: stateCoords[1] + (Math.random() - 0.5) * 0.3,
               description: `${offer.city}, ${offer.state} (${offer.capacity} pers., ${offer.max_stay_days} días)`,
+              notes: offer.notes || undefined,
             })
           }
         }
@@ -185,6 +209,10 @@ export default function ExplorarPage() {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    setListPage(1)
+  }, [filterType, filterState, search])
+
   const filtered = items.filter((item) => {
     if (filterType !== "all" && item.type !== filterType) return false
     if (filterState && filterState !== "all") {
@@ -202,13 +230,20 @@ export default function ExplorarPage() {
     return true
   })
 
+  const listTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const listCurrentPage = Math.min(listPage, listTotalPages)
+  const paginated = filtered.slice(
+    (listCurrentPage - 1) * PAGE_SIZE,
+    listCurrentPage * PAGE_SIZE
+  )
+
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
       {/* Filters bar */}
-      <div className="border-b bg-card p-3 flex flex-wrap items-center gap-2">
-        <div role="group" aria-label={t("filterType")} className="hidden sm:flex gap-1">
+      <div className="border-b bg-muted/50 p-4 flex flex-wrap items-center gap-2.5">
+        <div role="group" aria-label={t("filterType")} className="hidden sm:flex gap-1.5">
           <Button
-            size="sm"
+            className={BUTTON_HEIGHT_CLASS}
             variant={filterType === "all" ? "default" : "outline"}
             onClick={() => setFilterType("all")}
             aria-pressed={filterType === "all"}
@@ -216,7 +251,7 @@ export default function ExplorarPage() {
             {t("all")}
           </Button>
           <Button
-            size="sm"
+            className={BUTTON_HEIGHT_CLASS}
             variant={filterType === "travel" ? "default" : "outline"}
             onClick={() => setFilterType("travel")}
             aria-pressed={filterType === "travel"}
@@ -224,7 +259,7 @@ export default function ExplorarPage() {
             {t("travelRequests")}
           </Button>
           <Button
-            size="sm"
+            className={BUTTON_HEIGHT_CLASS}
             variant={filterType === "transport" ? "default" : "outline"}
             onClick={() => setFilterType("transport")}
             aria-pressed={filterType === "transport"}
@@ -232,7 +267,7 @@ export default function ExplorarPage() {
             {t("transportOffers")}
           </Button>
           <Button
-            size="sm"
+            className={BUTTON_HEIGHT_CLASS}
             variant={filterType === "housing" ? "default" : "outline"}
             onClick={() => setFilterType("housing")}
             aria-pressed={filterType === "housing"}
@@ -243,7 +278,7 @@ export default function ExplorarPage() {
 
         <div className="sm:hidden w-full">
           <Select value={filterType} onValueChange={(v) => setFilterType((v ?? "all") as FilterType)}>
-            <SelectTrigger aria-label={t("filterType")}>
+            <SelectTrigger aria-label={t("filterType")} className={cn(SELECT_TRIGGER_CLASS, "w-full")}>
               <SelectValue placeholder={t("filterType")} />
             </SelectTrigger>
             <SelectContent>
@@ -257,7 +292,7 @@ export default function ExplorarPage() {
 
         <div className="w-full sm:w-48">
           <Select value={filterState} onValueChange={(v) => setFilterState(v ?? "")}>
-            <SelectTrigger aria-label={t("filterOrigin")}>
+            <SelectTrigger aria-label={t("filterOrigin")} className={cn(SELECT_TRIGGER_CLASS, "w-full")}>
               <SelectValue placeholder={t("filterOrigin")} />
             </SelectTrigger>
               <SelectContent>
@@ -272,16 +307,19 @@ export default function ExplorarPage() {
         </div>
 
         <div className="relative flex-1 min-w-0 w-full sm:w-auto">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder={t("search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className={cn(FIELD_CLASS, "pl-10")}
           />
         </div>
 
-        <div className="flex gap-1 ml-auto">
+        <div className="flex gap-1.5 ml-auto">
           <Button
-            size="sm"
+            size="icon"
+            className="h-10 w-10"
             variant={viewMode === "map" ? "default" : "outline"}
             onClick={() => setViewMode("map")}
             aria-pressed={viewMode === "map"}
@@ -290,7 +328,8 @@ export default function ExplorarPage() {
             <MapIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
-            size="sm"
+            size="icon"
+            className="h-10 w-10"
             variant={viewMode === "list" ? "default" : "outline"}
             onClick={() => setViewMode("list")}
             aria-pressed={viewMode === "list"}
@@ -302,7 +341,7 @@ export default function ExplorarPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-0">
         {viewMode === "map" ? (
           <div className="flex-1 p-2">
             {loading ? (
@@ -310,37 +349,75 @@ export default function ExplorarPage() {
                 {tc("loading")}
               </div>
             ) : (
-              <MapView items={filtered} />
+              <MapView items={filtered} selectedId={selectedItemId} onSelectedIdChange={setSelectedItemId} />
             )}
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4">
-            {loading && <SkeletonGrid cols={3} count={6} />}
+            {loading && <SkeletonGrid cols={4} count={8} />}
             {!loading && filtered.length === 0 && (
               <p className="text-muted-foreground">{t("noResults")}</p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-lg border bg-card p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={
-                      item.type === "travel" ? "border-primary text-primary" :
-                      item.type === "transport" ? "border-accent text-accent" :
-                      "border-green-600 text-green-600"
-                    }>
-                      {item.type === "travel" ? t("travelRequests") :
-                       item.type === "transport" ? t("transportOffers") :
-                       t("housingOffers")}
-                    </Badge>
-                  </div>
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+            {!loading && filtered.length > 0 && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {paginated.map((item) => {
+                    const meta = TYPE_META[item.type]
+                    const Icon = meta.icon
+                    const typeLabel =
+                      item.type === "travel" ? t("travelRequests") :
+                      item.type === "transport" ? t("transportOffers") :
+                      t("housingOffers")
+                    return (
+                      <Card
+                        key={item.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => selectOnMap(item.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            selectOnMap(item.id)
+                          }
+                        }}
+                        className="h-full cursor-pointer transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <CardContent className="flex h-full flex-col gap-3 p-5">
+                          <div className="flex items-center gap-2.5">
+                            <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full", meta.iconBgClass)}>
+                              <Icon className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <Badge variant="outline" className={meta.badgeClass}>
+                              {typeLabel}
+                            </Badge>
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <p className="text-sm font-semibold leading-snug text-foreground">
+                              {item.description}
+                            </p>
+                            {item.notes && (
+                              <p className="line-clamp-2 text-xs text-muted-foreground">
+                                {item.notes}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-end gap-1 pt-1 text-xs font-medium text-primary">
+                            <MapIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t("viewOnMap")}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
-              ))}
-            </div>
+                <NumberedPagination
+                  currentPage={listCurrentPage}
+                  totalPages={listTotalPages}
+                  onPageChange={setListPage}
+                  className="mt-6"
+                />
+              </>
+            )}
           </div>
         )}
       </div>

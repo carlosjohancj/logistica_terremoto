@@ -411,7 +411,8 @@ export default {
     "transportOffers": "عروض النقل",
     "housingOffers": "عروض الإقامة",
     "all": "الكل",
-    "noResults": "لا توجد نتائج"
+    "noResults": "لا توجد نتائج",
+    "viewOnMap": "عرض على الخريطة"
   },
   "common": {
     "loading": "جار التحميل...",
@@ -497,5 +498,23 @@ export default {
     "highlightLinksDesc": "يبرز جميع الروابط في الصفحة",
     "readingGuide": "دليل القراءة",
     "readingGuideDesc": "خط يتبع المؤشر لتسهيل القراءة"
+  },
+  "requestManager": {
+    "emptyTitle": "لا توجد طلبات متاحة",
+    "emptyDescription": "لا توجد طلبات مفتوحة في منطقتك حتى الآن. عد لاحقًا.",
+    "peopleUnit": "أشخاص",
+    "cargoType": "شحنة",
+    "passengersType": "ركاب",
+    "capacityLabel": "السعة",
+    "noNotes": "لا توجد ملاحظات إضافية",
+    "noPhone": "لا يوجد هاتف",
+    "takeRoute": "تولي الطريق",
+    "dialogTitle": "تأكيد تولي الطريق",
+    "dialogDescription": "أنت على وشك الالتزام بنقل هذا الطلب. ستتمكن من تخطيط تفاصيل الطريق بعد ذلك.",
+    "personSingular": "شخص",
+    "personPlural": "أشخاص",
+    "vehicleCapacityWarning": "سعة مركبتك",
+    "requestAsks": "يطلب هذا الطلب",
+    "confirmTake": "نعم، تولي هذا الطريق"
   }
 } as const;
