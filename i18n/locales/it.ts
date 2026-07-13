@@ -1,4 +1,4 @@
-{
+export default {
   "nav": {
     "inicio": "Home",
     "solicitarViaje": "Richiedi Viaggio",
@@ -498,4 +498,4 @@
     "readingGuide": "Guida alla lettura",
     "readingGuideDesc": "Una linea segue il cursore per facilitare la lettura"
   }
-}
+} as const;

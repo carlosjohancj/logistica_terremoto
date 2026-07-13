@@ -1,4 +1,4 @@
-{
+export default {
   "nav": {
     "inicio": "الرئيسية",
     "solicitarViaje": "طلب رحلة",
@@ -498,4 +498,4 @@
     "readingGuide": "دليل القراءة",
     "readingGuideDesc": "خط يتبع المؤشر لتسهيل القراءة"
   }
-}
+} as const;

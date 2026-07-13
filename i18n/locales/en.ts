@@ -1,4 +1,4 @@
-{
+export default {
   "nav": {
     "inicio": "Home",
     "solicitarViaje": "Request Trip",
@@ -500,4 +500,4 @@
     "readingGuide": "Reading guide",
     "readingGuideDesc": "A line follows your cursor to help you read"
   }
-}
+} as const;

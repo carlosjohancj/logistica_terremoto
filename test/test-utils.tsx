@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { render } from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl"
-import esMessages from "@/messages/es.json"
+import esMessages from "@/i18n/locales/es"
 
 /**
  * Renders a component under a real NextIntlClientProvider (defaulting to the
