@@ -1,5 +1,5 @@
 export const OSM_RASTER_STYLE = {
-  version: 8,
+  version: 8 as const,
   name: "OSM Raster",
   sources: {
     osm: {
