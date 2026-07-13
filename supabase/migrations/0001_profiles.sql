@@ -2,16 +2,6 @@
 -- this repo (supabase/ is gitignored except this migrations/ folder). This is
 -- the foundational table: auth.users -> profiles via a signup trigger.
 
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS boolean
-LANGUAGE sql STABLE
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  );
-$$;
-
 CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name text,
@@ -37,6 +27,18 @@ ALTER TABLE public.profiles ADD CONSTRAINT profiles_role_check
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_volunteer_type_check;
 ALTER TABLE public.profiles ADD CONSTRAINT profiles_volunteer_type_check
   CHECK (volunteer_type IN ('hospedaje', 'gestion', 'ambos') OR volunteer_type IS NULL);
+
+-- is_admin() must come after the table it queries — LANGUAGE sql functions
+-- are validated against the catalog at CREATE time, unlike plpgsql.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
