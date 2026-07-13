@@ -52,6 +52,13 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
   const [cancelling, setCancelling] = useState(false)
   const [originCoord, setOriginCoord] = useState<{ lat: number; lng: number } | null>(null)
   const [destCoord, setDestCoord] = useState<{ lat: number; lng: number } | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string>("")
+
+  useEffect(() => {
+    getSupabase().auth.getUser().then(({ data }) => {
+      if (data.user) setCurrentUserId(data.user.id)
+    })
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -108,13 +115,6 @@ export default function RoutePlanner({ travelRequestId, originCity, originState,
       // ignore
     }
   }
-
-  const [currentUserId, setCurrentUserId] = useState<string>("")
-  useEffect(() => {
-    getSupabase().auth.getUser().then(({ data }) => {
-      if (data.user) setCurrentUserId(data.user.id)
-    })
-  }, [])
 
   const mySegments = segments.filter(s => s.transportista_id === currentUserId)
   const otherSegments = allSegments.filter(s => s.transportista_id && s.transportista_id !== currentUserId)
