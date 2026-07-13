@@ -10,7 +10,7 @@ import { getSupabase, TABLES } from "@/types/supabase"
 import { getEstados, getCitiesByState } from "@/lib/estados"
 import type { Estado } from "@/lib/estados"
 import { StatesMarquee } from "@/components/empiezo-desde-cero/states-marquee"
-import { Timeline } from "@/components/empiezo-desde-cero/timeline"
+import { Timeline } from "@/components/empiezo-desde-cero/timeline/timeline"
 import { Search, ArrowRight, Bot, Truck, Sparkles } from "lucide-react"
 
 const LOGO_URL = "https://backend.desdecerovenezuela.org/storage/v1/object/public/general/logos/desde-cero.webp"
