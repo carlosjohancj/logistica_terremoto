@@ -4,9 +4,12 @@ import { getServiceSupabase, TABLES } from "@/lib/supabase"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, password, name, role, phone, whatsapp, age, volunteerType } = body
+    const { email, password, name, role, whatsapp, age, volunteerType } = body
+    // The form only collects a single WhatsApp number; reuse it as the
+    // contact phone so features that read profiles.phone keep working.
+    const phone = body.phone || whatsapp
 
-    if (!email || !password || !name || !phone || !whatsapp || !role) {
+    if (!email || !password || !name || !whatsapp || !role) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 

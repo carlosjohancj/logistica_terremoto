@@ -18,18 +18,15 @@ export function createLoginSchema(msgs: AuthMessages) {
 
 export function createRegisterSchema(msgs: AuthMessages) {
   const errorPhone = msgs.errorPhone ?? msgs.errorEmail
-  const phoneField = () =>
-    z
-      .string()
-      .min(1, msgs.errorRequired)
-      .refine((val) => isValidPhoneNumber(val), errorPhone)
 
   return z
     .object({
       name: z.string().min(1, msgs.errorRequired),
       email: z.string().min(1, msgs.errorRequired).email(msgs.errorEmail),
-      phone: phoneField(),
-      whatsapp: phoneField(),
+      whatsapp: z
+        .string()
+        .min(1, msgs.errorRequired)
+        .refine((val) => isValidPhoneNumber(val), errorPhone),
       // react-hook-form's valueAsNumber turns an empty number input into NaN.
       // z.nan() lets that value through the base type check so the
       // superRefine below can treat it the same as "not provided" instead of
@@ -53,6 +50,11 @@ export function createRegisterSchema(msgs: AuthMessages) {
       }
       if (!Number.isInteger(age) || age < 0 || age > 150) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: msgs.errorRequired, path: ["age"] })
+      }
+    })
+    .superRefine((data, ctx) => {
+      if (data.role === "voluntario" && !data.volunteerType) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: msgs.errorRequired, path: ["volunteerType"] })
       }
     })
 }

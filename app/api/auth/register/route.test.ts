@@ -15,7 +15,6 @@ const VALID_BODY = {
   password: "supersecret",
   name: "Daniel Urbina",
   role: "damnificado",
-  phone: "+584121234567",
   whatsapp: "+584121234567",
   age: 30,
 }
@@ -41,7 +40,7 @@ describe("POST /api/auth/register", () => {
     expect(mockClient.auth.admin.createUser).not.toHaveBeenCalled()
   })
 
-  it.each(["email", "password", "name", "phone", "whatsapp", "role"])(
+  it.each(["email", "password", "name", "whatsapp", "role"])(
     "rejects a request missing '%s'",
     async (field) => {
       const body = { ...VALID_BODY, [field]: "" }
@@ -50,7 +49,7 @@ describe("POST /api/auth/register", () => {
     }
   )
 
-  it("creates the auth user and profile row on valid input", async () => {
+  it("creates the auth user and profile row on valid input, deriving phone from whatsapp", async () => {
     const res = await POST(makeRequest(VALID_BODY))
     const json = await res.json()
 
@@ -64,7 +63,7 @@ describe("POST /api/auth/register", () => {
         user_metadata: expect.objectContaining({
           name: VALID_BODY.name,
           role: VALID_BODY.role,
-          phone: VALID_BODY.phone,
+          phone: VALID_BODY.whatsapp,
           whatsapp: VALID_BODY.whatsapp,
         }),
       })
@@ -76,9 +75,19 @@ describe("POST /api/auth/register", () => {
       expect.objectContaining({
         id: "new-user-id",
         name: VALID_BODY.name,
-        phone: VALID_BODY.phone,
+        phone: VALID_BODY.whatsapp,
         whatsapp: VALID_BODY.whatsapp,
         age: VALID_BODY.age,
+      })
+    )
+  })
+
+  it("uses an explicitly provided phone instead of falling back to whatsapp", async () => {
+    await POST(makeRequest({ ...VALID_BODY, phone: "+584247654321" }))
+
+    expect(mockClient.auth.admin.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_metadata: expect.objectContaining({ phone: "+584247654321", whatsapp: VALID_BODY.whatsapp }),
       })
     )
   })
