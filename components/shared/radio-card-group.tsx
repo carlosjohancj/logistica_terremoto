@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 
 type RadioCardGroupProps = {
   label: ReactNode
+  required?: boolean
   error?: string
   className?: string
   itemsClassName?: string
@@ -16,13 +17,18 @@ type RadioCardGroupProps = {
  * role="radiogroup" with an accessible group label, since native <input type="radio">
  * isn't used for these card-style pickers.
  */
-export function RadioCardGroup({ label, error, className, itemsClassName, children }: RadioCardGroupProps) {
+export function RadioCardGroup({ label, required, error, className, itemsClassName, children }: RadioCardGroupProps) {
   const labelId = useId()
 
   return (
     <div className={cn("space-y-2", className)}>
       <span id={labelId} className="flex items-center gap-2 text-sm font-medium">
         {label}
+        {required && (
+          <span aria-hidden="true" className="text-destructive">
+            *
+          </span>
+        )}
       </span>
       <div
         role="radiogroup"

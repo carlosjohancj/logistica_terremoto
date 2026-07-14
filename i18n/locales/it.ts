@@ -155,7 +155,10 @@ export default {
     "registrantRelation": "Relazione con le vittime",
     "notes": "Note aggiuntive",
     "submit": "Pubblica richiesta",
-    "success": "Richiesta pubblicata con successo"
+    "success": "Richiesta pubblicata con successo",
+    "errorRequired": "Campo obbligatorio",
+    "errorMinPeopleToMove": "Deve essere almeno 1",
+    "errorNegativeNumber": "Non può essere negativo"
   },
   "transportOffer": {
     "title": "Offri Trasporto",

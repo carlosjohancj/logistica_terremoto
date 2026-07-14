@@ -157,7 +157,10 @@ export default {
     "registrantRelation": "Relación con los damnificados",
     "notes": "Notas adicionales",
     "submit": "Publicar solicitud",
-    "success": "Solicitud publicada exitosamente"
+    "success": "Solicitud publicada exitosamente",
+    "errorRequired": "Este campo es requerido",
+    "errorMinPeopleToMove": "Debe ser al menos 1",
+    "errorNegativeNumber": "No puede ser negativo"
   },
   "transportOffer": {
     "title": "Ofrecer Transporte",

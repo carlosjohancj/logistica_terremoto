@@ -157,7 +157,10 @@ export default {
     "registrantRelation": "Relation to victims",
     "notes": "Additional notes",
     "submit": "Post request",
-    "success": "Request posted successfully"
+    "success": "Request posted successfully",
+    "errorRequired": "This field is required",
+    "errorMinPeopleToMove": "Must be at least 1",
+    "errorNegativeNumber": "Cannot be negative"
   },
   "transportOffer": {
     "title": "Offer Transport",

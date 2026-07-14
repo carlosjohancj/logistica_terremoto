@@ -155,7 +155,10 @@ export default {
     "registrantRelation": "Lien avec les sinistrés",
     "notes": "Notes supplémentaires",
     "submit": "Publier la demande",
-    "success": "Demande publiée avec succès"
+    "success": "Demande publiée avec succès",
+    "errorRequired": "Ce champ est requis",
+    "errorMinPeopleToMove": "Doit être au moins 1",
+    "errorNegativeNumber": "Ne peut pas être négatif"
   },
   "transportOffer": {
     "title": "Offrir Transport",

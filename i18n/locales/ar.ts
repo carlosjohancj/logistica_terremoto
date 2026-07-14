@@ -155,7 +155,10 @@ export default {
     "registrantRelation": "العلاقة بالمتضررين",
     "notes": "ملاحظات إضافية",
     "submit": "نشر الطلب",
-    "success": "تم نشر الطلب بنجاح"
+    "success": "تم نشر الطلب بنجاح",
+    "errorRequired": "هذا الحقل مطلوب",
+    "errorMinPeopleToMove": "يجب أن يكون 1 على الأقل",
+    "errorNegativeNumber": "لا يمكن أن يكون سالبًا"
   },
   "transportOffer": {
     "title": "عرض نقل",

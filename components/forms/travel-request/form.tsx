@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { travelRequestSchema, TravelRequestValues } from "@/lib/schemas/travel-request";
+import { createTravelRequestSchema, TravelRequestValues } from "@/lib/schemas/travel-request";
 import { submitTravelRequest } from "@/lib/forms/submit";
 import { HOUSING_DESTRUCTION_OPTIONS } from "@/lib/forms/constants";
 import { FormSection } from "@/components/shared/form-section";
@@ -40,7 +40,13 @@ export function TravelRequestForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<TravelRequestValues>({
-    resolver: zodResolver(travelRequestSchema),
+    resolver: zodResolver(
+      createTravelRequestSchema({
+        errorRequired: t("errorRequired"),
+        errorMinPeopleToMove: t("errorMinPeopleToMove"),
+        errorNegativeNumber: t("errorNegativeNumber"),
+      })
+    ),
     defaultValues: {
       has_destination: null,
       origin_state: "",
@@ -76,7 +82,7 @@ export function TravelRequestForm() {
                 name="registrant_type"
                 control={control}
                 render={({ field }) => (
-                  <RadioCardGroup label={t("registrantType")} error={errors.registrant_type?.message}>
+                  <RadioCardGroup label={t("registrantType")} required error={errors.registrant_type?.message}>
                     <OptionCard
                       role="radio"
                       icon={Users}
@@ -96,7 +102,7 @@ export function TravelRequestForm() {
               />
 
               {registrantType === "colaborador" && (
-                <FormField label={t("registrantRelation")}>
+                <FormField label={t("registrantRelation")} required error={errors.registrant_relation?.message}>
                   {(field) => (
                     <Input
                       {...field}
@@ -116,13 +122,20 @@ export function TravelRequestForm() {
                 setValue={setValue}
                 prefix="origin"
                 stateError={errors.origin_state?.message}
+                municipalityError={errors.origin_municipality?.message}
+                cityError={errors.origin_city?.message}
               />
 
               <Controller
                 name="has_destination"
                 control={control}
                 render={({ field }) => (
-                  <RadioCardGroup label={t("hasDestination")} itemsClassName="flex flex-wrap gap-2">
+                  <RadioCardGroup
+                    label={t("hasDestination")}
+                    required
+                    itemsClassName="flex flex-wrap gap-2"
+                    error={errors.has_destination?.message}
+                  >
                     <OptionCard
                       role="radio"
                       title={t("yes")}
@@ -146,6 +159,9 @@ export function TravelRequestForm() {
                   control={control}
                   setValue={setValue}
                   prefix="destination"
+                  stateError={errors.destination_state?.message}
+                  municipalityError={errors.destination_municipality?.message}
+                  cityError={errors.destination_city?.message}
                 />
               </FormSection>
             )}
@@ -163,19 +179,37 @@ export function TravelRequestForm() {
                     />
                   )}
                 </FormField>
-                <FormField label={t("peopleToHouse")}>
+                <FormField label={t("peopleToHouse")} required error={errors.people_to_house?.message}>
                   {(field) => (
-                    <Input {...field} className={FIELD_CLASS} type="number" min={0} {...register("people_to_house")} />
+                    <Input
+                      {...field}
+                      className={FIELD_CLASS}
+                      type="number"
+                      min={0}
+                      {...register("people_to_house", { valueAsNumber: true })}
+                    />
                   )}
                 </FormField>
-                <FormField label={t("childrenCount")}>
+                <FormField label={t("childrenCount")} required error={errors.children_count?.message}>
                   {(field) => (
-                    <Input {...field} className={FIELD_CLASS} type="number" min={0} {...register("children_count")} />
+                    <Input
+                      {...field}
+                      className={FIELD_CLASS}
+                      type="number"
+                      min={0}
+                      {...register("children_count", { valueAsNumber: true })}
+                    />
                   )}
                 </FormField>
-                <FormField label={t("adultsCount")}>
+                <FormField label={t("adultsCount")} required error={errors.adults_count?.message}>
                   {(field) => (
-                    <Input {...field} className={FIELD_CLASS} type="number" min={0} {...register("adults_count")} />
+                    <Input
+                      {...field}
+                      className={FIELD_CLASS}
+                      type="number"
+                      min={0}
+                      {...register("adults_count", { valueAsNumber: true })}
+                    />
                   )}
                 </FormField>
               </div>

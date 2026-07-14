@@ -22,6 +22,8 @@ interface LocationSectionProps {
   setValue: UseFormSetValue<TravelRequestValues>;
   prefix: LocationPrefix;
   stateError?: string;
+  municipalityError?: string;
+  cityError?: string;
 }
 
 export function TravelLocationSection({
@@ -29,6 +31,8 @@ export function TravelLocationSection({
   setValue,
   prefix,
   stateError,
+  municipalityError,
+  cityError,
 }: LocationSectionProps) {
   const tc = useTranslations("common");
   const t = useTranslations("travelRequest");
@@ -44,7 +48,7 @@ export function TravelLocationSection({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <FormField label={t(`${prefix}State`)} error={stateError}>
+      <FormField label={t(`${prefix}State`)} required error={stateError}>
         {(field) => (
           <Controller
             name={stateField}
@@ -85,7 +89,7 @@ export function TravelLocationSection({
         )}
       </FormField>
 
-      <FormField label={t(`${prefix}Municipality`)}>
+      <FormField label={t(`${prefix}Municipality`)} required error={municipalityError}>
         {(field) => (
           <Controller
             name={municipalityField}
@@ -99,7 +103,12 @@ export function TravelLocationSection({
                 }}
                 disabled={!selectedEstado}
               >
-                <SelectTrigger id={field.id} className={SELECT_TRIGGER_CLASS}>
+                <SelectTrigger
+                  id={field.id}
+                  aria-invalid={field["aria-invalid"]}
+                  aria-describedby={field["aria-describedby"]}
+                  className={SELECT_TRIGGER_CLASS}
+                >
                   <SelectValue placeholder={t(`${prefix}Municipality`)} />
                 </SelectTrigger>
                 <SelectContent>
@@ -115,7 +124,7 @@ export function TravelLocationSection({
         )}
       </FormField>
 
-      <FormField label={t(`${prefix}City`)}>
+      <FormField label={t(`${prefix}City`)} required error={cityError}>
         {(field) => (
           <Controller
             name={cityField}
@@ -126,7 +135,12 @@ export function TravelLocationSection({
                 onValueChange={rhf.onChange}
                 disabled={!selectedEstado || !municipality}
               >
-                <SelectTrigger id={field.id} className={SELECT_TRIGGER_CLASS}>
+                <SelectTrigger
+                  id={field.id}
+                  aria-invalid={field["aria-invalid"]}
+                  aria-describedby={field["aria-describedby"]}
+                  className={SELECT_TRIGGER_CLASS}
+                >
                   <SelectValue placeholder={t(`${prefix}City`)} />
                 </SelectTrigger>
                 <SelectContent>

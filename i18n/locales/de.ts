@@ -155,7 +155,10 @@ export default {
     "registrantRelation": "Beziehung zu den Opfern",
     "notes": "Zusätzliche Notizen",
     "submit": "Anfrage veröffentlichen",
-    "success": "Anfrage erfolgreich veröffentlicht"
+    "success": "Anfrage erfolgreich veröffentlicht",
+    "errorRequired": "Dieses Feld ist erforderlich",
+    "errorMinPeopleToMove": "Muss mindestens 1 sein",
+    "errorNegativeNumber": "Darf nicht negativ sein"
   },
   "transportOffer": {
     "title": "Transport Anbieten",
