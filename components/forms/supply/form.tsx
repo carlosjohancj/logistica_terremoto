@@ -175,7 +175,9 @@ export function SupplyForm() {
                             aria-describedby={field["aria-describedby"]}
                             className={SELECT_TRIGGER_CLASS}
                           >
-                            <SelectValue placeholder={t("category")} />
+                            <SelectValue placeholder={t("category")}>
+                              {(value: string | null) => (value ? t(value as (typeof SUPPLY_CATEGORIES)[number]) : t("category"))}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {SUPPLY_CATEGORIES.map((c) => (
@@ -205,7 +207,9 @@ export function SupplyForm() {
                       render={({ field: rhf }) => (
                         <Select value={rhf.value ?? ""} onValueChange={rhf.onChange}>
                           <SelectTrigger id={field.id} className={SELECT_TRIGGER_CLASS}>
-                            <SelectValue placeholder={t("condition")} />
+                            <SelectValue placeholder={t("condition")}>
+                              {(value: string | null) => (value ? t(value as (typeof SUPPLY_CONDITIONS)[number]) : t("condition"))}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {SUPPLY_CONDITIONS.map((c) => (

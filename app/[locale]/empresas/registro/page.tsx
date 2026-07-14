@@ -36,6 +36,18 @@ import {
 } from "@/components/shared/field-styles"
 import { cn } from "@/lib/utils"
 
+const SECTOR_LABELS: Record<string, string> = {
+  tecnologia: "Tecnología",
+  salud: "Salud",
+  educacion: "Educación",
+  construccion: "Construcción",
+  comercio: "Comercio",
+  transporte: "Transporte",
+  alimentacion: "Alimentación",
+  servicios: "Servicios",
+  otro: "Otro",
+}
+
 export default function RegistroEmpresaPage() {
   const t = useTranslations("companies")
   const tc = useTranslations("common")
@@ -132,7 +144,9 @@ export default function RegistroEmpresaPage() {
                           aria-describedby={field["aria-describedby"]}
                           className={SELECT_TRIGGER_CLASS}
                         >
-                          <SelectValue placeholder={t("sector")} />
+                          <SelectValue placeholder={t("sector")}>
+                            {(value: string | null) => (value ? SECTOR_LABELS[value] ?? value : t("sector"))}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="tecnologia">Tecnología</SelectItem>

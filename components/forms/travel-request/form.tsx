@@ -231,7 +231,9 @@ export function TravelRequestForm() {
                           aria-describedby={field["aria-describedby"]}
                           className={SELECT_TRIGGER_CLASS}
                         >
-                          <SelectValue placeholder={t("housingDestruction")} />
+                          <SelectValue placeholder={t("housingDestruction")}>
+                            {(value: string | null) => (value ? t(value as (typeof HOUSING_DESTRUCTION_OPTIONS)[number]) : t("housingDestruction"))}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {HOUSING_DESTRUCTION_OPTIONS.map((opt) => (

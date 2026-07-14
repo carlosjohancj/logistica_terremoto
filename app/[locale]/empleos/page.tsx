@@ -83,7 +83,11 @@ export default function EmpleosPage() {
         </Select>
         <Select value={filterModality} onValueChange={(v) => setFilterModality(v ?? "")}>
           <SelectTrigger aria-label={t("filterModality")} className={`${SELECT_TRIGGER_CLASS} sm:w-40`}>
-            <SelectValue placeholder={t("filterModality")} />
+            <SelectValue placeholder={t("filterModality")}>
+              {(value: string | null) =>
+                value ? t(value as "presencial" | "remoto" | "hibrido") : t("all")
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("all")}</SelectItem>

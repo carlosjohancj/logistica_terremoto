@@ -279,7 +279,17 @@ export default function ExplorarPage() {
         <div className="sm:hidden w-full">
           <Select value={filterType} onValueChange={(v) => setFilterType((v ?? "all") as FilterType)}>
             <SelectTrigger aria-label={t("filterType")} className={cn(SELECT_TRIGGER_CLASS, "w-full")}>
-              <SelectValue placeholder={t("filterType")} />
+              <SelectValue placeholder={t("filterType")}>
+                {(value: FilterType | null) => {
+                  const labels: Record<FilterType, string> = {
+                    all: t("all"),
+                    travel: t("travelRequests"),
+                    transport: t("transportOffers"),
+                    housing: t("housingOffers"),
+                  }
+                  return value ? labels[value] : t("filterType")
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("all")}</SelectItem>

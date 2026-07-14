@@ -152,7 +152,9 @@ export default function DonacionesFisicasPage() {
           </div>
           <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v ?? "")}>
             <SelectTrigger aria-label={t("category")} className={cn(SELECT_TRIGGER_CLASS, "sm:w-36")}>
-              <SelectValue placeholder={t("category")} />
+              <SelectValue placeholder={t("category")}>
+                {(value: string | null) => (value ? categories.find((c) => c.value === value)?.label ?? value : t("allCategories"))}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">{t("allCategories")}</SelectItem>

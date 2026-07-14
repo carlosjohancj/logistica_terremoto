@@ -111,7 +111,9 @@ export function JobForm({ companyId, onSuccess }: JobFormProps) {
                         aria-invalid={field["aria-invalid"]}
                         aria-describedby={field["aria-describedby"]}
                       >
-                        <SelectValue placeholder={tj("modality")} />
+                        <SelectValue placeholder={tj("modality")}>
+                          {(value: string | null) => (value ? tj(value as (typeof JOB_MODALITIES)[number]) : tj("modality"))}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {JOB_MODALITIES.map((m) => (
