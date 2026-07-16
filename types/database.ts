@@ -110,6 +110,8 @@ export type Database = {
         Row: {
           id: string
           user_id: string | null
+          registered_by: string | null
+          verification_status: string | null
           has_destination: boolean | null
           origin_state: string
           origin_municipality: string
@@ -133,6 +135,8 @@ export type Database = {
         Insert: {
           id?: string
           user_id?: string | null
+          registered_by?: string | null
+          verification_status?: string | null
           has_destination?: boolean | null
           origin_state: string
           origin_municipality: string
@@ -156,6 +160,8 @@ export type Database = {
         Update: {
           id?: string
           user_id?: string | null
+          registered_by?: string | null
+          verification_status?: string | null
           has_destination?: boolean | null
           origin_state?: string
           origin_municipality?: string

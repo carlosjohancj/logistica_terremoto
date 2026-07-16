@@ -87,12 +87,12 @@ export default function VoluntarioPage() {
   const [familyName, setFamilyName] = useState("")
   const [adultsCount, setAdultsCount] = useState(1)
   const [childrenCount, setChildrenCount] = useState(0)
-  const [originState, setOriginState] = useState("")
-  const [originCity, setOriginCity] = useState("")
+  const [originState, setOriginState] = useState<string | null>(null)
+  const [originCity, setOriginCity] = useState<string | null>(null)
   const [hasDestination, setHasDestination] = useState(false)
-  const [destState, setDestState] = useState("")
-  const [destCity, setDestCity] = useState("")
-  const [housingDestruction, setHousingDestruction] = useState("se_puede_reparar")
+  const [destState, setDestState] = useState<string | null>(null)
+  const [destCity, setDestCity] = useState<string | null>(null)
+  const [housingDestruction, setHousingDestruction] = useState<string | null>("se_puede_reparar")
   const [buildingDestroyed, setBuildingDestroyed] = useState(false)
   const [totalLoss, setTotalLoss] = useState(false)
   const [noDestination, setNoDestination] = useState(false)
@@ -104,12 +104,12 @@ export default function VoluntarioPage() {
   // Register transportista form
   const [tpName, setTpName] = useState("")
   const [tpPhone, setTpPhone] = useState("")
-  const [tpVehicle, setTpVehicle] = useState("carro")
+  const [tpVehicle, setTpVehicle] = useState<string | null>("carro")
   const [tpCapacity, setTpCapacity] = useState(1)
-  const [tpOriginState, setTpOriginState] = useState("")
-  const [tpOriginCity, setTpOriginCity] = useState("")
-  const [tpDestState, setTpDestState] = useState("")
-  const [tpDestCity, setTpDestCity] = useState("")
+  const [tpOriginState, setTpOriginState] = useState<string | null>(null)
+  const [tpOriginCity, setTpOriginCity] = useState<string | null>(null)
+  const [tpDestState, setTpDestState] = useState<string | null>(null)
+  const [tpDestCity, setTpDestCity] = useState<string | null>(null)
   const [registeringTp, setRegisteringTp] = useState(false)
   const [tpCredentials, setTpCredentials] = useState<Record<string, string> | null>(null)
 
@@ -135,7 +135,7 @@ export default function VoluntarioPage() {
 
   // Assign transport dialog
   const [assignTarget, setAssignTarget] = useState<Family | null>(null)
-  const [selectedTp, setSelectedTp] = useState("")
+  const [selectedTp, setSelectedTp] = useState<string | null>(null)
   const [assignDate, setAssignDate] = useState("")
   const [assigning, setAssigning] = useState(false)
 
@@ -496,7 +496,7 @@ export default function VoluntarioPage() {
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Transportista</Label>
-              <Select value={selectedTp} onValueChange={(v) => setSelectedTp(v)}>
+              <Select value={selectedTp ?? ""} onValueChange={(v) => setSelectedTp(v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar transportista..." />
                 </SelectTrigger>
@@ -923,7 +923,7 @@ export default function VoluntarioPage() {
                         <ArrowRight className="h-3 w-3" />
                         {trip.destination_city || "Sin destino"}
                       </div>
-                      {trip.building_info && (trip.building_info as Record<string, unknown>).destroyed && (
+                      {trip.building_info && !!(trip.building_info as Record<string, unknown>).destroyed && (
                         <div className="flex items-center gap-1 mt-1 text-xs text-amber-600">
                           <AlertTriangle className="h-3 w-3" />
                           Edificio destruido
@@ -933,7 +933,7 @@ export default function VoluntarioPage() {
                     <Button size="sm" variant="outline" onClick={() => {
                       loadTransportistas()
                       setAssignTarget(trip)
-                      setSelectedTp("")
+                      setSelectedTp(null)
                       setAssignDate("")
                     }}>
                       <Truck className="h-3.5 w-3.5" /> Asignar Transporte
@@ -1036,7 +1036,7 @@ export default function VoluntarioPage() {
         <Card>
           <CardContent className="p-5">
             <h3 className="font-semibold text-lg">{org.name as string}</h3>
-            {org.description && <p className="text-sm text-muted-foreground mt-1">{org.description as string}</p>}
+            {!!org.description && <p className="text-sm text-muted-foreground mt-1">{org.description as string}</p>}
             <div className="grid grid-cols-3 gap-4 mt-4">
               <div className="bg-muted rounded-lg p-3 text-center">
                 <p className="text-xl font-bold text-primary">{members.length}</p>
