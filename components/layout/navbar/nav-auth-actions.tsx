@@ -42,8 +42,8 @@ export function NavAuthActions({
 
   return (
     <div className="hidden lg:flex items-center gap-2">
-      {userRole === "transportista" && (
-        <Link href={`/${locale}/transportista`}>
+      {(userRole === "transportista" || userRole === "voluntario") && (
+        <Link href={`/${locale}/${userRole === "transportista" ? "transportista" : "voluntario"}`}>
           <Button
             variant="default"
             size="sm"

@@ -145,6 +145,40 @@ export default function VoluntarioPage() {
   const [tpOriginCities, setTpOriginCities] = useState<string[]>([])
   const [tpDestCities, setTpDestCities] = useState<string[]>([])
 
+  const [activeTrips, setActiveTrips] = useState<Family[]>([])
+  const [loadingTrips, setLoadingTrips] = useState(true)
+
+  const [org, setOrg] = useState<Record<string, unknown> | null>(null)
+  const [members, setMembers] = useState<Record<string, unknown>[]>([])
+  const [loadingOrg, setLoadingOrg] = useState(true)
+
+  useEffect(() => {
+    async function loadOrg() {
+      try {
+        const res = await fetch("/api/organizations")
+        const json = await res.json()
+        if (json.organization) {
+          setOrg(json.organization)
+          setMembers(json.members || [])
+        }
+      } catch { /* ignore */ }
+      setLoadingOrg(false)
+    }
+    loadOrg()
+  }, [])
+
+  useEffect(() => {
+    async function loadTrips() {
+      try {
+        const res = await fetch("/api/volunteer/families?status=verified")
+        const json = await res.json()
+        if (res.ok) setActiveTrips((json.families ?? []).filter((f: Family) => f.status !== "completed"))
+      } catch { /* ignore */ }
+      setLoadingTrips(false)
+    }
+    loadTrips()
+  }, [])
+
   useEffect(() => {
     async function init() {
       const supabase = getSupabase()
@@ -873,21 +907,6 @@ export default function VoluntarioPage() {
   }
 
   function renderLogistica() {
-    const [activeTrips, setActiveTrips] = useState<Family[]>([])
-    const [loadingTrips, setLoadingTrips] = useState(true)
-
-    useEffect(() => {
-      async function load() {
-        try {
-          const res = await fetch("/api/volunteer/families?status=verified")
-          const json = await res.json()
-          if (res.ok) setActiveTrips((json.families ?? []).filter((f: Family) => f.status !== "completed"))
-        } catch { /* ignore */ }
-        setLoadingTrips(false)
-      }
-      load()
-    }, [])
-
     if (loadingTrips) return <div className="space-y-3">{[1,2].map((i) => <Skeleton key={i} className="h-24" />)}</div>
 
     return (
@@ -998,25 +1017,6 @@ export default function VoluntarioPage() {
   }
 
   function renderOrganizacion() {
-    const [org, setOrg] = useState<Record<string, unknown> | null>(null)
-    const [members, setMembers] = useState<Record<string, unknown>[]>([])
-    const [loadingOrg, setLoadingOrg] = useState(true)
-
-    useEffect(() => {
-      async function load() {
-        try {
-          const res = await fetch("/api/organizations")
-          const json = await res.json()
-          if (json.organization) {
-            setOrg(json.organization)
-            setMembers(json.members || [])
-          }
-        } catch { /* ignore */ }
-        setLoadingOrg(false)
-      }
-      load()
-    }, [])
-
     if (loadingOrg) return <Skeleton className="h-32" />
 
     if (!org) {
