@@ -72,11 +72,6 @@ export async function PATCH(
             .from(TABLES.TRAVEL_REQUESTS)
             .update({ status: "completed" } as never)
             .eq("id", segment.travel_request_id),
-          service.from("messages").insert({
-            match_id: segment.match_id,
-            sender_id: user_id,
-            content: "Ruta completada — el transporte ha llegado a su destino.",
-          } as never),
         ]);
       }
     }
@@ -98,12 +93,6 @@ export async function PATCH(
             .from(TABLES.TRAVEL_REQUESTS)
             .update({ status: "open" } as never)
             .eq("id", segment.travel_request_id),
-          service.from("messages").insert({
-            match_id: segment.match_id,
-            sender_id: user_id,
-            content:
-              "Ruta cancelada — la solicitud vuelve a estar disponible para otros transportistas.",
-          } as never),
         ]);
       }
     }

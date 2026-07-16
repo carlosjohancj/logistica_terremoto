@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { getSupabase } from "@/types/supabase"
-import ChatFloating from "@/components/transportista/chat-floating"
 import { LayoutDashboard, Map, Home, LogOut, Truck } from "lucide-react"
 
 const navItems = [
@@ -140,7 +139,6 @@ export default function TransportistaLayout({
         </div>
       </main>
 
-      <ChatFloating />
     </div>
   )
 }

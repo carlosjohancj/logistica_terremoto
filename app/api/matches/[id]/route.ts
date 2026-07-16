@@ -47,14 +47,6 @@ export async function PATCH(
         .from(TABLES.TRAVEL_REQUESTS)
         .update({ status: "completed" } as never)
         .eq("id", match.travel_request_id)
-
-      await service
-        .from("messages")
-        .insert({
-          match_id: id,
-          sender_id: user.id,
-          content: "🚀 Ruta completada — el transporte ha llegado a su destino.",
-        } as never)
     } else if (newStatus === "in_progress") {
       await service
         .from(TABLES.TRAVEL_REQUESTS)

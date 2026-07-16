@@ -24,8 +24,6 @@ import {
   Home,
   LogOut,
   MapPin,
-  MessageSquare,
-  Phone,
   Route,
   Truck,
   Users,
@@ -34,7 +32,6 @@ import {
 import { cn, getInitials } from "@/lib/utils"
 import SolicitudesPanel from "./solicitudes-panel"
 import EmpresaPanel from "./empresa-panel"
-import MensajesPanel from "./mensajes-panel"
 import { PublicationSection } from "@/components/perfil/publication-section"
 import { PublicationDetailDialog } from "@/components/perfil/publication-detail-dialog"
 import { StatusBadge } from "@/components/perfil/status-badge"
@@ -47,7 +44,6 @@ const TAB_ICONS: Record<string, LucideIcon> = {
   conexiones: Users,
   empresa: Building2,
   organizacion: Building,
-  mensajes: MessageSquare,
 }
 
 const roleLabels: Record<Role, string> = {
@@ -73,7 +69,6 @@ const ALL_TABS: TabDef[] = [
   { id: "conexiones", label: "Conexiones", roles: ["*"] },
   { id: "empresa", label: "Empresa", roles: ["empresa"] },
   { id: "organizacion", label: "Organización", roles: ["organizacion"] },
-  { id: "mensajes", label: "Mensajes", roles: ["*"] },
 ]
 
 type TravelRequest = {
@@ -401,17 +396,6 @@ export default function PerfilPage() {
               },
             ]
           : []),
-        {
-          key: "mensajes",
-          icon: MessageSquare,
-          title: "Mensajes sin leer",
-          desc: "Gestionar comunicación entre partes",
-          action: (
-            <Button size="sm" variant="outline" onClick={() => goToTab("mensajes")}>
-              Ir a mensajes
-            </Button>
-          ),
-        },
       ]
     : []
 
@@ -519,7 +503,6 @@ export default function PerfilPage() {
       {activeTab === "conexiones" && renderConexionesTab()}
       {activeTab === "empresa" && <EmpresaPanel />}
       {activeTab === "organizacion" && renderOrganizacionTab()}
-      {activeTab === "mensajes" && <MensajesPanel />}
 
       <PublicationDetailDialog
         publication={selectedPublication}
@@ -603,7 +586,14 @@ export default function PerfilPage() {
                         {seg.distance_km.toFixed(1)} km · {seg.profiles?.name || "Transportista"}
                       </p>
                       {seg.profiles?.phone && (
-                        <p className="text-muted-foreground">Tel: {seg.profiles.phone}</p>
+                        <a
+                          href={`https://wa.me/${seg.profiles.phone.replace(/^\+/, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                        >
+                          WhatsApp
+                        </a>
                       )}
                     </div>
                   ))}
@@ -615,7 +605,16 @@ export default function PerfilPage() {
                   <p className="text-sm font-medium">Transportista asignado:</p>
                   <p className="text-sm">{item.transporter.name}</p>
                   {item.transporter.phone && (
-                    <p className="text-sm">Tel: {item.transporter.phone}</p>
+                    <p className="text-sm">
+                      <a
+                        href={`https://wa.me/${item.transporter.phone.replace(/^\+/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        WhatsApp
+                      </a>
+                    </p>
                   )}
                   {item.segments[0]?.distance_km > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
@@ -630,7 +629,16 @@ export default function PerfilPage() {
                   <p className="text-sm font-medium">Transportista asignado:</p>
                   <p className="text-sm">{item.transporter.name}</p>
                   {item.transporter.phone && (
-                    <p className="text-sm">Tel: {item.transporter.phone}</p>
+                    <p className="text-sm">
+                      <a
+                        href={`https://wa.me/${item.transporter.phone.replace(/^\+/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        WhatsApp
+                      </a>
+                    </p>
                   )}
                 </div>
               )}
@@ -691,28 +699,19 @@ export default function PerfilPage() {
                   </div>
                 )}
 
-                <div className="mt-auto flex gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 rounded-full"
-                    onClick={() => goToTab("mensajes")}
-                  >
-                    <MessageSquare className="h-3.5 w-3.5" />
-                    Mensaje
-                  </Button>
-                  {counterpart?.phone && (
+                {counterpart?.phone && (
+                  <div className="mt-auto pt-1">
                     <Button
                       size="sm"
                       variant="outline"
-                      className="rounded-full"
+                      className="w-full rounded-full"
                       nativeButton={false}
-                      render={<a href={`tel:${counterpart.phone}`} aria-label={`Llamar a ${counterpart.name}`} />}
+                      render={<a href={`https://wa.me/${counterpart.phone.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" />}
                     >
-                      <Phone className="h-3.5 w-3.5" />
+                      WhatsApp
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )

@@ -1164,7 +1164,6 @@ export type Graphic = Tables<"graphics">
 export type RouteSegment = Tables<"route_segments">
 export type Organization = Tables<"organizations">
 export type OrganizationMember = Tables<"organization_members">
-export type Message = Tables<"messages">
 export type TransportistaTerritory = Tables<"transportista_territories">
 export type ServiceProvider = Tables<"service_providers">
 export type FamilyAidRequest = Tables<"family_aid_requests">

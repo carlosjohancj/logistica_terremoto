@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import {
   Users, Home, Truck, ClipboardCheck, UserPlus, Search,
-  Building2, MessageSquare, Phone, MapPin, ArrowRight,
+  Building2, MapPin, ArrowRight,
   CheckCircle2, XCircle, AlertTriangle, Loader2, Eye,
   UserCog, Package, Briefcase, type LucideIcon,
 } from "lucide-react"
@@ -993,8 +993,8 @@ export default function VoluntarioPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">Capacidad: {t.capacity} pers.</p>
                     {t.profiles?.phone && (
-                      <a href={`tel:${t.profiles.phone}`} className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1">
-                        <Phone className="h-3 w-3" /> {t.profiles.phone}
+                      <a href={`https://wa.me/${t.profiles.phone.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1">
+                        WhatsApp
                       </a>
                     )}
                   </div>
